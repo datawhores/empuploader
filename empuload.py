@@ -1,4 +1,3 @@
-
 #! /usr/bin/env python3
 
 """
@@ -143,7 +142,7 @@ def createimages(path,dir):
             upload=fapping_upload(cover,image)
             if upload!=None:
                 imgstring=imgstring+upload
-    if(count>9):
+    if(count>=100):
         subprocess.call(['7z','a',path+ '/'+ 'image.zip',dir])
     return imgstring
 
