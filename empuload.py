@@ -1,4 +1,3 @@
-
 #! /usr/bin/env python3
 
 """
@@ -241,7 +240,7 @@ def create_upload_form(arguments):
 
 
 
-    output='' + '[EMPOUT]' +   basename+ '.txt'
+    output=uploadtxt + '[EMPOUT]' +   basename+ '.txt'
     dir=screens + basename +'/'
     try:
         shutil.rmtree(dir)
