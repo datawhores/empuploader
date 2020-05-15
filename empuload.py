@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python3
 
 """
@@ -137,11 +138,11 @@ def createimages(path,dir):
         os.chdir(dir)
         subprocess.call(['vcsi',path,'-g','3x3','-o',dir,'-w','2880','--quality','92'])
         subprocess.call(['vcs','-h','960','-n','9','-c','3','-A','-j',path])
-        for image in os.listdir(dir):
-                image=dir+image
-                upload=fapping_upload(cover,image)
-                if upload!=None:
-                    imgstring=imgstring+upload
+    for image in os.listdir(dir):
+            image=dir+image
+            upload=fapping_upload(cover,image)
+            if upload!=None:
+                imgstring=imgstring+upload
     if(count>9):
         subprocess.call(['7z','a',path+ '/'+ 'image.zip',dir])
     return imgstring
@@ -226,19 +227,6 @@ def create_upload_form(arguments):
     torrents=config[1]
     uploadtxt=config[2]
     trackerurl=config[3]
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     output=uploadtxt + '[EMPOUT]' +   basename+ '.txt'
     dir=screens + basename +'/'
