@@ -3,8 +3,9 @@
 
 """
 Usage:
-    empupload.py upload <media>
-       [--screens=<screens> --torrents=<torrents> --uploadtxt=<uploadtxt> --trackerurl=<trackerurl> --config=<configpath>]
+    empupload.py prepare <media>
+       [--screens=<screens> --torrents=<torrents> --txtlocation=<txtlocation> --trackerurl=<trackerurl> ]
+       [--config=<configpath]
 """
 
 
@@ -24,6 +25,10 @@ import shutil
 import math
 import configparser
 config = configparser.ConfigParser()
+import shlex
+import json
+import pprint
+
 
 def getBasedName(path):
     basename=subprocess.check_output(['basename',path])
@@ -35,20 +40,25 @@ def getBasedName(path):
     else:
         basename=(os.path.splitext(basename))
 
-def get_duration(file):
-    args = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1',
-            file]
-    p = subprocess.run(args, stdout=subprocess.PIPE)
-    if p.returncode == 127:
-        raise ValueError('ffprobe is not installed or not in path.')
-    if p.returncode != 0:
-        raise RuntimeError('Error occurred while running ffprobe.')
-    return float(p.stdout.decode('utf-8'))
+# function to find the resolution of the input video file
+def findVideoMetadata(pathToInputVideo):
+    cmd = "ffprobe -v quiet -print_format json -show_streams"
+    args = shlex.split(cmd)
+    args.append(pathToInputVideo)
+    # run the ffprobe process, decode stdout into utf-8 & convert to JSON
+    ffprobeOutput = subprocess.check_output(args).decode('utf-8')
+    ffprobeOutput = json.loads(ffprobeOutput)
+    duration = ffprobeOutput['streams'][1]['duration']
+    width = ffprobeOutput['streams'][1]['coded_width']
+    return duration,width
+
+
+
 
 def createconfig(arguments,configpath):
         screens=None
         torrents=None
-        uploadtxt=None
+        txtlocation=None
         trackerurl=None
 
         if arguments.get('--config')!=None:
@@ -58,7 +68,7 @@ def createconfig(arguments,configpath):
             config.read(configpath)
             screens=config['Dirs']['screens']
             torrents=config['Dirs']['torrents']
-            uploadtxt=config['Dirs']['uploadtxt']
+            txtlocation=config['Dirs']['txtlocation']
             trackerurl=config['Dirs']['trackerurl']
 
 
@@ -66,25 +76,25 @@ def createconfig(arguments,configpath):
             screens=arguments.get('--screens')
         if arguments.get('--torrents')!=None:
             torrents=arguments.get('--torrents',torrents)
-        if arguments.get('--uploadtxt')!=None:
-            uploadtxt=arguments.get('--uploadtxt',uploadtxt)
+        if arguments.get('--txtlocation')!=None:
+            txtlocation=arguments.get('--txtlocation',txtlocation)
         if arguments.get('--trackerurl')!=None:
             trackerurl=arguments.get('--trackerurl',trackerurl)
         #check variables
         if screens==None:
-            print("Please Enter screens location")
+            print("--screens='where to save images?' is missing")
             quit()
         if torrents==None:
-            print("Please Enter torrentfile location")
+            print("--torrents='where to save torrents?' is missing")
             quit()
-        if uploadtxt==None:
-            print("Please Enter  location for the uploadtxt file")
+        if txtlocation==None:
+            print("--txtlocation='upload txt location' is missing")
             quit()
 
         if trackerurl==None:
-            print("Please Enter  your tracker url")
+            print("--trackerurl='Please Enter  your tracker url'")
             quit()
-        return[screens,torrents,uploadtxt,trackerurl]
+        return[screens,torrents,txtlocation,trackerurl]
 
 
 def fapping_upload(cover,img_path: str) -> str:
@@ -174,8 +184,8 @@ def createimages(path,dir):
     imgstring='[spoiler=Thumbs]'+imgstring+'[/spoiler]'
     return imgstring
 
-def createDescription(imagelist,basename,uploadtxt):
-    txt=uploadtxt + basename+ '.txt'
+def createDescription(imagelist,basename,txtlocation):
+    txt=txtlocation + basename+ '.txt'
     desc=""
     with open(txt) as x:
         t=x.readlines()
@@ -191,7 +201,7 @@ def createDescription(imagelist,basename,uploadtxt):
 
 
 
-def createcovergif(path,dir,basename,uploadtxt):
+def createcovergif(path,dir,basename,txtlocation):
   print("Finding Largest File and Creating gif")
   max=0
   maxfile=path
@@ -204,16 +214,24 @@ def createcovergif(path,dir,basename,uploadtxt):
           if(temp>max):
               max=temp
               maxfile=file
-  outputPath = uploadtxt +basename+'.gif'
+  outputPath = txtlocation +basename+'.gif'
   numframes=0
   print(f'Convert {maxfile} \n  {outputPath}')
 
   reader = imageio.get_reader(maxfile)
   fps = reader.get_meta_data()['fps']
-  fps=fps/1
-  duration=get_duration(maxfile)
-  startTime=duration*.75
-  startTime=math.floor(startTime)
+  fps=fps/2
+  duration=findVideoMetadata(maxfile)[0]
+  width = int(findVideoMetadata(maxfile)[1])
+  ##find scale
+  if width>=3000:
+    scale="--scale=.15"
+  elif width>=1280:
+    scale="--scale=.4"
+  else:
+      scale=-"--scale=1"
+  startTime=float(duration)
+  startTime=math.floor(startTime)*.75
   endTime=startTime+10
 
   writer = imageio.get_writer(outputPath, fps=fps)
@@ -235,7 +253,7 @@ def createcovergif(path,dir,basename,uploadtxt):
   print('Terminate!')
   writer.close()
 
-  gifsicle(sources=[outputPath],destination=outputPath, optimize=True,options=["--scale=.4","-O3"])
+  gifsicle(sources=[outputPath],destination=outputPath, optimize=True,options=[scale,"-O3"])
   cover=1
   try:
     upload=fapping_upload(cover,outputPath)
@@ -247,6 +265,7 @@ def createcovergif(path,dir,basename,uploadtxt):
 
 
 def create_torrent(path,basename,trackerurl,torrents):
+   print("Creating torrent")
    torrent=subprocess.check_output(['dottorrent','-p','-t',trackerurl,'-s','8M',path,torrents])
    output= torrents + basename+ '.torrent'
    return output
@@ -261,11 +280,11 @@ def create_upload_form(arguments):
     config=createconfig(arguments,configpath)
     screens=config[0]
     torrents=config[1]
-    uploadtxt=config[2]
+    txtlocation=config[2]
     trackerurl=config[3]
 
 
-    output=uploadtxt + '[EMPOUT]' +   basename+ '.txt'
+    output=txtlocation + '[EMPOUT]' +   basename+ '.txt'
     dir=screens + basename +'/'
     try:
         shutil.rmtree(dir)
@@ -273,7 +292,7 @@ def create_upload_form(arguments):
         pass
 
     imagelist=createimages(path,dir)
-    t=createDescription(imagelist,basename,uploadtxt)
+    t=createDescription(imagelist,basename,txtlocation)
     title=t[0]
     tags=t[1]
     desc=t[2]
@@ -281,12 +300,10 @@ def create_upload_form(arguments):
 
 
 
-    form = {'submit': 'true',
-            'Title' :  title,
+    form = {'Title' :  title,
             'tags'  : tags,
-            'Cover' : createcovergif(path,dir,basename,uploadtxt),
-            'Description' : desc,
-            'Torrent file' : torrent,
+            'Cover' : createcovergif(path,dir,basename,txtlocation),
+            'Description' : desc
 
             }
     with open(output, 'w') as f:
@@ -297,18 +314,8 @@ def create_upload_form(arguments):
     output = {'file': open(output,'r')}
     post=requests.post(url="https://uguu.se/api.php?d=upload-tool",files=output)
     print(post.text)
+    print("Torrent has been saved to: ",torrent)
 
-
-
-
-
-    # torrent = {'file_input': open(torrent,'rb')}
-    # cookies=login(username,password)
-    # print(cookies)
-    # print(upload.text)
-    # soup = BeautifulSoup(upload.text, 'html.parser')
-    # soup2= soup.find_all('div',{'class' :'thin'})
-    # print(soup2)
     shutil.rmtree(dir)
 
 
@@ -318,5 +325,5 @@ def create_upload_form(arguments):
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
-    if arguments['upload']:
+    if arguments['prepare']:
         create_upload_form(arguments)
