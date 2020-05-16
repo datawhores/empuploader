@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python3
 
 """
@@ -143,7 +144,18 @@ def createimages(path,dir):
             if upload!=None:
                 imgstring=imgstring+upload
     if(count>=100):
-        subprocess.call(['7z','a',path+ '/'+ 'image.zip',dir])
+        subprocess.call(['7z','a',path+ '/'+ 'thumbnail.zip',dir])
+    if(count>=10):
+        photos=path+'thumbs/'
+        print(photos)
+        if os.path.isdir(photos):
+            shutil.rmtree(photos)
+        shutil.copytree(dir, photos)
+
+
+
+
+
     return imgstring
 
 def createDescription(imagelist,basename,uploadtxt):
