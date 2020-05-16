@@ -34,7 +34,16 @@ def getBasedName(path):
         return basename
     else:
         basename=(os.path.splitext(basename))
-        return basename[0]
+
+def get_duration(file):
+    args = ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1',
+            file]
+    p = subprocess.run(args, stdout=subprocess.PIPE)
+    if p.returncode == 127:
+        raise ValueError('ffprobe is not installed or not in path.')
+    if p.returncode != 0:
+        raise RuntimeError('Error occurred while running ffprobe.')
+    return float(p.stdout.decode('utf-8'))
 
 def createconfig(arguments,configpath):
         screens=None
@@ -144,6 +153,7 @@ def createimages(path,dir):
     print("Uploading Max 100 Images")
     for i, image in enumerate(os.listdir(dir)):
             if i>100:
+                print("Max images reached")
                 break
             image=dir+image
             upload=fapping_upload(cover,image)
@@ -155,7 +165,7 @@ def createimages(path,dir):
         subprocess.call(['7z','a',path+ '/'+ 'thumbnail.zip',dir])
     elif(count>=10):
         photos=path+'/thumbs/'
-        photos.replace('//', '/')
+        photos=photos.replace('//', '/')
         print(photos)
         if os.path.isdir(photos):
             shutil.rmtree(photos)
@@ -196,28 +206,36 @@ def createcovergif(path,dir,basename,uploadtxt):
               maxfile=file
   outputPath = uploadtxt +basename+'.gif'
   numframes=0
-  print(f'Convertendo {maxfile} \n em {outputPath}')
+  print(f'Convert {maxfile} \n  {outputPath}')
 
   reader = imageio.get_reader(maxfile)
   fps = reader.get_meta_data()['fps']
-  fps=(fps/2)
+  fps=fps/1
+  duration=get_duration(maxfile)
+  startTime=duration*.75
+  startTime=math.floor(startTime)
+  endTime=startTime+10
+
   writer = imageio.get_writer(outputPath, fps=fps)
+  start=fps*startTime
+  end=fps*endTime
 
 
   for i,frames in enumerate(reader):
-    if i<150:
+    if i<start:
         continue
     if i%3!=0:
         continue
-    if i>250:
+    if i>end:
         break
     # if(numframes%5!=0):
         # continue
     writer.append_data(frames)
     print(f'Quadro {frames} \n')
-  print('Terminou!')
+  print('Terminate!')
   writer.close()
-  gifsicle(sources=[outputPath],destination=outputPath, optimize=False, colors=256,options=['--scale=0.4'])
+
+  gifsicle(sources=[outputPath],destination=outputPath, optimize=True,options=["--scale=.4","-O3"])
   cover=1
   try:
     upload=fapping_upload(cover,outputPath)
