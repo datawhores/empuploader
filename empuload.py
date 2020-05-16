@@ -118,9 +118,10 @@ def createimages(path,dir):
     imgstring=""
     count=0
     cover=0
+    print("Creating thumbs")
     if Path(path).is_dir():
         os.chdir(path)
-        t=subprocess.check_output(['fd','--absolute-path','-e','.mp4','-e','.flv','-e','.mkv'])
+        t=subprocess.check_output(['fd','--absolute-path','-e','.mp4','-e','.flv','-e','.mkv','-e','.m4v','-e','.mov'])
         t=t.decode('utf-8')
         os.mkdir(dir)
         os.chdir(dir)
@@ -138,24 +139,29 @@ def createimages(path,dir):
         os.chdir(dir)
         subprocess.call(['vcsi',path,'-g','3x3','-o',dir,'-w','2880','--quality','92'])
         subprocess.call(['vcs','-h','960','-n','9','-c','3','-A','-j',path])
-    for image in os.listdir(dir):
+#upload image
+    #for i,line in enumerate(t):
+    print("Uploading Max 100 Images")
+    for i, image in enumerate(os.listdir(dir)):
+            if i>100:
+                break
             image=dir+image
             upload=fapping_upload(cover,image)
             if upload!=None:
                 imgstring=imgstring+upload
+#zip or just move images to directory being uplaoded to EMP
+    print("Moving Images")
     if(count>=100):
         subprocess.call(['7z','a',path+ '/'+ 'thumbnail.zip',dir])
-    if(count>=10):
-        photos=path+'thumbs/'
+    elif(count>=10):
+        photos=path+'/thumbs/'
+        photos.replace('//', '/')
         print(photos)
         if os.path.isdir(photos):
             shutil.rmtree(photos)
         shutil.copytree(dir, photos)
-
-
-
-
-
+    #finalize image string
+    imgstring='[spoiler=Thumbs]'+imgstring+'[/spoiler]'
     return imgstring
 
 def createDescription(imagelist,basename,uploadtxt):
@@ -176,6 +182,7 @@ def createDescription(imagelist,basename,uploadtxt):
 
 
 def createcovergif(path,dir,basename,uploadtxt):
+  print("Finding Largest File and Creating gif")
   max=0
   maxfile=path
   if Path(path).is_dir():
@@ -198,11 +205,11 @@ def createcovergif(path,dir,basename,uploadtxt):
 
 
   for i,frames in enumerate(reader):
-    if i<100:
+    if i<150:
         continue
     if i%3!=0:
         continue
-    if i>200:
+    if i>250:
         break
     # if(numframes%5!=0):
         # continue
@@ -239,6 +246,7 @@ def create_upload_form(arguments):
     uploadtxt=config[2]
     trackerurl=config[3]
 
+
     output=uploadtxt + '[EMPOUT]' +   basename+ '.txt'
     dir=screens + basename +'/'
     try:
@@ -266,6 +274,16 @@ def create_upload_form(arguments):
     with open(output, 'w') as f:
         for key, value in form.items():
             f.write('%s:%s\n' % (key, value))
+
+    #send temp paste
+    output = {'file': open(output,'r')}
+    post=requests.post(url="https://uguu.se/api.php?d=upload-tool",files=output)
+    print(post.text)
+
+
+
+
+
     # torrent = {'file_input': open(torrent,'rb')}
     # cookies=login(username,password)
     # print(cookies)
