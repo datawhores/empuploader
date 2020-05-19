@@ -1,12 +1,12 @@
 Dependencies:
-python3
-fd
-vcsi
-pygifsicle
-BeautifulSoup
-ffprobe
-dottorrent
-imageio
+    python3
+    fd
+    vcsi
+    pygifsicle
+    BeautifulSoup
+    ffprobe
+    dottorrent
+    imageio
 
 This is a a tool to quickly prepare folders for upload.
 
