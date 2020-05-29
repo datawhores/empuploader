@@ -39,7 +39,6 @@ def getBasedName(path):
         return basename
     else:
         basename=(os.path.splitext(basename)[0])
-        print(basename)
         return basename
 
 # function to find the resolution of the input video file
@@ -50,8 +49,15 @@ def findVideoMetadata(pathToInputVideo):
     # run the ffprobe process, decode stdout into utf-8 & convert to JSON
     ffprobeOutput = subprocess.check_output(args).decode('utf-8')
     ffprobeOutput = json.loads(ffprobeOutput)
-    duration = ffprobeOutput['streams'][1]['duration']
-    width = ffprobeOutput['streams'][1]['coded_width']
+    size=len(ffprobeOutput['streams'])
+
+    i=0
+    while i<size:
+        if ffprobeOutput['streams'][i].get('duration')!=None:
+            duration=ffprobeOutput['streams'][i].get('duration')
+            break
+        i=i+1
+    width = ffprobeOutput['streams'][0]['coded_width']
     return duration,width
 
 
@@ -159,7 +165,7 @@ def createimages(path,dir):
         os.mkdir(dir)
         os.chdir(dir)
         subprocess.call(['vcsi',path,'-g','3x3','-o',dir,'-w','2880','--quality','92'])
-        subprocess.call(['vcs','-h','960','-n','9','-c','3','-A','-j',path])
+
 #upload image
     #for i,line in enumerate(t):
     print("Uploading Max 100 Images")
@@ -233,7 +239,7 @@ def createcovergif(path,dir,basename,txtlocation):
   elif width>=1280:
     scale="--scale=.4"
   else:
-      scale=-"--scale=1"
+      scale="--scale=1"
   startTime=float(duration)
   startTime=math.floor(startTime)*.75
   endTime=startTime+10
