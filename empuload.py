@@ -38,7 +38,9 @@ def getBasedName(path):
         basename=basename[0:-1]
         return basename
     else:
-        basename=(os.path.splitext(basename))
+        basename=(os.path.splitext(basename)[0])
+        print(basename)
+        return basename
 
 # function to find the resolution of the input video file
 def findVideoMetadata(pathToInputVideo):
@@ -207,7 +209,7 @@ def createcovergif(path,dir,basename,txtlocation):
   maxfile=path
   if Path(path).is_dir():
       os.chdir(path)
-      t=subprocess.check_output(['fd','--absolute-path','-e','.mp4','-e','.flv','-e','.mkv'])
+      t=subprocess.check_output(['fd','--absolute-path','-e','.mp4','-e','.flv','-e','.mkv','-e','.m4v','-e','.mov'])
       t=t.decode('utf-8')
       if len(t)==0:
         return print("No Video Files for gif creation")
@@ -278,6 +280,7 @@ def create_upload_form(arguments):
 #default variables
     path = arguments['<media>']
     basename=getBasedName(path)
+
     configpath=os.getenv("HOME")+'/.config/empupload.conf'
     config=createconfig(arguments,configpath)
     screens=config[0]
