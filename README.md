@@ -7,6 +7,10 @@ This tool will prepare and upload torrents to currently this tool.
 - chrome(read install instruction)
 - gifsicle(read install instruction)
 
+
+Note:
+A script may be provided to allow none sudo users to gain some upload access. It would work from the browser directly and would be used along side this python script. The same issue may also apply to those who have 2f on
+
 # Install
 
 ## Virtual Env
@@ -51,11 +55,10 @@ on Windows
 
 venv\Scripts\python
 
-
-
-
-Note:
-A script may be provided to allow none sudo users to gain some upload access. It would work from the browser directly and would be used along side this python script. The same issue may also apply to those who have 2f on
+## gifsicle
+- on linux you will need to install sudo apt-get install gifsicle
+- on Windows they provide binaries at https://eternallybored.org/misc/gifsicle/
+- A binary for windows user will be provided however correctly that has not been tested
 
 
 # Intro
