@@ -72,7 +72,7 @@ iniatiated with the -upload flag
 ## Required Args
 -data
 - This is the path where json files are saved by default
--Will combine the -data directory path, along with the name of what your trying to upload to find the json file
+- Will combine the -data directory path, along with the name of what your trying to upload to find the json file. This should generate the correct path to autoload the correct json file
 - Note if you use -input instead then this option is not required
 
 ## Notes
@@ -83,9 +83,10 @@ iniatiated with the -upload flag
 
 -username
 - your emp username
-
+- used to login
 passsword
 - your emp password
+- used to login
 - Note: if you have 2f then that is correctly not supported 
 
 -input
