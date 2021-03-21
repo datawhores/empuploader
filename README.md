@@ -122,7 +122,7 @@ iniatiated with the -prepare flag
 ### Description
 - Allows for multiline inputs unlike the previous option
 - To "enter" or submit you must press esc+enter
-
+- Note \n represents a newline. This is generated automatically. But if you want to edit the json manually, make sure to put these everytime you want a line break
 
 
 
