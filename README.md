@@ -88,6 +88,7 @@ Instead of using the command like options like empuploader.py --option1 --option
 - empuploader --config /path/to/config
 - Note: you can always overwrite a config option with a command line argument
 - Also Note: If you don't want to set an option in config just include the name, and nothing else
+- To set a value put an = sign then the value you would like
 
 
 # Prepare
