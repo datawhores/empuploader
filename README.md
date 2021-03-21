@@ -67,7 +67,8 @@ venv\Scripts\python
 - Note the binaries can not be used from these directories instead they must be save to your path.
 - For linux users with sudo please read about how to install ffmpeg and ffprope
 - For Windows user if you need help please come to the site, or ask on github. The binaries must be in your windows path
-
+- Windows Updated Builds:https://www.gyan.dev/ffmpeg/builds/
+- Linux Updated Builds:https://johnvansickle.com/ffmpeg/
 # Intro
 Their are two modes in this program you must pick one and only 1 of the following commandline flags/options
 
