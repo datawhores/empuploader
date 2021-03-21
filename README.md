@@ -58,7 +58,7 @@ venv\Scripts\python
 ## gifsicle
 - on linux you will need to install sudo apt-get install gifsicle
 - on Windows they provide binaries at https://eternallybored.org/misc/gifsicle/
-- A binary for windows user will be provided however correctly that has not been tested
+- the binary should be in your path and callable via gifsicle or gifsicle.exe depending on your os
 
 
 # Intro
@@ -108,6 +108,23 @@ iniatiated with the -prepare flag
 --fd
 - No need to set this, but if you have a version of this binary in a different path, you can use this to change the path within the program. 
 - Used to search for files and directories from commandline
+
+## Entering Data into jsons
+- When you run the program in prepare mode you will be provide opportunity to fill some of the option with your own data
+- Note the input provided will allow you to always move backwards and forwards, so editing a mistake will be easy
+
+### Tags
+- Tags should be seperated by spaces
+
+### Title
+- Comes with autofill to activate press tab, and a name based on what your uploading will be provided. - - Note you can enter your value or edit the one provided above
+
+### Description
+- Allows for multiline inputs unlike the previous option
+- To "enter" or submit you must press esc+enter
+
+
+
 
 
 
