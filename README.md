@@ -8,6 +8,7 @@ This tool will prepare and upload torrents to currently this tool.
 - gifsicle(read install instruction)
 
 
+
 Note:
 A script may be provided to allow none sudo users to gain some upload access. It would work from the browser directly and would be used along side this python script. The same issue may also apply to those who have 2f on
 
