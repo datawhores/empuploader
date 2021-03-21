@@ -7,8 +7,51 @@ This tool will prepare and upload torrents to currently this tool.
 - chrome(read install instruction)
 - gifsicle(read install instruction)
 
-#install
-Comaing soon
+# Install
+
+## Virtual Env
+
+Installing virtualenv
+On macOS and Linux:
+
+python3 -m pip install --user virtualenv
+
+On Windows:
+
+py -m pip install --user virtualenv
+
+Creating the virtualenv
+On Linux:
+
+python3 -m venv venv
+
+On Windows:
+
+python3 -m venv venv
+
+alternatively
+
+py -m venv venv
+
+Add required modules
+On Linux:
+
+./venv/bin/pip3 install -r requirements.txt
+
+On Windows:
+
+venv\Scripts\pip3.exe install -r requirements.txt
+
+Running python from venv
+On Linux
+
+/venv/bin/python3
+
+on Windows
+
+venv\Scripts\python
+
+
 
 
 Note:
