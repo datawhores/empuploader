@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.8
 import asyncio
 from pyppeteer import launch,element_handle
 import os
@@ -49,7 +49,7 @@ async def main():
     await page.keyboard.type(uploaddict.get("Tags",""))
     await page.focus("#desc")
     await page.keyboard.type(uploaddict.get("Description",""))
-    await page.keyboard.type("Tab")
+    await page.keyboard.press("Enter")
     await page.keyboard.type(uploaddict.get("Images",""))
 
     catvalue=catdict.get(uploaddict.get("Category",""),"1")
@@ -58,7 +58,7 @@ async def main():
     await page.click('#post');
     await page.waitFor(10000);
     await page.setViewport({ "width": 1920, "height": 2300 });
-    await page.screenshot({'path': 'final.jpg','fullPage':True,'type':'jpeg'})
+    await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
     await browser.close()
 
 
