@@ -108,6 +108,9 @@ iniatiated with the -prepare flag
 --trackerurl
 - url to save upload with
 
+--media
+- directory to retrieve files/folders from
+
 ## Optional Args
 
 --screens
@@ -151,6 +154,8 @@ iniatiated with the -upload flag
 - Will combine the -data directory path, along with the name of what your trying to upload to find the json file. This should generate the correct path to autoload the correct json file
 - Note if you use -input instead then this option is not required
 
+--media
+- directory to retrieve files/folders from
 ## Notes
 - Note: you must have already ran -prepare to genearate a json
 - Second Note: If you don't select a username and password, or automatic upload doesn't work. Info will be saved to a self destructing paste on  uguu.se
