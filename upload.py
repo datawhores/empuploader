@@ -21,7 +21,6 @@ async def main():
     browser = await launch(executablePath='/usr/bin/google-chrome-stable', headless=True, args=['--no-sandbox'])
     page = await browser.newPage()
     page.setDefaultNavigationTimeout(40000)
-    # >>> {'width': 800, 'height': 600, 'deviceScaleFactor': 1}
     await page.goto('https://www.empornium.is/login')
 
     await page.keyboard.type(username)
