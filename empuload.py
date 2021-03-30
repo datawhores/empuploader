@@ -257,6 +257,7 @@ def upload_emp(path,args):
     txtdir=args.data
     myfile=os.path.basename(path)
     myfile=myfile.strip()
+    myfile=os.path.splitext(myfile)[0]
 
     jsonpath=os.path.join(txtdir,f"{myfile}.json")
     username=args.username
