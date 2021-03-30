@@ -24,6 +24,7 @@ from consolemenu import SelectionMenu
 from threading import Thread
 import tempfile
 import re
+import string
 if sys.platform!="win32":
    from simple_term_menu import TerminalMenu
 
@@ -43,22 +44,26 @@ def getBasedName(path):
 
 # function to find the resolution of the input video file
 def findVideoMetadata(input,args):
-    cmd = f"{args.ffprope} -v quiet -print_format json -show_format"
-    args = shlex.split(cmd)
-    args.append(input)
+    cmd = f"{args.ffprobe} -v quiet -print_format json -show_format"
+    cmd = shlex.split(cmd)
+    cmd.append(input)
 
-    cmd2 = f"{args.ffprope}  -v quiet -print_format json -show_streams"
-    args2 = shlex.split(cmd2)
-    args2.append(input)
+    cmd2 = f"{args.ffprobe}  -v quiet -print_format json -show_streams"
+    cmd2 = shlex.split(cmd2)
+    cmd2.append(input)
 
 
 
 
     # run the ffprobe process, decode create_binary into utf-8 & convert to JSON
-    duration = subprocess.check_output(args).decode('utf-8')
+    duration = subprocess.check_output(cmd).decode('utf-8')
     duration  = json.loads(duration)['format']['duration']
-    width = subprocess.check_output(args2).decode('utf-8')
-    width  = json.loads(width)['streams'][0]['coded_width']
+    t = subprocess.check_output(cmd2).decode('utf-8')
+    width=None
+    for i in range(0,len(json.loads(t)['streams'])):
+        width=json.loads(t)['streams'][i].get('coded_width')
+        if width!=None:
+            break
     return duration,width
 
 
@@ -106,34 +111,32 @@ def fapping_upload(cover,img_path: str) -> str:
     -------
     str
     """
-    with requests.Session() as s:
-        # posts the image as a binary file with the upload form
-        r = s.post('https://fapping.empornium.sx/upload.php',
-                   files=dict(ImageUp=open(img_path, 'rb')))
-        if r.status_code == 200:
-            print(r.status_code)
-            image=json.loads(r.text)['image_id_public']
-            image="https://fapping.empornium.sx/image/" +image
-            image=requests.get(image)
-            soup = BeautifulSoup(image.text, 'html.parser')
-            soup= soup.find('div',{'class' :'image-tools-section thumb_plus_link'})
-            inputitem=(soup.find('div',{'class' :'input-item'}).descendants)
-            #get bbcode for upload, thumbnails
-            link=list(inputitem)
-            if(cover==0):
-                link=str(link[3]).split()[3][7:-3]
-            else:
-                link=str(link[3]).split()[3].split(']')[2][0:-5]
-                link=link.replace('.th','')
-
-            return link
-
+    # posts the image as a binary file with the upload form
+    r = requests.post('https://fapping.empornium.sx/upload.php',files=dict(ImageUp=open(img_path, 'rb')))
+    if r.status_code == 200:
+        print(r.status_code)
+        image=json.loads(r.text)['image_id_public']
+        image="https://fapping.empornium.sx/image/" +image
+        image=requests.get(image)
+        soup = BeautifulSoup(image.text, 'html.parser')
+        soup= soup.find('div',{'class' :'image-tools-section thumb_plus_link'})
+        inputitem=(soup.find('div',{'class' :'input-item'}).descendants)
+        #get bbcode for upload, thumbnails
+        link=list(inputitem)
+        if(cover==0):
+            link=str(link[3]).split()[3][7:-3]
         else:
-            print('Error occurred during image upload')
-            return None
+            link=str(link[3]).split()[3].split(']')[2][0:-5]
+            link=link.replace('.th','')
+        print(link)
+        return link
+
+    else:
+        print("Upload Status:",r.status_code,"\n",r.text)
+        return None
 def create_images(path,dir,args):
     imgstring=""
-    count=0
+    count=1
     cover=0
     print("Creating thumbs")
     if os.path.isdir(path):
@@ -142,16 +145,15 @@ def create_images(path,dir,args):
         t=t.stdout.decode('utf-8')
 
 #Loop files in Directory
+        print("Their are ",len(t.splitlines())," Video Files")
         for line in t.splitlines():
-            count=count+1
             print("Video Number:" +str(count))
             subprocess.call(['vcsi',line,'-g','3x3','-o',dir,'-w','2880','--quality','92'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
+            count=count+1
 
 ## Files not in Dir
 
     else:
-        os.mkdir(dir)
         os.chdir(dir)
         subprocess.call(['vcsi',path,'-g','3x3','-o',dir,'-w','2880','--quality','92'])
 
@@ -184,6 +186,7 @@ def createcovergif(path,gifpath,basename,args):
   print("Finding Largest File and Creating gif")
   max=0
   maxfile=path
+  upload=None
   if os.path.isdir(path):
       os.chdir(path)
       t=subprocess.run([args.fd,'--absolute-path','-e','.mp4','-e','.flv','-e','.mkv','-e','.m4v','-e','.mov','-e','.webm'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -203,12 +206,6 @@ def createcovergif(path,gifpath,basename,args):
   duration=data[0]
   width = int(data[1])
   ##find scale
-  if width>=3000:
-    scale="--scale=.15"
-  elif width>=1280:
-    scale="--scale=.4"
-  else:
-      scale="--scale=1"
   startTime=float(duration)
   startTime=math.floor(startTime)*.75
   endTime=startTime+10
@@ -227,9 +224,19 @@ def createcovergif(path,gifpath,basename,args):
         break
     writer.append_data(frames)
   writer.close()
-
-  gifsicle(sources=[gifpath],destination=gifpath, optimize=True,options=[scale,"-O3"])
+  factor=1
+  startloop=True
+  while startloop:
+    scale=f"--scale={factor}"
+    gifsicle(sources=[gifpath],destination=gifpath, optimize=True,options=[scale,"-O3"])
+    if os.stat(gifpath).st_size>5000000:
+      print(f"File too big at {os.stat(gifpath).st_size} bytes")
+      factor=factor*.8
+      continue
+    startloop=False
   cover=1
+  upload=fapping_upload(cover,gifpath)
+
   try:
     upload=fapping_upload(cover,gifpath)
 
@@ -241,43 +248,24 @@ def createcovergif(path,gifpath,basename,args):
 
 def create_torrent(path,torrentpath,args):
    print("Creating torrent")
-   torrent=subprocess.run([args.dottorrent,'-p','-t',args.trackerurl,'-s','8M',path,torrentpath], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+   torrent=subprocess.run([args.dottorrent,'-p','-t',args.trackerurl,'-s','8M','--exclude',"*.json",path,torrentpath], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
 
-def create_upload_form(args):
+def upload_emp(path,args):
+    workingdir=os.path.dirname(os.path.abspath(__file__))
+    txtdir=args.data
+    myfile=os.path.basename(path)
+    myfile=myfile.strip()
 
-#default variables
-    # path = args.media
-    # basename=getBasedName(path)
-    #
-    # output=txtlocation + '[EMPOUT]' +   basename+ '.txt'
-    # picdir=tempfile.NamedTemporaryFile()
-    # t=create_description(imagelist,basename,txtlocation)
-    # title=t[0]
-    # tags=t[1]
-    # desc=t[2]
-    # torrent=create_torrent(path,basename,trackerurl,torrents)
+    jsonpath=os.path.join(txtdir,f"{myfile}.json")
+    username=args.username
+    password=args.password
+    t=subprocess.run([os.path.join(workingdir,"upload.py"),jsonpath,username,password],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    print(t.stdout.decode('utf-8'))
 
 
 
-    form = {'Title' :  title,
-            'tags'  : tags,
-            'Cover' : createcovergif(path,dir,basename,txtlocation),
-            'Description' : desc
-
-            }
-    with open(output, 'w') as f:
-        for key, value in form.items():
-            f.write('%s:%s\n' % (key, value))
-
-    #send temp paste
-    output = {'file': open(output,'r')}
-    post=requests.post(url="https://uguu.se/api.php?d=upload-tool",files=output)
-    print(post.text)
-    print("Torrent has been saved to:",torrent)
-
-    shutil.rmtree(dir)
 def create_binaries(args):
     print("Setting up Binaries")
     workingdir=os.path.dirname(os.path.abspath(__file__))
@@ -303,19 +291,28 @@ def create_binaries(args):
             args.fd=fd
 
 
-
-    if len(which('ffprope'))>0:
-        args.fd=which('ffprope')
-
-    if len(which('ffprope.exe'))>0:
-        args.ffprope=which('ffprope')
-
-
-    if len(which('ffmpeg'))>0:
-        args.fd=which('ffmpeg')
-
-    if len(which('ffmpeg.exe'))>0:
-        args.ffmpeg=which('ffmpeg')
+    if sys.platform=="linux":
+        if which('ffprobe')!=None and len(which('ffprobe'))>0:
+            args.ffprobe=which('ffprobe')
+        else:
+            ffprobe=os.path.join(workingdir,"bin","ffmpeg-unix","ffprobe")
+            args.ffprobe=ffprobe
+        if which('ffmpeg')!=None and len(which('ffmpeg'))>0:
+            args.ffmpeg=which('ffmpeg')
+        else:
+            ffmpeg=os.path.join(workingdir,"bin","ffmpeg-unix","ffmpeg")
+            args.ffmpeg=ffmpeg
+    if sys.platform=="win32":
+        if which('ffprobe.exe')!=None and len(which('ffprobe.exe'))>0:
+            args.ffprobe=which('ffprobe.exe')
+        else:
+            ffprobe=os.path.join(workingdir,"bin","ffmpeg-win","ffprobe.exe")
+            args.ffprobe=ffprobe
+        if which('ffmpeg.exe')!=None and len(which('ffmpeg.exe'))>0:
+            args.ffmpeg=which('ffmpeg.exe')
+        else:
+            ffmpeg=os.path.join(workingdir,"bin","ffmpeg-win","ffmpeg.exe")
+            args.ffmpeg=ffmpeg
 def create_json(path,args):
     jsonpath=None
     basename=getBasedName(path)
@@ -332,6 +329,10 @@ def create_json(path,args):
     if createfile!="Yes" and createfile!="yes" and createfile!="y" and createfile!="Y" and createfile!="YES":
         return
     fp=open(jsonpath,"w")
+    #open cat.json
+    workingdir=os.path.dirname(os.path.abspath(__file__))
+    g=open(os.path.join(workingdir,"cat.json"),"r")
+    catdict= json.load(g)
     torrentpath=os.path.join(args.torrents,f"{basename}.torrent")
     picdir=os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}/")
     if args.screens!=None:
@@ -343,9 +344,12 @@ def create_json(path,args):
         print(e)
     torrent=Thread(target = create_torrent, args = (path,torrentpath,args))
     torrent.start()
-        # release_info.join()
     empdict={}
-    empdict["Title"]=input("Enter Title: ",completer=WordCompleter([basename]))
+    sug=re.sub("\."," ",basename)
+    sug=string.capwords(sug)
+    print("Press Tab for Auto Suggestion\n")
+    empdict["Title"]=input("Enter Title: ",completer=WordCompleter([sug],ignore_case=True))
+    empdict["Category"]=input("Enter Category: ",completer=WordCompleter(catdict.keys(),ignore_case=True))
     #can we autocomplete tags?
     empdict["Tags"]=input("Enter Tags: ")
     empdict["Description"]=input("Enter Description: ",multiline=True)
@@ -378,7 +382,6 @@ if __name__ == '__main__':
   args=parser.parse_args()
   create_config(args)
   create_binaries(args)
-  print(args)
   if args.prepare==False and args.upload==False:
     print("you must set -prepare or -upload")
     quit()
@@ -393,12 +396,16 @@ if __name__ == '__main__':
 
   #single file
   else:
-        if args.prepare:
-            None
-        if args.upload:
-            None
-      # form=create_upload_form(args,args.media,torrentpath,mediainfopath)
-      #UPLOAD AND GET link
+      path=args.media
+      if args.prepare:
+        print("Prepare Mode\n")
+        create_json(path,args)
+        keepgoing=input("Prepare Another Upload: ")
+      if args.upload:
+        print("Upload Mode\n")
+        upload_emp(path,args)
+        keepgoing=input("Continue Uploading?: ")
+
 
 
 
@@ -427,7 +434,5 @@ if __name__ == '__main__':
         keepgoing=input("Prepare Another Upload: ")
       if args.upload:
         print("Upload Mode\n")
+        upload_emp(path,args)
         keepgoing=input("Continue Uploading?: ")
-
-
-  # create_upload_form(args)
