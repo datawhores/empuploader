@@ -117,6 +117,12 @@ iniatiated with the -prepare flag
 - by default screens will be save to a random directory, then moved only if it is required. 
 - You can use this option to pick your own directory
 
+--batch
+- When set to false only 1 file will be processed, afterwards program will quit
+
+--input
+- Change the Name of the json that is generated 
+
 --dottorent
 - No need to set this, but if you have a version of this binary in a different path, you can use this to change the path within the program. 
 - Used to create torrents with other arguments selected
@@ -127,7 +133,7 @@ iniatiated with the -prepare flag
 
 ## Entering Data into jsons
 - When you run the program in prepare mode you will be provide opportunity to fill some of the option with your own data
-- Note the input provided will allow you to always move backwards and forwards, so editing a mistake will be easy
+- Note the provided will allow you to always move backwards and forwards, so editing a mistake will be easy
 
 ### Tags
 - Tags should be seperated by spaces
@@ -156,11 +162,6 @@ iniatiated with the -upload flag
 
 --media
 - directory to retrieve files/folders from
-## Notes
-- Note: you must have already ran -prepare to genearate a json
-- Second Note: If you don't select a username and password, or automatic upload doesn't work. Info will be saved to a self destructing paste on  uguu.se
-
-# Optional Args
 
 -username
 - your emp username
@@ -169,7 +170,16 @@ passsword
 - your emp password
 - used to login
 - Note: if you have 2f then that is correctly not supported 
+## Notes
+- Note: you must have already ran -prepare to genearate a json
+- Second Note: If you don't select a username and password, or automatic upload doesn't work. Info will be saved to a self destructing paste on  uguu.se
+
+# Optional Args
+
 
 -input
 - use this to change the path of where the input json comes from
+- Only needed if you change the name of the file using input while --prepare 
 
+--batch
+- When set to false only 1 file will be uploaded, afterwards program will quit
