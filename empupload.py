@@ -365,6 +365,7 @@ def create_json(path,args):
         h=re.sub("{title}",empdict.get("Title",""),h,flags=re.IGNORECASE)
         h=re.sub("{cover}",empdict.get("Cover",""),h,flags=re.IGNORECASE)
         h=re.sub("{images}",empdict.get("Images",""),h,flags=re.IGNORECASE)
+        h=re.sub("{desc}",empdict.get("Description",""),h,flags=re.IGNORECASE)
         empdict["Description"]=h
     torrent.join()
         # release_info.join()
