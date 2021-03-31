@@ -73,6 +73,19 @@ venv\Scripts\python
 ## vcsi
 - if you have trouble installing please checkout-> ttps://github.com/amietn/vcsi
 - You will need to have ffmpeg and ffprope in your path
+
+## need Chrome?
+ 
+ **Linux
+
+-Easiest Method is to just follow your linux provideres instructions. However this usually requires sudo access.
+- If you don't have sudo you could try to get this version:https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/843831/
+- Download it and move it into the Linux Folder, within the bin folder, Within the empuploader folder or ../empuploader/bin/Linux
+- Extract it
+
+** Windows
+- Download and install a non portable version of chrome
+
 # Intro
 Their are two modes in this program you must pick one and only 1 of the following commandline flags/options
 
