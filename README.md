@@ -123,6 +123,10 @@ iniatiated with the -prepare flag
 --input
 - Change the Name of the json that is generated 
 
+--template
+-use optional template system, read below for full instructions
+-This would be the path to the template you want to use
+
 --dottorent
 - No need to set this, but if you have a version of this binary in a different path, you can use this to change the path within the program. 
 - Used to create torrents with other arguments selected
@@ -146,7 +150,14 @@ iniatiated with the -prepare flag
 - To "enter" or submit you must press esc+enter
 - Note \n represents a newline. This is generated automatically. But if you want to edit the json manually, make sure to put these everytime you want a line break
 
+## Using Template
 
+- To use the template system you will need to first download the template you want and save it to a txt file
+- Before the template can be used succefully used you will need to put in the placeholders {cover} {title} {images} {tags} {desc}.
+- Note: placeholders include the brackets on the left and right side. Case insensitive
+- Each of these can be put in the template as many or as little times as you want. 
+- So for example if a template has a spot where maybe it says *** screens *** you could replace it so it says {images}
+- When the program creates your post descreption. It will generate the info, and replace any placeholder in the template you added with the info it created
 
 
 
@@ -174,7 +185,7 @@ passsword
 - Note: you must have already ran -prepare to genearate a json
 - Second Note: If you don't select a username and password, or automatic upload doesn't work. Info will be saved to a self destructing paste on  uguu.se
 
-# Optional Args
+## Optional Args
 
 
 -input
