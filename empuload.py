@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#! /usr/bin/env python3
 import argparse
 from bs4 import BeautifulSoup
 import http.cookiejar
@@ -81,25 +81,26 @@ def create_config(args):
     except:
         print("Error accessing data from  config")
         return args
-
-    if args.screens==None:
+    if args.screens==None and config['general']['screens']!=None and len(config['general']['screens'])!=0:
         args.screens=config['general']['screens']
-    if args.media==None:
+    if args.template==None:# and config['general']['template']!=None and len(config['general']['template'])!=0:
+        args.template=config['general']['template']
+    if args.media==None and config['dirs']['media']!=None and len(config['dirs']['media'])!=0:
         args.media=config['dirs']['media']
-    if args.trackerurl==None:
+    if args.trackerurl==None and config['general']['trackerurl']!=None and len(config['general']['trackerurl'])!=0:
         args.trackerurl=config['general']['trackerurl']
-    if args.password==None:
+    if args.password==None and config['general']['password']!=None and len(config['general']['password'])!=0:
         args.password=config['general']['password']
-    if args.username==None:
+    if args.username==None and config['general']['username']!=None and len(config['general']['username'])!=0:
         args.username=config['general']['username']
-    if args.torrents==None:
+    if args.torrents==None and config['dirs']['torrents']!=None and len(config['dirs']['torrents'])!=0:
         args.torrents=config['dirs']['torrents']
-    if args.data==None:
+    if args.data==None and config['dirs']['data']!=None and len(config['dirs']['data'])!=0:
         args.data=config['dirs']['data']
-    if args.dottorrent==None:
-        args.dottorrent=config['bins']['dottorrent']
-    if args.fd==None:
-        args.fd=config['bins']['fd']
+    if args.dottorrent==None and config['bin']['dottorrent']!=None and len(config['bin']['dottorrent'])!=0:
+        args.dottorrent=config['bin']['dottorrent']
+    if args.fd==None and config['bin']['fd']!=None and len(config['bin']['fd'])!=0:
+        args.fd=config['bin']['fd']
 def fapping_upload(cover,img_path: str) -> str:
     """
     Uploads an image to fapping.sx and returns the image_id to access it
@@ -356,7 +357,15 @@ def create_json(path,args):
     empdict["Description"]=input("Enter Description: ",multiline=True)
     empdict["Cover"]=createcovergif(path,gifpath,basename,args)
     empdict["Images"]=create_images(path,picdir,args)
-
+    if args.template!=None and os.path.isfile(args.template):
+        h=open(args.template,"r")
+        h=h.readlines()
+        h=''.join(h)
+        h=re.sub("{tags}",empdict.get("Tags",""),h,flags=re.IGNORECASE)
+        h=re.sub("{title}",empdict.get("Title",""),h,flags=re.IGNORECASE)
+        h=re.sub("{cover}",empdict.get("Cover",""),h,flags=re.IGNORECASE)
+        h=re.sub("{images}",empdict.get("Images",""),h,flags=re.IGNORECASE)
+        empdict["Description"]=h
     torrent.join()
         # release_info.join()
     empdict["Torrent"]=torrentpath
@@ -368,6 +377,7 @@ if __name__ == '__main__':
   parser.add_argument('-m','--media')
   parser.add_argument('-t','--torrents')
   parser.add_argument('-s','--screens')
+  parser.add_argument('-tm','--template')
   parser.add_argument('-u','--trackerurl')
   parser.add_argument('-i','--input')
   parser.add_argument('-c','--config')
