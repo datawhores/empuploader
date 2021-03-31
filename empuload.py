@@ -263,7 +263,7 @@ def upload_emp(path,args):
     jsonpath=os.path.join(txtdir,f"{myfile}.json")
     username=args.username
     password=args.password
-    t=subprocess.run([os.path.join(workingdir,"upload.py"),jsonpath,username,password],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    t=subprocess.run([os.path.join(workingdir,"upload.py"),jsonpath,username,password,str(template)],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print(t.stdout.decode('utf-8'))
 
 
