@@ -12,10 +12,12 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > - gifsicle
 
 
+
+
+
 # Install
 > - git clone https://github.com/excludedBittern8/empuploader
 > - cd empuploader
-
 
 ## Step 1: Virtual Env
 * This will allow you to install packages for this project only. Without effecting the global install of python
@@ -33,7 +35,6 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > ./venv/bin/pip3 install -r requirements.txt
 > #### Running 
 > /venv/bin/python3
-
 
 ### Windows
 #### create virtual venv
@@ -56,7 +57,6 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > 
 > venv\Scripts\python
 
-
 ## Step 2: Setup PATH
 
 > - You will need to add a few programs to a your path to use this script. This allows programs to be called with just their name, and not the full path
@@ -65,30 +65,28 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > - On Linux you can use a folder like usr/local/bin. However if you don't have root. It might be better to try to add your own folder
 > - On Windows: I would try to add my own folder to path. As the paths already in your PATH may be tied to other programs, and may change.  A restart may be needed to active the changes. 
 
-
 ## Step 3: gifsicle 
 
 > - on linux you will need to install sudo apt-get install gifsicle; this will put the binary in your path
 > - on Windows the creators provide binaries at https://eternallybored.org/misc/gifsicle/
 > - the binary should be in your path and callable via gifsicle or gifsicle.exe depending on your os
 
-
 ## Step 4: Chrome
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
  ### Linux
-
 
 > - Easiest Method is to just follow your linux providers instructions. However this usually requires sudo access.
 > - If you don't have sudo you could try to get this version:https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/843831/
 > - Download it and move it into the Linux Folder, within the bin folder, Within the empuploader folder or ../empuploader/bin/Linux 
 > - Then Extract it 
 
-
 ### Windows
 
 > - Download and install a non portable version of chrome
 > - it should be in your x86 program files folder. This is the default install directory on 64bit Windows
+
+
 
 
 
