@@ -110,13 +110,17 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 
 
 # Intro
-Their are two modes in this program you must pick one and only 1 of the following commandline flags/options during a run
+Their are three modes in this program you must pick one and only 1 of the following commandline flags/options during a run
 
 ## -prepare 
 > - will set prepare mode. This will prepare all the information needed for uploaded. It will create a json file. The loctation of the json file will be in user-determined directory.  Alternatively you can pick a specific path
 
 ## -upload 
 > - will set upload mode. This will work with python to automatically sign you in, and fill the upload form. It will be just like you were filling out the form yourself
+> 
+## -update
+> - will set update template mode. 
+> - This will take the current json and update the template info
 
 # Config File
 Instead of using the command like options like empuploader.py --option1 --option2 ......
@@ -167,6 +171,10 @@ prompted by the -prepare flag
 
 --input
 > - Change the Name of the json that is generated 
+
+--cover
+> - Provide the full path to the cover image
+> - if selected then this image we replace any gif that would have been created
 
 --template
 > -use optional template system, read below for full instructions
@@ -281,3 +289,7 @@ Run after creating a json with prepare
 > - Check your program directory, and look at the file call final.jpg
 > - This file will show a picture of the result after click the "submit" button
 > - Utilize this to see if you made a mistake for example not including 8 tags, or if your template doesn't have any images, etc
+
+# Update
+> - Updating the json requires some understanding on how python strings work. 
+> - Json can not intrepret regular line breaks, so it uses the python syntax of \n for line breaks
