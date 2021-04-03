@@ -72,17 +72,6 @@ You can use provide your own template to create informative/eye-catching post
 > - the binary should be in your path and callable via gifsicle or gifsicle.exe depending on your os
 
 
-## ffmpeg
-> - The required binaries are in the ffmpeg-win for windows user
-> - For linux it is ffmpeg-unix and Windows is ffmpeg-win
-> - Note the binaries are provided for convience. They must be save to your PATH.
-> - Linux users with sudo please read about how to install ffmpeg and ffprope. It may change depending on your specific OS
-> - Linux Updated Builds: https://johnvansickle.com/ffmpeg/
-> - Windows user if you need help please come to the site, or ask on github. The binaries must be in your windows PATH.
-> - Windows Updated Builds: https://www.gyan.dev/ffmpeg/builds/
-
-
-
 ## Need Chrome?
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
