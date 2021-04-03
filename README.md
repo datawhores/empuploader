@@ -100,7 +100,7 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > - Download and install a non portable version of chrome
 > - I am assuming most people are not on 32 bits anymore, so it should be in your x86 program files folder. This is the default install directory
 
-## Other binaries
+## Optional binaries
 
 > - https://gitlab.com/movie_thumbnailer/mtn/-/releases
 > - https://github.com/sharkdp/fd/releases
