@@ -106,50 +106,44 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > - https://github.com/sharkdp/fd/releases
 > - https://github.com/kz26/dottorrent-cli
 > - These Binaries are all provided, but if you want to upgrade to a newer version. Links have been provided
-> - It is recommended to put these in your path
 
+# ARGs
 
---torrent 
-> - Path where torrentfile will  save
-
---data
+> --torrent 
+>  - Path where torrentfile will  save
+> 
+> --data
 > - This is the path where json files are stored
-
---trackerurl
+> 
+> --trackerurl
 > - url to save upload with
 > - Your personal url is on the upload page
-
---media
+> 
+> --media
 > - Directory to retrieve files/folders 
-
---screens
+> 
+> --screens
 > - Set a folder to save thumbs in; default is random tempdir
-
---batch
+> 
+> --batch
 > - If set to false any folder will be consider one entry to be uploaded
-
---input
+> 
+> --input
 > - Change the path of the json that is generated 
-
---cover
+> 
+> --cover
 > - Provide the full path to the cover image
 > - if selected then this image we replace any gif that would have been created
-
---template
-> - template is read, and information on text json is updated
-
---username
-> - your emp username
-
---passsword
-> - your emp password
 > 
+> --template
+> - template is read, and information on text json is updated
+> 
+> --username
+> - your emp username
+> 
+> --passsword
+> - your emp password
 
-## Upload Not Appearing
-> - Program Doesn't error out but upload still doesn't appear on profile?
-> - Check your program directory, and look at the file call final.jpg
-> - This file will show a picture of the result after click the "submit" button
-> - Utilize this to see if you made a mistake for example not including 8 tags, or if your template doesn't have any images, etc
 
 
 
