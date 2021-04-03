@@ -133,22 +133,11 @@ Instead of using the command like options like empuploader.py --option1 --option
 > - An Example Config is provided in the repo as empupload.conf
 
 
-# Prepare
-
-prompted by the -prepare flag
-
-
-## Required Args
-
-
 --torrent 
 > - Path where torrentfile will  save
 
 --data
-> - Path where json will be save
-> - Note:overridden by --input option if that option is set
-
-
+> - This is the path where json files are stored
 
 --trackerurl
 > - url to save upload with
@@ -156,55 +145,29 @@ prompted by the -prepare flag
 
 --media
 > - Directory to retrieve files/folders 
-> - You will be able to pick one of these to prepare
-
-
-## Optional Args
 
 --screens
-> - by default screens will be save to a random directory tempdir, then moved only if it is required. 
-> - You can use this option to pick your own directory
+> - Set a folder to save thumbs in; default is random tempdir
 
 --batch
-> - When set to false only 1 file will be processed, afterwards program will quit
-> - By default the program will list every entry in a directory as processing option, this prevents that behavior
+> - If set to false any folder will be consider one entry to be uploaded
 
 --input
-> - Change the Name of the json that is generated 
+> - Change the path of the json that is generated 
 
 --cover
 > - Provide the full path to the cover image
 > - if selected then this image we replace any gif that would have been created
 
 --template
-> -use optional template system, read below for full instructions
-> -This would be the path to the template you want to use
+> -use optional template system, read below for full instruction
 
+--username
+> - your emp username
 
-## Entering Data into jsons
-> - When you run the program in prepare mode you will be provide opportunity to fill some of the option with your own data
-> - Note the provided will allow you to always move backwards and forwards, so editing a mistake is easy
-> - Pressing Tab on Some options will provide auto suggestions
+--passsword
+> - your emp password
 > 
-
-### Tags
-> - Tags should be seperated by spaces
-
-### Title
-> - Comes with autofill to activate press tab, and a name based on what your uploading will be provided 
-> - Note you can enter your own value or edit the one provided above
-
-
-### Category
-> - Comes with autofill to activate press tab, and a list of categories will appear
-> - Alternativey suggestions will appear as you type 
-> - You can use the keepboard to select one or keep typing
-
-### Description
-> - Allows for multiline inputs unlike the previous option
-> - To "enter" or submit you must press esc+enter
-> - Note \n represents a newline. This is generated automatically. But if you want to edit the json manually, make sure to put these everytime you want a line break
-
 ## Using Template
 > - To use the template system you will need to first download the template you want and save it to a txt file
 > - This can be found on the upload page depending on your class
@@ -276,25 +239,7 @@ prompted by the -prepare flag
 Prompted with the -upload flag
 Run after creating a json with prepare
 
-## Required Args
---data
-> - This is the path where json files are saved by default
-> - Program will combine the -data directory, along with the name of what your trying to upload. This should generate the correct path to autoload the correct json file
-> - Note: overridden by --input option if that option is set
 
---media
-> - directory to retrieve files/folders from
-> - You will be able to pick one of these to upload
-
---username
-> - your emp username
-> - used to login
-
---passsword
-> - your emp password
-> - used to login
-> - Note: if you have 2f then that is correctly not supported. 
-> - An API is upcoming so that will provide better authentication for users
 
 ## Optional Args
 > --input
