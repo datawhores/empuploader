@@ -1,6 +1,6 @@
 Ready to Upload?
 Then read the Wiki
-https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrentss 
+https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
 Otherwise Install Instruction and an overview of the availible commands are below
 
