@@ -13,23 +13,20 @@ import math
 import configparser
 config = configparser.ConfigParser(allow_no_value=True)
 import sys
-from consolemenu import SelectionMenu
 from threading import Thread
 import tempfile
 import re
 import string
 from pprint import pprint
 from pymediainfo import MediaInfo
+if sys.platform=="win32":
+    from consolemenu import SelectionMenu
 if sys.platform!="win32":
    from simple_term_menu import TerminalMenu
 from prompt_toolkit import prompt as input
 from prompt_toolkit.completion import WordCompleter
 from upload import find_dupe,upload_torrent
 
-def prompt_continuation(width, line_number, is_soft_wrap):
-    return '.' * width
-    # Or: return [('', '.' * width)]
-# function to find the resolution of the input video file
 def metadata(path):
     media_info = MediaInfo.parse(path)
     media_info2 = MediaInfo.parse(path,full=False)
@@ -41,6 +38,7 @@ def metadata(path):
         if media_info[i].get("track_type") == "Video":
             media_info2[i]["other_duration"]=media_info[i]["duration"]
             media_info2[i]["other_width"]=media_info[i]["width"]
+            media_info2[i]["other_height"]=media_info[i]["height"]
             video=media_info2[i]
         if media_info[i].get("track_type") == "Audio":
             audio=media_info2[i]
@@ -79,6 +77,8 @@ def create_config(args):
         args.torrents=config['dirs']['torrents']
     if args.data==None and config['dirs']['data']!=None and len(config['dirs']['data'])!=0:
         args.data=config['dirs']['data']
+    if args.images==None and config['dirs']['images']!=None and len(config['dirs']['images'])!=0:
+        args.images=config['dirs']['data']
 def fapping_upload(cover,img_path: str) -> str:
     """
     Uploads an image to fapping.sx and returns the image_id to access it
@@ -170,7 +170,21 @@ def create_images(path,dir,args):
         shutil.copytree(dir, photos)
     return imgstring
 
-
+def set_template_img(args):
+    images={}
+    if args.images==None:
+        return
+    if os.path.isdir(args.images)==False:
+        print("Please Provide a valid argument to args.images")
+    os.chdir(args.images)
+    t=subprocess.run([args.fd,'--absolute-path','-t','f'],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    t=t.stdout.decode('utf-8')
+    print("Adding Images from your Imagedir to JSON")
+    for line in t.splitlines():
+        basename=os.path.basename(line)
+        link=fapping_upload(1,line)
+        images[basename]=link
+    return images
 
 
 def createcovergif(maxfile,gifpath,basename,args):
@@ -178,7 +192,7 @@ def createcovergif(maxfile,gifpath,basename,args):
       gifpath=args.cover
       print("Using Predetermined Path")
   else:
-      print("Creating Cover Gif")
+      print("Creating Cover GIF")
       numframes=0
       video,audio=metadata(maxfile)
       duration=video.get("other_duration")/1000
@@ -360,9 +374,10 @@ def create_json(path,args):
     print("\nPress [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
     emp_dict["desc"]=input("Enter Description: ",multiline=True)
     emp_dict["cover"]=createcovergif(maxfile,gifpath,basename,args)
-    emp_dict["images"]=create_images(path,picdir,args)
+    emp_dict["thumbs"]=create_images(path,picdir,args)
     emp_dict["audio"]=audio
     emp_dict["video"]=video
+    emp_dict["images"]=set_template_img(args)
     matches=[]
     h=""
     if args.template!=None and os.path.isfile(args.template):
@@ -378,6 +393,9 @@ def create_json(path,args):
         elif re.search("audio",element):
             key=key.split(".")[1]
             value=emp_dict["audio"].get(key,"")
+        elif re.search("images",element):
+            key=key.split(".")[1]
+            value=emp_dict["images"].get(key,"")
         else:
              value=emp_dict.get(key,"")
         h=re.sub(element,value,h)
@@ -389,7 +407,7 @@ def create_json(path,args):
     json.dump(emp_dict,fp,indent=4)
     fp.close()
     pprint(emp_dict,width=1)
-def create_template(path,args):
+def update_template(path,args):
     #open current file
     basename=os.path.basename(path)
     if os.path.isfile(basename):
@@ -404,20 +422,30 @@ def create_template(path,args):
     f=open(jsonpath,"r")
     emp_dict= json.load(f)
     f.close()
-    if args.template!=None and os.path.isfile(args.template):
-        h=open(args.template,"r")
-        h=h.readlines()
-        h=''.join(h)
-        h=re.sub("{tags}",emp_dict.get("Tags",""),h,flags=re.IGNORECASE)
-        h=re.sub("{title}",emp_dict.get("Title",""),h,flags=re.IGNORECASE)
-        h=re.sub("{cover}",emp_dict.get("Cover",""),h,flags=re.IGNORECASE)
-        h=re.sub("{images}",emp_dict.get("Images",""),h,flags=re.IGNORECASE)
-        h=re.sub("{desc}",emp_dict.get("Description",""),h,flags=re.IGNORECASE)
-        emp_dict["Template"]=h
-    else:
+    if args.template==None:
         print("Please Provide a Template via the commandline or configfile")
+    h=open(args.template,"r")
+    h=h.readlines()
+    h=''.join(h)
+    matches=re.findall("{.*}",h)
+    for element in matches:
+        key=re.sub("{|}","",element)
+        if re.search("video",element):
+            key=key.split(".")[1]
+            value=emp_dict["video"].get(key,"")
+        elif re.search("audio",element):
+            key=key.split(".")[1]
+            value=emp_dict["audio"].get(key,"")
+        elif re.search("images",element):
+            key=key.split(".")[1]
+            value=emp_dict["images"].get(key,"")            
+        else:
+             value=emp_dict.get(key,"")
+        h=re.sub(element,value,h)
+    emp_dict["Template"]=h
+
     pprint(emp_dict,width=1)
-    check=input("Do you want to Update the JSON")
+    check=input("Do you want to Update the JSON: ")
     if check=="Yes" or check=="yes" or check=="Y" or check=="y"  or check=="YES":
         fp=open(jsonpath,"w")
         json.dump(emp_dict,fp,indent=4)
@@ -428,6 +456,7 @@ if __name__ == '__main__':
   parser.add_argument('-t','--torrents')
   parser.add_argument('-s','--screens')
   parser.add_argument('-cv','--cover')
+  parser.add_argument('-g','--images')
   parser.add_argument('-tm','--template')
   parser.add_argument('-u','--trackerurl')
   parser.add_argument('-i','--input')
@@ -469,8 +498,8 @@ if __name__ == '__main__':
         keepgoing=input("Continue Uploading?: ")
       if args.update:
         print("Update Template Mode\n")
-        create_template(path,args)
-        keepgoing=input("Continue Uploading?: ")
+        update_template(path,args)
+        keepgoing=input("Update Another Template?: ")
 
 
 
@@ -503,5 +532,5 @@ if __name__ == '__main__':
         keepgoing=input("Continue Uploading?: ")
       if args.update:
         print("Update Template Mode\n")
-        create_template(path,args)
+        update_template(path,args)
         keepgoing=input("Continue Uploading?: ")
