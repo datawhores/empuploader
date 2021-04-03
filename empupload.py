@@ -46,7 +46,6 @@ def metadata(path):
 
 
 
-
 def create_config(args):
 
     if args.config==None or os.path.exists(args.config)==False:
@@ -219,6 +218,7 @@ def createcovergif(maxfile,gifpath,basename,args):
       startloop=True
       while startloop:
         scale=f"--scale={factor}"
+
         gifsicle(sources=[gifpath],destination=gifpath, optimize=True,options=[scale,"-O3"])
         if os.stat(gifpath).st_size>5000000:
           print(f"File too big at {os.stat(gifpath).st_size} bytes\nReducing Size")
@@ -450,6 +450,17 @@ def update_template(path,args):
         json.dump(emp_dict,fp,indent=4)
         fp.close()
 if __name__ == '__main__':
+    #setup path
+  workingdir=os.path.dirname(os.path.abspath(__file__))
+  binfolder=os.path.join(workingdir,"bin")
+  binlist=[]
+  t=os.listdir(binfolder)
+  for path in t:
+      full=os.path.join(binfolder,path)
+      print(full)
+      if os.path.isdir(full) and full not in os.environ["PATH"]:
+          binlist.append(full)
+  os.environ["PATH"] += os.pathsep + os.pathsep.join(binlist)
   parser = argparse.ArgumentParser()
   parser.add_argument('-m','--media')
   parser.add_argument('-t','--torrents')
