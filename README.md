@@ -1,8 +1,6 @@
-Ready to Upload?
-Then read the Wiki
+This script automates the process of uploading
 https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
-Otherwise Install Instruction and an overview of the availible commands are below
 
 
 # Requirements
