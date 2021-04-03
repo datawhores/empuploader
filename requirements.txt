@@ -6,6 +6,7 @@ chardet==4.0.0
 ConsoleMenu==1.0.1
 idna==2.10
 imageio==2.9.0
+imageio-ffmpeg==0.4.3
 importlib-metadata==2.1.1
 numpy==1.19.5
 Pillow==8.2.0
