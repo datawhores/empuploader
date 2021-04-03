@@ -119,7 +119,7 @@ Their are three modes in this program you must pick one and only 1 of the follow
 > - will set upload mode. This will work with python to automatically sign you in, and fill the upload form. It will be just like you were filling out the form yourself
 > 
 ## -update
-> - will set update template mode. 
+> - will set update template mode.
 > - This will take the current json and update the template info
 
 # Config File
@@ -293,3 +293,10 @@ Run after creating a json with prepare
 # Update
 > - Updating the json requires some understanding on how python strings work. 
 > - Json can not intrepret regular line breaks, so it uses the python syntax of \n for line breaks
+> - If you not using templates then this mode is not needed
+> 
+
+## Required Args
+--template
+> - template is read, and information on the json is updated
+
