@@ -225,9 +225,8 @@ def createcovergif(maxfile,gifpath,basename,args):
           factor=factor*.8
           continue
         startloop=False
-      cover=1
   try:
-    upload=fapping_upload(cover,gifpath)
+    upload=fapping_upload(1,gifpath)
 
   except:
     print("Try a different Approved host gif too large/Host Down")
@@ -438,7 +437,7 @@ def update_template(path,args):
             value=emp_dict["audio"].get(key,"")
         elif re.search("images",element):
             key=key.split(".")[1]
-            value=emp_dict["images"].get(key,"")            
+            value=emp_dict["images"].get(key,"")
         else:
              value=emp_dict.get(key,"")
         h=re.sub(element,value,h)
