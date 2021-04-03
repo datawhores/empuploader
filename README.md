@@ -250,6 +250,20 @@ prompted by the -prepare flag
 > - Another example would be {video.display_aspect_ratio} 
 > - When the torrent is posted that would be replaced by 16:9 via the template
 
+### Images placeholders
+ For advance users you can use static images as placeholders
+ 
+> - You will need to provide the --image argument via config or commandline 
+> - Each image must have a unique name within the imagedirectory
+> - Note: Unique name excludes the path so /img/imgs2/myimage and /img/imgs/myimage is not allowed. Both of those must
+> have a unique name so /img/imgs/myimage2.jpg  /img/imgs2/myimage2.jpg is allowed
+> - I would recommend using short and informative names
+> - Any nested of directories is allowed within the imagedirectory
+> - to access an image utilize {image.[name of image]} as the placeholder
+
+** Example**
+>- I have an image called myimage2.jpg 
+>- to use this image I would have the placeholder {images.myimage2.jpg}
 # Upload
 
 Prompted with the -upload flag
