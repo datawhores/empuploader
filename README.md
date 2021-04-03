@@ -12,10 +12,11 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 
 
 # Install
+## Step 1: Repo
 > - git clone https://github.com/excludedBittern8/empuploader
 > - cd empuploader
 
-## Step 1: Virtual Env
+## Step 2: Virtual Env
 * This will allow you to install packages for this project only. Without effecting the global install of python
 * This is the recommended method, as it protects from conflicting packages. It also will work without sudo on Linux
 
@@ -54,7 +55,7 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > venv\Scripts\python
 
 
-## Step 2: Chrome
+## Step 3: Chrome
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
  ### Linux
