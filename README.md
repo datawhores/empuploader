@@ -111,10 +111,11 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > 
 > --passsword
 > - your emp password
-
---config
+> 
+> --config
 > - use config to import arguments into program
---font
+> 
+>--font
 > - change the font file utilize by mtn to generate thumbs
 
 
