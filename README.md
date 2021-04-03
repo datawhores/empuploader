@@ -19,6 +19,8 @@ You can use provide your own template to create informative/eye-catching post
 
 
 ## Virtual Env
+* This will allow you to install packages for this project only. Without effecting the global install of python
+* This is the recommended method, as it protects from conflicting packages. It also will work without sudo on Linux
 
 ### Linux
 > #### create virtual venv
