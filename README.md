@@ -57,21 +57,8 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > 
 > venv\Scripts\python
 
-## Step 2: Setup PATH
 
-> - You will need to add a few programs to a your path to use this script. This allows programs to be called with just their name, and not the full path
-> - Windows: https://www.computerhope.com/issues/ch000549.htm
-> - Linux: https://stackabuse.com/how-to-permanently-set-path-in-linux/ (most people should use bash_profile or bash.rc)
-> - On Linux you can use a folder like usr/local/bin. However if you don't have root. It might be better to try to add your own folder
-> - On Windows: I would try to add my own folder to path. As the paths already in your PATH may be tied to other programs, and may change.  A restart may be needed to active the changes. 
-
-## Step 3: gifsicle 
-
-> - on linux you will need to install sudo apt-get install gifsicle; this will put the binary in your path
-> - on Windows the creators provide binaries at https://eternallybored.org/misc/gifsicle/
-> - the binary should be in your path and callable via gifsicle or gifsicle.exe depending on your os
-
-## Step 4: Chrome
+## Step 2: Chrome
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
  ### Linux
@@ -85,9 +72,6 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 
 > - Download and install a non portable version of chrome
 > - it should be in your x86 program files folder. This is the default install directory on 64bit Windows
-
-
-
 
 
 
