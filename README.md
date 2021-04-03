@@ -208,7 +208,14 @@ prompted by the -prepare flag
 ## Using Template
 > - To use the template system you will need to first download the template you want and save it to a txt file
 > - This can be found on the upload page depending on your class
-> - Before the template can be used succefully used you will need to put in the placeholders {cover} {title} {thumbs} {tags} {desc}.
+> 
+### What are Placeholders
+> - Templates will usually generally provide places for things like your description, screens, etc
+> - This information is frequently changing depending on the upload
+> - placeholders allow you to dynamically alter your upload description while allowing for the use of templates
+### Adding place holders
+> - Before the template can be used succefully used you will need to put in the placeholders {cover} {title} {thumbs} {tags} {desc} are the main ones,
+> - See below in other sections for more advanceed ones
 > - Note: placeholders include the brackets on the left and right side. They are also case sensitive all lower case
 > - Each of these can be put in the template as many or as little times as you want. 
 > - So for example if a template has a spot where maybe it says *** screens *** you could replace it so it says {images}
