@@ -9,10 +9,6 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 
 > - Python 3.6 or higher
 > - chrome
-> - gifsicle
-
-
-
 
 
 # Install
