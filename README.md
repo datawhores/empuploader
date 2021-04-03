@@ -214,8 +214,8 @@ prompted by the -prepare flag
 > - This information is frequently changing depending on the upload
 > - placeholders allow you to dynamically alter your upload description while allowing for the use of templates
 ### Adding place holders
-> - Before the template can be used succefully used you will need to put in the placeholders {cover} {title} {thumbs} {tags} {desc} are the main ones,
-> - See below in other sections for more advanceed ones
+> - Before the template can be used succefully used you will need to put in the placeholders {cover} {title} {thumbs} {tags} {desc} are the main ones
+> - See below in other sections for more advanced ones
 > - Note: placeholders include the brackets on the left and right side. They are also case sensitive all lower case
 > - Each of these can be put in the template as many or as little times as you want. 
 > - So for example if a template has a spot where maybe it says *** screens *** you could replace it so it says {images}
@@ -251,8 +251,8 @@ prompted by the -prepare flag
 ```
 
 > - Note the example above is not an extensive list of all the possible values
-> - You'll have to look at the json to get a better understanding of what values you have avaluable
-> - To utilize for example duration as a placeholder I would have to put this into the template {video.duration}
+> - You'll have to look at the json in the video: and audio: sections to get a better understanding of what values you have avaluable
+> - To utilize for example duration  as a placeholder I would have to put this into the template {video.duration}
 > - When the torrent is posted that would be replaced by 10 min 14 via the template
 > - Another example would be {video.display_aspect_ratio} 
 > - When the torrent is posted that would be replaced by 16:9 via the template
