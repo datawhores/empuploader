@@ -6,61 +6,103 @@ from pyppeteer import __pyppeteer_home__
 import sys
 import json
 import re
-async def main():
-    if len(sys.argv)<4:
-        print("Missing Argument" )
-        return
-    f=open(sys.argv[1],"r")
-    username=sys.argv[2]
-    password=sys.argv[3]
-    uploaddict= json.load(f)
+from shutil import which
 
+
+
+page=None
+dupe=None
+async def run_dupe(upload_dict,username,password):
+    print("Searching for Dupes")
     workingdir=os.path.dirname(os.path.abspath(__file__))
-    g=open(os.path.join(workingdir,"cat.json"),"r")
-    catdict= json.load(g)
-    browser = await launch(executablePath='/usr/bin/google-chrome-stable', headless=True, args=['--no-sandbox'])
+    chromepath=None
+    if  sys.platform=="win32":
+        if which("chrome.exe")==None:
+            chromepath=os.path.join("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+        else:
+            chromepath=which("google-chrome.exe")
+
+    if sys.platform=="linux":
+        if  which("google-chrome-stable")==None:
+            chromepath=os.path.join(workingdir,"bin","chrome","Linux","chrome")
+        else:
+            chromepath=which("google-chrome-stable")
+
+    url="https://www.empornium.sx"
+    browser = await launch(executablePath=chromepath, headless=True, args=['--no-sandbox'])
     page = await browser.newPage()
     page.setDefaultNavigationTimeout(40000)
-    await page.goto('https://www.empornium.is/login')
+    await page.goto(f'{url}/login')
 
     await page.keyboard.type(username)
     await page.keyboard.press('Tab')
     await page.keyboard.type(password)
     await page.keyboard.press('Enter')
     await page.waitForNavigation()
-    await page.goto('https://www.empornium.is/upload.php')
+    await page.goto(f'{url}/upload.php')
     inputUploadHandle=await page.querySelector("input[type=file]");
-    await inputUploadHandle.uploadFile(uploaddict.get("Torrent",""))
-    # we need to type the title before checking for upes , otherwise it fs up
+    await inputUploadHandle.uploadFile(upload_dict.get("Torrent",""))
+    # we need to type the title before checking for dupes , otherwise it fs up
     await page.focus("#title")
-    await page.keyboard.type(uploaddict.get("Title",""))
+    await page.keyboard.type(upload_dict.get("title",""))
     await page.click("#upload_table > table > tbody > tr:nth-child(1) > td:nth-child(2) > span > input[type=submit]")
     #wait for navigation doesn't seem to work
     await page.waitFor(5000);
     element = await page.querySelector("#messagebar")
     msg = await page.evaluate('(element) => element.textContent', element)
-    if msg!=None and re.search("dupe",msg)!=None:
-        print("Dupe Found")
-        await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
+    if msg!=None and re.search("category|dupes",msg)!=None:
+        dupebox= await page.querySelector("#upload_table > div:nth-child(2)")
+        dupemsg = await page.evaluate('(dupebox) => dupebox.textContent', dupebox)
+
+        dupemsg= re.sub('\n ', '', dupemsg)
+        dupemsg= re.sub(' \n', '', dupemsg)
+        dupemsg= re.sub(' +', ' ', dupemsg)
+        dupemsg= re.sub('\n+', '\n', dupemsg)
+        dupemsg= re.sub('\t+', '*', dupemsg)
+
+        t=open("dirty.txt","w")
+        dupelist=dupemsg.split('\n')
+        i=6
+        length=len(dupelist)
+        #clean up some unneeded data
+        while i<length:
+            dupelist.pop(i)
+            i=i+6
+            length=length-1
+        dupemsg='\n'.join(dupelist)
+        print(dupemsg)
+        print("\n","Order of Matches is Title(matching torrent),File(matching torrent), File(your torrent),Size",flush=True)
+        return True,page
+    else:
+        print("No Dupes")
+        return False,page
+
+
+async def run_upload(page,upload_dict,catdict):
+    workingdir=os.path.dirname(os.path.abspath(__file__))
+
+    await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
     await page.focus("#image")
-    await page.keyboard.type(uploaddict.get("Cover",""))
+    await page.keyboard.type(upload_dict.get("cover",""))
     await page.focus("#taginput")
-    await page.keyboard.type(uploaddict.get("Tags",""))
+    await page.keyboard.type(upload_dict.get("tags",""))
     await page.focus("#desc")
-    await page.keyboard.type(uploaddict.get("Description",""))
-    await page.keyboard.press("Enter")
-    await page.keyboard.type(uploaddict.get("Images",""))
+    if upload_dict.get("template","")!="":
+        await page.keyboard.type(upload_dict.get("template",""))
+    else:
+        await page.keyboard.type(upload_dict.get("desc",""))
+        await page.keyboard.press("Enter")
+        await page.keyboard.type(upload_dict.get("Images",""))
 
-    catvalue=catdict.get(uploaddict.get("Category",""),"1")
+    catvalue=catdict.get(upload_dict.get("Category",""),"1")
     await page.select('#category', catvalue)
-
     await page.click('#post');
     await page.waitFor(10000);
     await page.setViewport({ "width": 1920, "height": 2300 });
     await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
-    await browser.close()
 
-
-
-
-asyncio.get_event_loop().run_until_complete(main())
+def find_dupe(upload_dict,username,password):
+    dupe,page=asyncio.get_event_loop().run_until_complete(run_dupe(upload_dict,username,password))
+    return dupe,page
+def upload_torrent(page,upload_dict,catdict):
+    asyncio.get_event_loop().run_until_complete(run_upload(page,upload_dict,catdict))
