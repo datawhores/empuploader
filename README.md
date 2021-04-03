@@ -219,7 +219,7 @@ prompted by the -prepare flag
 ### Video/Audio placeholders
  For advance users I have provided placeholders for mediainfo
 
- ** Example Video Info**
+ ##### Example Video Info
 ``
 ```
 'video': {'bit_depth': '8 '
@@ -261,7 +261,7 @@ prompted by the -prepare flag
 > - Any nested of directories is allowed within the imagedirectory
 > - to access an image utilize {image.[name of image]} as the placeholder
 
-** Example**
+##### Example
 >- I have an image called myimage2.jpg 
 >- to use this image I would have the placeholder {images.myimage2.jpg}
 # Upload
