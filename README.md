@@ -1,7 +1,9 @@
-If you already had a older verison of the tool. Please reread this as the usage has changed dramatically
-This tool will prepare and upload torrents to Empornium, all through the commandline.
+Ready to Upload?
+Then read the Wiki
+https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrentss 
 
-You can use provide your own template to create informative/eye-catching post
+Otherwise Install Instruction and an overview of the availible commands are below
+
 
 # Requirements
 
