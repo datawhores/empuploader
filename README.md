@@ -78,7 +78,7 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 
 > - Easiest Method is to just follow your linux providers instructions. However this usually requires sudo access.
 > - If you don't have sudo you could try to get this version:https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/843831/
-> - Download it and move it into the Linux Folder, within the bin folder, Within the empuploader folder or ../empuploader/bin/Linux 
+> - Download it and move it to ./empuploader/bin/Chrome-Linux
 > - Then Extract it 
 
 ### Windows
