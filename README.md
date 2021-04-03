@@ -74,7 +74,7 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 
 # ARGs
 
-> --torrent 
+> --torrents 
 >  - Path where torrentfile will  save
 > 
 > --data
@@ -99,6 +99,9 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > --cover
 > - Provide the full path to the cover image
 > - if selected then this image we replace any gif that would have been created
+> > 
+> > --image
+> - add static images to your upload
 > 
 > --template
 > - template is read, and information on text json is updated
@@ -109,7 +112,10 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > --passsword
 > - your emp password
 
-
+--config
+> - use config to import arguments into program
+--font
+> - change the font file utilize by mtn to generate thumbs
 
 
 
