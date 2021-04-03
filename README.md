@@ -20,7 +20,7 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > - cd empuploader
 
 
-## Virtual Env
+## Step1: Virtual Env
 * This will allow you to install packages for this project only. Without effecting the global install of python
 * This is the recommended method, as it protects from conflicting packages. It also will work without sudo on Linux
 
@@ -60,7 +60,7 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > venv\Scripts\python
 
 
-## PATH
+## Step2: Setup PATH
 
 > - You will need to add a few programs to a your path to use this script. This allows programs to be called with just their name, and not the full path
 > - Windows: https://www.computerhope.com/issues/ch000549.htm
@@ -69,14 +69,14 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 > - On Windows: I would try to add my own folder to path. As the paths already in your PATH may be tied to other programs, and may change.  A restart may be needed to active the changes. 
 
 
-## gifsicle 
+## Step3: gifsicle 
 
 > - on linux you will need to install sudo apt-get install gifsicle; this will put the binary in your path
 > - on Windows the creators provide binaries at https://eternallybored.org/misc/gifsicle/
 > - the binary should be in your path and callable via gifsicle or gifsicle.exe depending on your os
 
 
-## Need Chrome?
+## Step4: Chrome
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
  ### Linux
@@ -93,12 +93,14 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > - Download and install a non portable version of chrome
 > - I am assuming most people are not on 32 bits anymore, so it should be in your x86 program files folder. This is the default install directory
 
-## Optional binaries
+## Optional Step
 
 > - https://gitlab.com/movie_thumbnailer/mtn/-/releases
 > - https://github.com/sharkdp/fd/releases
 > - https://github.com/kz26/dottorrent-cli
 > - These Binaries are all provided, but if you want to upgrade to a newer version. Links have been provided
+
+
 
 # ARGs
 
