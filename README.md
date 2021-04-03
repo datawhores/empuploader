@@ -23,8 +23,8 @@ You can use provide your own template to create informative/eye-catching post
 ### Linux
 > #### create virtual venv
 > 
-> python3 -m pip install --user virtualenv
-> python3 -m venv venv
+> - python3 -m pip install --user virtualenv
+> - python3 -m venv venv
 > 
 > 
 > 
