@@ -268,7 +268,7 @@ Run after creating a json with prepare
 > - An API is upcoming so that will provide better authentication for users
 
 ## Optional Args
-> -input
+> --input
 > - use this to change the path of where the input json comes from
 > - Only needed if you change the name of the file using input while --prepare 
 
