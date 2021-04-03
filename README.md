@@ -8,11 +8,8 @@ Otherwise Install Instruction and an overview of the availible commands are belo
 # Requirements
 
 > - Python 3.6 or higher
-> - sudo access
-> - chrome(read install instruction)
-> - gifsicle(read install instruction)
-
-
+> - chrome
+> - gifsicle
 
 
 # Install
