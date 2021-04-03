@@ -24,7 +24,7 @@ async def run_dupe(upload_dict,username,password):
 
     if sys.platform=="linux":
         if  which("google-chrome-stable")==None:
-            chromepath=os.path.join(workingdir,"bin","chrome","Linux","chrome")
+            chromepath=os.path.join(workingdir,"bin","chrome-Linux")
         else:
             chromepath=which("google-chrome-stable")
 
