@@ -381,7 +381,7 @@ def create_json(path,args):
     print("\nPress [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
     emp_dict["desc"]=input("Enter Description: ",multiline=True)
     emp_dict["cover"]=createcovergif(maxfile,gifpath,basename,args)
-    emp_dict["images"]=create_images(path,picdir,args)
+    emp_dict["thumbs"]=create_images(path,picdir,args)
     emp_dict["audio"]=audio
     emp_dict["video"]=video
     emp_dict["images"]=set_template_img(args)
