@@ -10,7 +10,6 @@ imageio-ffmpeg==0.4.3
 importlib-metadata==2.1.1
 numpy==1.19.5
 Pillow==8.2.0
-pkg-resources==0.0.0
 prompt-toolkit==3.0.18
 pyee==8.1.0
 pygifsicle==1.0.2
