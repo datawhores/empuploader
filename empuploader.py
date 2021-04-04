@@ -291,7 +291,7 @@ def create_binaries(args):
         if which('mtn')!=None and len(which('mtn'))>0:
             args.mtn=which('mtn')
         else:
-            mtn=os.path.join(workingdir,"bin","mtn","mtn")
+            mtn=os.path.join(workingdir,"bin","mtn-win","bin","mtn.exe")
             args.mtn.exe=mtn
         if which('fd')!=None and len(which('fd'))>0:
             args.fd=which('fd')
