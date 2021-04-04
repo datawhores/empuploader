@@ -63,6 +63,8 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > - Download and install a non portable version of chrome
 > - it should be in your x86 program files folder. This is the default install directory on 64bit Windows
 
+# Note:
+* on Linux you may need to chmod + x -R ./bin/ to give permession to the binaries in that folder
 
 
 # ARGs
