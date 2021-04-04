@@ -196,8 +196,6 @@ def createcovergif(maxfile,gifpath,basename,args):
       print("Creating Cover GIF")
       numframes=0
       video,audio=metadata(maxfile)
-      print(audio,video)
-      quit()
       duration=video.get("other_duration")/1000
       width = video.get("other_width")
       reader = imageio.get_reader(maxfile)
