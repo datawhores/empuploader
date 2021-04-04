@@ -60,8 +60,8 @@ def create_config(args):
     except:
         print("Error accessing data from  config")
         return args
-    if args.screens==None and config['general']['screens']!=None and len(config['general']['screens'])!=0:
-        args.screens=config['general']['screens']
+    if args.thumbs==None and config['general']['thumbs']!=None and len(config['general']['thumbs'])!=0:
+        args.thumbs=config['general']['thumbs']
     if args.template==None and config['general']['template']!=None and len(config['general']['template'])!=0:
         args.template=config['general']['template']
     if args.font==None and config['general']['font']!=None and len(config['general']['font'])!=0:
@@ -356,8 +356,8 @@ def create_json(path,args):
     catdict= json.load(g)
     torrentpath=os.path.join(args.torrents,f"{basename}.torrent")
     picdir=os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}/")
-    if args.screens!=None:
-        picdir=args.screens
+    if args.thumbs!=None:
+        picdir=args.thumbs
     gifpath=os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}.gif")
 
     try:
@@ -381,7 +381,7 @@ def create_json(path,args):
     print("\nPress [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
     emp_dict["desc"]=input("Enter Description: ",multiline=True)
     emp_dict["cover"]=createcovergif(maxfile,gifpath,basename,args)
-    emp_dict["thumbs"]=create_images(path,picdir,args)
+    emp_dict["images"]=create_images(path,picdir,args)
     emp_dict["audio"]=audio
     emp_dict["video"]=video
     emp_dict["images"]=set_template_img(args)
@@ -472,7 +472,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('-m','--media')
   parser.add_argument('-t','--torrents')
-  parser.add_argument('-s','--screens')
+  parser.add_argument('-s','--thumbs')
   parser.add_argument('-cv','--cover')
   parser.add_argument('-g','--images')
   parser.add_argument('-tm','--template')
