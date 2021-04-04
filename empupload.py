@@ -362,14 +362,14 @@ def create_json(path,args):
     sug=re.sub("\."," ",basename)
     sug=string.capwords(sug)
     print("\nPress Tab for Auto Suggestion")
-    emp_dict["Title"]=input("Enter Title: ",completer=WordCompleter([sug],ignore_case=True))
+    emp_dict["title"]=input("Enter Title: ",completer=WordCompleter([sug],ignore_case=True))
     print("\nPress Tab for Auto Suggestion")
 
     emp_dict["Category"]=input("Enter Category: ",completer=WordCompleter(catdict.keys(),ignore_case=True))
     #can we autocomplete tags?
     print("\nEnter Space seperated tags")
 
-    emp_dict["Tags"]=re.sub(","," ",input("Enter Tags: "))
+    emp_dict["tags"]=re.sub(","," ",input("Enter Tags: "))
     print("\nPress [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
     emp_dict["desc"]=input("Enter Description: ",multiline=True)
     emp_dict["cover"]=createcovergif(maxfile,gifpath,basename,args)
