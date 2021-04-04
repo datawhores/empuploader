@@ -34,17 +34,11 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
 ### Windows
 #### create virtual venv
-
+> 
 > py -m pip install --user virtualenv
 > 
-> python3 -m venv venv
-> 
-> alternatively
-> 
-> py -m venv venv
-> 
-> 
-> 
+> python3 -m venv venv or  py -m venv venv
+>
 > #### Add required modules
 > 
 > venv\Scripts\pip3.exe install -r requirements.txt
