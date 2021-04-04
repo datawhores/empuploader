@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 import argparse
+import http.cookiejar
+import requests
 from bs4 import BeautifulSoup
 import requests
 import subprocess
@@ -240,6 +242,33 @@ def create_torrent(path,torrentpath,args):
 
 
 
+# def upload_emp(path,args):
+#     workingdir=os.path.dirname(os.path.abspath(__file__))
+#     upload=None
+#     txtdir=args.data
+#     basename=os.path.basename(path)
+#     if os.path.isfile(basename):
+#         basename=os.path.splitext(basename)[:-1]
+#     if args.input!=None:
+#         jsonpath=args.input
+#     elif args.data!=None:
+#         jsonpath=os.path.join(args.data,f"{basename}.json")
+#     else:
+#         print("You must enter a folder to save data to with --data options\n Alternatively you can put a direct path with --input")
+#     f=open(jsonpath,"r")
+#     upload_dict= json.load(f)
+#     g=open(os.path.join(workingdir,"cat.json"),"r")
+#     catdict= json.load(g)
+#     username=args.username
+#     password=args.password
+#     dupe,page=find_dupe(upload_dict,username,password)
+#
+#     if dupe==True:
+#         upload=input("Ignore dupes and continue upload?: ")
+#     if dupe==False or upload=="Yes" or upload=="YES" or upload=="Y" or upload=="y" or upload=="YES":
+#         upload_torrent(page,upload_dict,catdict)
+
+
 def upload_emp(path,args):
     workingdir=os.path.dirname(os.path.abspath(__file__))
     upload=None
@@ -255,16 +284,36 @@ def upload_emp(path,args):
         print("You must enter a folder to save data to with --data options\n Alternatively you can put a direct path with --input")
     f=open(jsonpath,"r")
     upload_dict= json.load(f)
-    g=open(os.path.join(workingdir,"cat.json"),"r")
-    catdict= json.load(g)
-    username=args.username
-    password=args.password
-    dupe,page=find_dupe(upload_dict,username,password)
+    #change some of the keys
+    if upload_dict.get("template","")!="":
+        upload_dict["desc"]=upload_dict.get("template","")
+    upload_dict.pop("template")
+    upload_dict["submit"]=True
+    upload_dict["MAX_FILE_SIZE"]=2097152
+    upload_dict["anonymous"]=0
+    url="https://www.empornium.is/upload.php"
+    s = requests.Session()
 
-    if dupe==True:
-        upload=input("Ignore dupes and continue upload?: ")
-    if dupe==False or upload=="Yes" or upload=="YES" or upload=="Y" or upload=="y" or upload=="YES":
-        upload_torrent(page,upload_dict,catdict)
+    cookies = http.cookiejar.MozillaCookieJar(args.cookie)
+    cookies.load()
+    #get auth token
+    t=s.get(url,cookies=cookies)
+    #check if dupe
+    t.post(url,cookies=cokies,header=header)
+    #get auth token if no dupe submit
+    t.post(url,cookies=cokies,header=header)
+
+
+#     g=open(os.path.join(workingdir,"cat.json"),"r")
+#     catdict= json.load(g)
+#     username=args.username
+#     password=args.password
+#     dupe,page=find_dupe(upload_dict,username,password)
+#
+#     if dupe==True:
+#         upload=input("Ignore dupes and continue upload?: ")
+#     if dupe==False or upload=="Yes" or upload=="YES" or upload=="Y" or upload=="y" or upload=="YES":
+#         upload_torrent(page,upload_dict,catdict)
 
 
 
@@ -369,7 +418,7 @@ def create_json(path,args):
     #can we autocomplete tags?
     print("\nEnter Space seperated tags")
 
-    emp_dict["tags"]=re.sub(","," ",input("Enter Tags: "))
+    emp_dict["taglist"]=re.sub(","," ",input("Enter Tags: "))
     print("\nPress [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
     emp_dict["desc"]=input("Enter Description: ",multiline=True)
     emp_dict["cover"]=createcovergif(maxfile,gifpath,basename,args)
