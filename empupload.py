@@ -365,7 +365,7 @@ def create_json(path,args):
     emp_dict["title"]=input("Enter Title: ",completer=WordCompleter([sug],ignore_case=True))
     print("\nPress Tab for Auto Suggestion")
 
-    emp_dict["Category"]=input("Enter Category: ",completer=WordCompleter(catdict.keys(),ignore_case=True))
+    emp_dict["category"]=input("Enter Category: ",completer=WordCompleter(catdict.keys(),ignore_case=True))
     #can we autocomplete tags?
     print("\nEnter Space seperated tags")
 
