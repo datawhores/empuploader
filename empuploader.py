@@ -319,7 +319,7 @@ def create_binaries(args):
             args.mtn=which('mtn.exe')
         else:
             mtn=os.path.join(workingdir,"bin","mtn","mtn.exe")
-            args.mtn.exe=mtn
+            args.mtn=mtn
         if which('fd.exe')!=None and len(which('fd.exe'))>0:
             args.fd=which('fd.exe')
         else:
