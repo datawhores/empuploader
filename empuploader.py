@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 import argparse
+import http.cookiejar
+import requests
 from bs4 import BeautifulSoup
 import requests
 import subprocess
@@ -194,6 +196,8 @@ def createcovergif(maxfile,gifpath,basename,args):
       print("Creating Cover GIF")
       numframes=0
       video,audio=metadata(maxfile)
+      print(audio,video)
+      quit()
       duration=video.get("other_duration")/1000
       width = video.get("other_width")
       reader = imageio.get_reader(maxfile)
@@ -274,11 +278,6 @@ def create_binaries(args):
 
     if args.font==None:
         args.font=os.path.join(workingdir,"bin","mtn","OpenSans-Regular.ttf")
-    if which("dottorrent")!=None and len(which('dottorrent'))>0:
-        args.dottorrent=which('dottorrent')
-    else:
-        dottorrent=os.path.join(workingdir,"bin","dottorrent")
-        args.dottorrent=dottorrent
 
     if sys.platform=="linux":
         if which('ffprobe')!=None and len(which('ffprobe'))>0:
@@ -301,6 +300,12 @@ def create_binaries(args):
         else:
             fd=os.path.join(workingdir,"bin","fd")
             args.fd=fd
+            
+        if which("dottorrent")!=None and len(which('dottorrent'))>0:
+            args.dottorrent=which('dottorrent')
+        else:
+            dottorrent=os.path.join(workingdir,"bin","dottorrent")
+            args.dottorrent=dottorrent      
     elif sys.platform=="win32":
         if which('ffprobe.exe')!=None and len(which('ffprobe.exe'))>0:
             args.ffprobe=which('ffprobe.exe')
@@ -322,6 +327,11 @@ def create_binaries(args):
         else:
             fd=os.path.join(workingdir,"bin","fd.exe")
             args.fd=fd
+        if which("dottorrent.exe")!=None and len(which('dottorrent'))>0:
+            args.dottorrent=which('dottorrent')
+        else:
+            dottorrent=os.path.join(workingdir,"bin","dottorrent.exe")
+            args.dottorrent=dottorrent            
 def create_json(path,args):
     jsonpath=None
     maxfile=find_maxfile(path)
@@ -369,7 +379,7 @@ def create_json(path,args):
     #can we autocomplete tags?
     print("\nEnter Space seperated tags")
 
-    emp_dict["tags"]=re.sub(","," ",input("Enter Tags: "))
+    emp_dict["taglist"]=re.sub(","," ",input("Enter Tags: "))
     print("\nPress [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
     emp_dict["desc"]=input("Enter Description: ",multiline=True)
     emp_dict["cover"]=createcovergif(maxfile,gifpath,basename,args)
@@ -387,7 +397,7 @@ def create_json(path,args):
     for element in matches:
         key=re.sub("{|}","",element)
         if re.search("video",element):
-            key=key.split(".")[1]
+            key=key.split(":")[1]
             value=emp_dict["video"].get(key,"")
         elif re.search("audio",element):
             key=key.split(".")[1]
