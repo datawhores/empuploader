@@ -87,7 +87,7 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > 
 > --batch
 > - If set to false any folder will be consider one entry to be uploaded
-> 
+> - true then every element in directory will be A seperate upload 
 > --input
 > - Change the path of the json that is generated 
 > 
