@@ -38,9 +38,7 @@ async def run_dupe(upload_dict,cookie):
     await page.goto(f'{url}/upload.php')
     inputUploadHandle=await page.querySelector("input[type=file]");
     await inputUploadHandle.uploadFile(upload_dict.get("torrent",""))
-    # await page.setViewport({ "width": 1920, "height": 2300 })
-    # await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
-    # quit()
+
     # we need to type the title before checking for dupes , otherwise it fs up
     await page.focus("#title")
     await page.keyboard.type(upload_dict.get("title",""))
@@ -48,10 +46,6 @@ async def run_dupe(upload_dict,cookie):
     #wait for navigation doesn't seem to work
     await page.waitFor(5000);
     element = await page.querySelector("#messagebar")
-    await page.setViewport({ "width": 1920, "height": 2300 })
-    await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
-
-
 
 
     msg = await page.evaluate('(element) => element.textContent', element)
@@ -65,8 +59,6 @@ async def run_dupe(upload_dict,cookie):
         dupemsg= re.sub('\n+', '\n', dupemsg)
         dupemsg= re.sub('\t+', '*', dupemsg)
         dupemsg=re.sub(" Your file File matched File Size Torrent Files Time Size Uploader ","",dupemsg)
-
-        t=open("dirty.txt","w")
         dupelist=dupemsg.split('\n')
 
         # quit()
