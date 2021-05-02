@@ -345,7 +345,25 @@ def upload_emp(path,args):
 #     if dupe==False or upload=="Yes" or upload=="YES" or upload=="Y" or upload=="y" or upload=="YES":
 #         upload_torrent(page,upload_dict,catdict)
 
+def create_chrome(workingdir,binfolder):
+  chromepath=os.path.join(binfolder,"Chrome-Linux")
+  if os.path.isfile(os.path.join(chromepath,"chrome"))==False:
+      if os.path.isdir(chromepath):
+          shutil.rmtree(chromepath)
+      os.mkdir(chromepath)
+      tempchrome=os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}/")
+      os.mkdir(tempchrome)
+      os.chdir(tempchrome)
 
+      subprocess.run(["wget","https://github.com/macchrome/linchrome/releases/download/v90.0.4430.93-r857950-portable-ungoogled-Lin64/ungoogled-chromium_90.0.4430.93_1.vaapi_linux.tar.xz"])
+      subprocess.run(["tar","xf","ungoogled-chromium_90.0.4430.93_1.vaapi_linux.tar.xz"])
+      os.remove("ungoogled-chromium_90.0.4430.93_1.vaapi_linux.tar.xz")
+      c=os.listdir()[0]
+
+      os.chdir(c)
+      for element in os.scandir():
+          shutil.move(element.name, chromepath)
+      os.chdir(workingdir)
 
 def create_binaries(args):
     print("Setting up Binaries")
@@ -538,6 +556,7 @@ if __name__ == '__main__':
     #setup path
   workingdir=os.path.dirname(os.path.abspath(__file__))
   binfolder=os.path.join(workingdir,"bin")
+  create_chrome(workingdir,binfolder)
   binlist=[]
   t=os.listdir(binfolder)
   for path in t:
@@ -567,6 +586,9 @@ if __name__ == '__main__':
   args=parser.parse_args()
   create_config(args)
   create_binaries(args)
+
+
+
   if args.prepare==False and args.upload==False and args.update==False and args.createtor==False:
     print("you must set -prepare or -upload or -update or -createtor")
     quit()
