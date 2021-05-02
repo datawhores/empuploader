@@ -7,7 +7,6 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 # Requirements
 
 > - Python 3.6 or higher
-> - chrome
 
 
 # Install
@@ -52,7 +51,8 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
  ### Linux
-
+> - These instructions are if you want to download a more up to date version/your own version of chrome. A chromary  binary will be provided for Linux
+> 
 > - Easiest Method is to just follow your linux providers instructions. However this usually requires sudo access.
 > - If you don't have sudo you could try to get this version:https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/843831/
 > - Download it and move it to ./empuploader/bin/Chrome-Linux
@@ -66,6 +66,17 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 # Note:
 * on Linux you may need to chmod + x -R ./bin/ to give permession to the binaries in that folder
 
+## Step 4: Cookies
+Cookie System
+
+Here a examples of extension that will allow you to grab cookie info. 
+https://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search'; \
+http://www.editthiscookie.com/
+
+Follow the instructions for exported cookies, and make sure it is in the JSON format. USually the default. If it is in the correct format you should see
+"brackets,colons,curlybrackets" as part of the text.
+
+Copy the provided text into a file, and pass that file into the program
 
 # ARGs
 
