@@ -67,11 +67,11 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 * on Linux you may need to chmod + x -R ./bin/ to give permession to the binaries in that folder
 
 ## Step 4: Cookies
-Cookie System
 
-Here a examples of extension that will allow you to grab cookie info. 
+
+Here a examples of extension that will allow you to grab cookie info. \
 https://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search'; \
-http://www.editthiscookie.com/
+http://www.editthiscookie.com/ \
 
 Follow the instructions for exported cookies, and make sure it is in the JSON format. USually the default. If it is in the correct format you should see
 "brackets,colons,curlybrackets" as part of the text.
