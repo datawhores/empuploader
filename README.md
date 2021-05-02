@@ -3,7 +3,6 @@ This script automates the process of uploading
 https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
 
-
 # Requirements
 
 > - Python 3.6 or higher
@@ -51,7 +50,7 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
  ### Linux
-> - These instructions are if you want to download a more up to date version/your own version of chrome. A chromary  binary will be provided for Linux
+> - These instructions are if you want to download a more up to date version/your own version of chrome. A chrome binary will be provided for Linux
 > 
 > - Easiest Method is to just follow your linux providers instructions. However this usually requires sudo access.
 > - If you don't have sudo you could try to get this version:https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/843831/
