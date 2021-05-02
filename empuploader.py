@@ -567,7 +567,6 @@ if __name__ == '__main__':
   args=parser.parse_args()
   create_config(args)
   create_binaries(args)
-  print(args)
   if args.prepare==False and args.upload==False and args.update==False and args.createtor==False:
     print("you must set -prepare or -upload or -update or -createtor")
     quit()
