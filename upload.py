@@ -19,15 +19,18 @@ async def run_dupe(upload_dict,cookie):
     if  sys.platform=="win32":
         if which("chrome.exe")==None:
             chromepath=os.path.join("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
-        else:
+        elif which("google-chrome.exe")!=None:
             chromepath=which("google-chrome.exe")
+        else:
+            print("Please Install Chrome for Windows")
 
     if sys.platform=="linux":
-        if  which("google-chrome-stable")==None:
-            chromepath=os.path.join(workingdir,"bin","chrome-Linux")
-        else:
+        if  which("google-chrome-stable")!=None:
             chromepath=which("google-chrome-stable")
-
+        if which("chrome")!=None:
+            chromepath=which("chrome")
+        else:
+            print("Please Install Chrome for Linux")
     url="https://www.empornium.is"
     browser = await launch(executablePath=chromepath, headless=True, args=['--no-sandbox'])
     page = await browser.newPage()
@@ -36,6 +39,7 @@ async def run_dupe(upload_dict,cookie):
         await page.setCookie(element)
 
     await page.goto(f'{url}/upload.php')
+
     inputUploadHandle=await page.querySelector("input[type=file]");
     await inputUploadHandle.uploadFile(upload_dict.get("torrent",""))
 
@@ -61,7 +65,6 @@ async def run_dupe(upload_dict,cookie):
         dupemsg=re.sub(" Your file File matched File Size Torrent Files Time Size Uploader ","",dupemsg)
         dupelist=dupemsg.split('\n')
 
-        # quit()
         i=0
         length=len(dupelist)
         #clean up some unneeded data
