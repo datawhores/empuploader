@@ -71,9 +71,10 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 
 Here a examples of extension that will allow you to grab cookie info. \
 https://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search'; \
-http://www.editthiscookie.com/ \
 
-Follow the instructions for exported cookies, and make sure it is in the JSON format. USually the default. If it is in the correct format you should see
+http://www.editthiscookie.com/ 
+
+Follow the instructions for exporting cookies, and make sure it is in the JSON format. USually the default. If it is in the correct format you should see
 "brackets,colons,curlybrackets" as part of the text.
 
 Copy the provided text into a file, and pass that file into the program
