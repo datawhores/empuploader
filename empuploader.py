@@ -556,7 +556,6 @@ if __name__ == '__main__':
     #setup path
   workingdir=os.path.dirname(os.path.abspath(__file__))
   binfolder=os.path.join(workingdir,"bin")
-  create_chrome(workingdir,binfolder)
   binlist=[]
   t=os.listdir(binfolder)
   for path in t:
@@ -648,6 +647,7 @@ if __name__ == '__main__':
         keepgoing=input("Prepare Another Upload: ")
       if args.upload:
         print("Upload Mode\n")
+        create_chrome(workingdir,binfolder)
         upload_emp(path,args)
         keepgoing=input("Continue Uploading?: ")
       if args.update:
