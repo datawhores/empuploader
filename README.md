@@ -101,11 +101,9 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > --template
 > - template is read, and information on text json is updated
 > 
-> --username
-> - your emp username
+> --cookie
+> - with content in the json format
 > 
-> --passsword
-> - your emp password
 > 
 > --config
 > - use config to import arguments into program
