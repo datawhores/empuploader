@@ -6,9 +6,9 @@ Subpackages contain potentially unstable extensions.
 import sys
 from functools import wraps
 
-from tqdm import tqdm
-from tqdm.auto import tqdm as tqdm_auto
-from tqdm.utils import ObjectWrapper
+from ..auto import tqdm as tqdm_auto
+from ..std import tqdm
+from ..utils import ObjectWrapper
 
 __author__ = {"github.com/": ["casperdcl"]}
 __all__ = ['tenumerate', 'tzip', 'tmap']
@@ -16,6 +16,7 @@ __all__ = ['tenumerate', 'tzip', 'tmap']
 
 class DummyTqdmFile(ObjectWrapper):
     """Dummy file-like that will write to tqdm"""
+
     def __init__(self, wrapped):
         super(DummyTqdmFile, self).__init__(wrapped)
         self._buf = []
@@ -80,7 +81,7 @@ def tzip(iter1, *iter2plus, **tqdm_kwargs):
     """
     kwargs = tqdm_kwargs.copy()
     tqdm_class = kwargs.pop("tqdm_class", tqdm_auto)
-    for i in zip(tqdm_class(iter1, **tqdm_kwargs), *iter2plus):
+    for i in zip(tqdm_class(iter1, **kwargs), *iter2plus):
         yield i
 
 
