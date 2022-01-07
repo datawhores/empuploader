@@ -1,0 +1,59 @@
+Metadata-Version: 2.0
+Name: dottorrent-cli
+Version: 1.10.3
+Summary: CLI tool for creating .torrent files
+Home-page: https://github.com/kz26/dottorrent-cli
+Author: Kevin Zhang
+Author-email: kevin@kevinzhang.me
+License: UNKNOWN
+Keywords: bittorrent torrent bencode cli
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Requires-Dist: dottorrent (>=1.9.2)
+Requires-Dist: humanfriendly (>=2.1,<3.0)
+Requires-Dist: tqdm (>=4.8.4,<5.0.0)
+
+dottorrent-cli
+==============
+
+Command-line tool for creating .torrent files, powered by `dottorrent <https://github.com/kz26/dottorrent>`_
+
+Documentation
+-------------
+
+Full documentation on how to use dottorrent-cli
+from the command line is available at `dottorrent-cli.readthedocs.io <http://dottorrent-cli.readthedocs.io>`_.
+
+.. image:: https://readthedocs.org/projects/dottorrent-cli/badge/
+
+
+Installation
+------------
+
+Stable releases are available on PyPI and can be installed using ``pip``.
+
+::
+
+	pip install dottorrent-cli
+
+
+To install from the latest development sources, clone the git repo and run
+``pip install .``
+
+GUI
+---
+
+Looking for a GUI? Check out `dottorrent-gui <https://github.com/kz26/dottorrent-gui>`_.
+
+License
+-------
+
+`MIT <https://opensource.org/licenses/MIT>`_
+
+
