@@ -20,6 +20,7 @@ pyee==8.2.2
 pygifsicle==1.0.5
 pymediainfo==5.1.0
 pyppeteer==0.2.6
+PyYAML==6.0
 requests==2.27.1
 simple-term-menu==1.4.1
 six==1.16.0
