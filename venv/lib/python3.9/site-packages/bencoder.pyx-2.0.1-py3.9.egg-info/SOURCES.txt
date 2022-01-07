@@ -1,0 +1,15 @@
+LICENSE
+MANIFEST.in
+README.rst
+bencoder.c
+bencoder.pyx
+setup.cfg
+setup.py
+bencoder.pyx.egg-info/PKG-INFO
+bencoder.pyx.egg-info/SOURCES.txt
+bencoder.pyx.egg-info/dependency_links.txt
+bencoder.pyx.egg-info/not-zip-safe
+bencoder.pyx.egg-info/top_level.txt
+tests/debian-8.3.0-amd64-netinst.iso.torrent
+tests/test_decode.py
+tests/test_encode.py
