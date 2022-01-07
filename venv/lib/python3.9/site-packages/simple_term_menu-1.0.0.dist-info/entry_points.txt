@@ -1,3 +1,0 @@
-[console_scripts]
-simple-term-menu = simple_term_menu:main
-
