@@ -179,23 +179,22 @@ def preparer(args):
             quit()
         if len(choices)==1:
             processor(program_index,args.media,args)
-            keepgoing=input("Do Something Else?: ")
-            continue
-        menu_entry_index=None
-        print("Select A File To Process")
-        if sys.platform!="win32":
-            menu = TerminalMenu(choices)
-            menu_entry_index = menu.show()
         else:
-            menu_entry_index = SelectionMenu.get_selection(choices)  
-        menu_entry_index=int(menu_entry_index)   
-        if valid_index(menu_entry_index,choices)==False:
-            print("Enter Valid Entry")
-            continue
-        path=choices[(menu_entry_index)]
-        path=os.path.join(args.media,path)
-        processor(program_index,path,args)
-        keepgoing=input("Do Something Else?: ")
+            menu_entry_index=None
+            print("Select A File To Process")
+            if sys.platform!="win32":
+                menu = TerminalMenu(choices)
+                menu_entry_index = menu.show()
+            else:
+                menu_entry_index = SelectionMenu.get_selection(choices)  
+            menu_entry_index=int(menu_entry_index)   
+            if valid_index(menu_entry_index,choices)==False:
+                print("Enter Valid Entry")
+                continue
+            path=choices[(menu_entry_index)]
+            path=os.path.join(args.media,path)
+            processor(program_index,path,args)
+        
 """
 Embedded Pre-selected Images
 
