@@ -71,27 +71,21 @@ def setup_parser():
     parser.add_argument('-f','--font')
     parser.add_argument('-k','--cookie')
     parser.add_argument('-b','--batch',default=True)
-    comd = parser.add_mutually_exclusive_group()
-    comd.add_argument('-prepare', action='store_true')
-    comd.add_argument('-upload', action='store_true')
-    comd.add_argument('-update', action='store_true')
-    comd.add_argument('-createtor', action='store_true')
     return parser.parse_args()
 
 
 """
-Check if Process is Valid
-    - proper arg settings for mode
+Check directory is valid for upload
     - at least one file in directory
+    - Or file exists on system
 :param args: user Commandline/Config arguments
 :return: bool returns true if all paremeters are meet
 """
-def check_valid(args):  
-    if args.prepare==False and args.upload==False and args.update==False and args.createtor==False:
-        print("you must set -prepare or -upload or -update or -createtor")
-        return False
+def valid_dir(args):  
     if os.path.isdir(args.media) and len(os.listdir(args.media))==0:
         print("Upload Folder is Empty")
+        return False
+    if os.path.isdir(args.media)==False and os.path.isfile(args.media)==False:
         return False
     return True
 
@@ -113,59 +107,92 @@ Performs Action on single directory/File based on User input
 :param path: path chosen by user
 :returns: None
 """
-def single_upload(args,path):
+def processor(index,path,args):
     basename=get_upload_name(path)
-    print("test200",basename)
-    if args.prepare:
+    if index==0:
         print("Prepare Mode\n")
         yamlpath=emp.start_yaml(basename,args)
         emp.process_yaml(path,args,yamlpath)
-    if args.upload:
+    elif index==1:
         print("Upload Mode\n")
         emp.pre_upload_emp(args,path)
-    if args.update:
+    elif index==2:
         print("Update Template Mode\n")
         yamlpath=emp.start_yaml(basename,args)
         emp.update_template(args,yamlpath)
-    if args.createtor:
+    elif index==3:
         print("Torrent Creator Mode\n")
         torrentpath=os.path.join(args.torrents,f"{basename}.torrent")
         emp.create_torrent(path,torrentpath,args)
 
+"""
+Selection Menu For what Mode to Run
+:param: None
+:returns: None
+"""
+def MenuPicker():
+    menu_entry_index=None
+    options=["Prepare: Generate A YAML","Upload: Upload With YAML ","Update Template: Apply Changes to Template", \
+    "Torrent Creator: Make A EMP Torrent"]
+    t=True
+    while t:
+        if sys.platform!="win32":
+                menu = TerminalMenu(options)
+                menu_entry_index = menu.show()
+        else:
+            menu_entry_index = SelectionMenu.get_selection(options)  
+        menu_entry_index=int(menu_entry_index)    
+        if valid_index(menu_entry_index,options)==False:
+            print("Enter Valid Entry")
+            continue
+        t=False
+    return menu_entry_index
+"""
+Make Sure User Enter Valid Index For Given Menu
+:param index: Choosen by User
+:param choices: Menu Being Validated Against
+:returns: True or False
+"""
+def valid_index(index,choices):
+    if index>= len(choices) or index< 0   \
+    or isinstance(index,int)==False:
+        return False
+    return True
+          
+
 
 """
 Prompts User to Select a specific file/Directory
+Prepares Processor
 
 :param args: user Commandline/Config arguments
 :param choices: List of Possible Paths
 :returns: None
 """
-def batch_upload(args,choices):
+def preparer(args):
     keepgoing="yes"
+    choices=get_choices(args)
     while keepgoing=="Yes" or keepgoing=="yes" or keepgoing=="Y" or keepgoing=="y"  or keepgoing=="YES":
+        program_index=MenuPicker()
+        if len(choices)==1:
+            processor(program_index,args.media,args)
+            keepgoing=input("Do Something Else?: ")
+            continue
         menu_entry_index=None
+        print("Select A File To Process")
         if sys.platform!="win32":
             menu = TerminalMenu(choices)
             menu_entry_index = menu.show()
         else:
             menu_entry_index = SelectionMenu.get_selection(choices)  
-        menu_entry_index=int(menu_entry_index)
-        if menu_entry_index>= len(choices) or menu_entry_index< 0   \
-        or isinstance(menu_entry_index,int)==False:
-            print("Please Enter Valid Input")
+        menu_entry_index=int(menu_entry_index)   
+        if valid_index(menu_entry_index,choices)==False:
+            print("Enter Valid Entry")
             continue
-        path=choices[int(menu_entry_index)]
+        path=choices[(menu_entry_index)]
         path=os.path.join(args.media,path)
-        basename=get_upload_name(path)
-        single_upload(args,path)
-        if args.prepare:
-            keepgoing=input("Prepare Another Upload: ")
-        if args.upload:
-            keepgoing=input("Upload Another Torrent: ")
-        if args.update:
-            keepgoing=input("Update Another Template: ")
-        if args.createtor:
-            keepgoing=input("Create Another Torrent")
+        processor(program_index,path,args)
+        keepgoing=input("Do Something Else?: ")
 """
 Embedded Pre-selected Images
 

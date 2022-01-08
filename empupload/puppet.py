@@ -28,6 +28,7 @@ async def run_dupe(upload_dict,cookie):
     print("Searching for Dupes")
     workingdir=general.get_workdir()
     chromepath=None
+    finaljpg=os.path.join(workingdir,"final.jpg")
     if  sys.platform=="win32":
         if which("chrome.exe")==None:
             chromepath=os.path.join("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
@@ -49,53 +50,58 @@ async def run_dupe(upload_dict,cookie):
     page.setDefaultNavigationTimeout(40000)
     for element in cookie:
         await page.setCookie(element)
+    try:
+        await page.goto(f'{url}/upload.php')
+        inputUploadHandle=await page.querySelector("input[type=file]");
+        await inputUploadHandle.uploadFile(upload_dict.get("torrent",""))
 
-    await page.goto(f'{url}/upload.php')
+        # we need to type the title before checking for dupes , otherwise it fs up
+        await page.focus("#title")
+        await page.keyboard.type(upload_dict.get("title",""))
+        await page.click("#upload_table > table > tbody > tr:nth-child(1) > td:nth-child(2) > span > input[type=submit]")
+        #wait for navigation doesn't seem to work
+        await page.waitFor(5000);
+        element = await page.querySelector("#messagebar")
+        msg = await page.evaluate('(element) => element.textContent', element)
+        if msg!=None and re.search("category|dupes",msg)!=None:
+            dupebox= await page.querySelector("#upload_table > div:nth-child(2)")
+            dupemsg = await page.evaluate('(dupebox) => dupebox.textContent', dupebox)
+            dupemsg= re.sub('\n ', '', dupemsg)
+            dupemsg= re.sub(' \n', '', dupemsg)
+            dupemsg= re.sub(' +', ' ', dupemsg)
+            dupemsg= re.sub('\n+', '\n', dupemsg)
+            dupemsg= re.sub('\t+', '*', dupemsg)
+            dupemsg=re.sub(" Your file File matched File Size Torrent Files Time Size Uploader ","",dupemsg)
+            dupelist=dupemsg.split('\n')
 
-    inputUploadHandle=await page.querySelector("input[type=file]");
-    await inputUploadHandle.uploadFile(upload_dict.get("torrent",""))
+            i=0
+            length=len(dupelist)
+            #clean up some unneeded data
+            while i<length-2:
+                dupelist[i]="Your File:"+dupelist[i]
+                dupelist[i+1]="File on EMP:"+dupelist[i+1]
+                dupelist[i+2]="Conflict Size:"+dupelist[i+2]
+                i=i+3
+                dupelist.pop(i)
+                dupelist.pop(i)
+                dupelist[i]="Offending Torrent on Site:"+dupelist[i]
+                dupelist[i+1]=" "
+                length=length-2
+                i=i+2
+            dupemsg='\n'.join(dupelist)
+            print(dupemsg)
+            return True,page
+        else:
+            print("No Dupes")
+            return False,page
+    except:
+      
+        await page.waitFor(10000)
+        await page.setViewport({ "width": 1920, "height": 2300 })
+        await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
+        print(f"Error Finding Dupe Check {finaljpg}")
+        return None,None
 
-    # we need to type the title before checking for dupes , otherwise it fs up
-    await page.focus("#title")
-    await page.keyboard.type(upload_dict.get("title",""))
-    await page.click("#upload_table > table > tbody > tr:nth-child(1) > td:nth-child(2) > span > input[type=submit]")
-    #wait for navigation doesn't seem to work
-    await page.waitFor(5000);
-    element = await page.querySelector("#messagebar")
-
-
-    msg = await page.evaluate('(element) => element.textContent', element)
-    if msg!=None and re.search("category|dupes",msg)!=None:
-        dupebox= await page.querySelector("#upload_table > div:nth-child(2)")
-        dupemsg = await page.evaluate('(dupebox) => dupebox.textContent', dupebox)
-        dupemsg= re.sub('\n ', '', dupemsg)
-        dupemsg= re.sub(' \n', '', dupemsg)
-        dupemsg= re.sub(' +', ' ', dupemsg)
-        dupemsg= re.sub('\n+', '\n', dupemsg)
-        dupemsg= re.sub('\t+', '*', dupemsg)
-        dupemsg=re.sub(" Your file File matched File Size Torrent Files Time Size Uploader ","",dupemsg)
-        dupelist=dupemsg.split('\n')
-
-        i=0
-        length=len(dupelist)
-        #clean up some unneeded data
-        while i<length-2:
-            dupelist[i]="Your File:"+dupelist[i]
-            dupelist[i+1]="File on EMP:"+dupelist[i+1]
-            dupelist[i+2]="Conflict Size:"+dupelist[i+2]
-            i=i+3
-            dupelist.pop(i)
-            dupelist.pop(i)
-            dupelist[i]="Offending Torrent on Site:"+dupelist[i]
-            dupelist[i+1]=" "
-            length=length-2
-            i=i+2
-        dupemsg='\n'.join(dupelist)
-        print(dupemsg)
-        return True,page
-    else:
-        print("No Dupes")
-        return False,page
 """
 Uploads Torrent to EMP
 
@@ -108,31 +114,38 @@ Uploads Torrent to EMP
 
 async def run_upload(page,upload_dict,catdict):
     workingdir=general.get_workdir()
-    await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
-    await page.focus("#image")
-    await page.keyboard.type(upload_dict.get("cover",""))
-    await page.focus("#taginput")
-    await page.keyboard.type(upload_dict.get("taglist",""))
-    await page.focus("#desc")
-    if upload_dict.get("template","")!="":
-        await page.keyboard.type(upload_dict.get("template",""))
-    else:
-        await page.keyboard.type(upload_dict.get("desc",""))
-        await page.keyboard.press("Enter")
-        if upload_dict.get("images","")!=None:
-            await page.keyboard.type(upload_dict.get("images",""))
+    finaljpg=os.path.join(workingdir,"final.jpg")
+    try:
+        await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
+        await page.focus("#image")
+        await page.keyboard.type(upload_dict.get("cover",""))
+        await page.focus("#taginput")
+        await page.keyboard.type(upload_dict.get("taglist",""))
+        await page.focus("#desc")
+        if upload_dict.get("template","")!="":
+            await page.keyboard.type(upload_dict.get("template",""))
         else:
-            await page.keyboard.type(upload_dict.get("thumbs",""))
-        await page.keyboard.press("Enter")
+            await page.keyboard.type(upload_dict.get("desc",""))
+            await page.keyboard.press("Enter")
+            if upload_dict.get("images","")!=None:
+                await page.keyboard.type(upload_dict.get("images",""))
+            else:
+                await page.keyboard.type(upload_dict.get("thumbs",""))
+            await page.keyboard.press("Enter")
 
 
-    catvalue=catdict.get(upload_dict.get("Category",""),"1")
-    await page.select('#category', catvalue)
-    await page.click('#post');
-    await page.waitFor(10000);
-    await page.setViewport({ "width": 1920, "height": 2300 });
-    await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
-
+        catvalue=catdict.get(upload_dict.get("Category",""),"1")
+        await page.select('#category', catvalue)
+        await page.click('#post');
+        await page.waitFor(10000);
+        await page.setViewport({ "width": 1920, "height": 2300 });
+        await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
+        print(f"File Should Be Uploaded\nPlease Check {finaljpg}\nIf Upload Not Showing")
+    except:
+        await page.waitFor(10000);
+        await page.setViewport({ "width": 1920, "height": 2300 });
+        await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
+        print(f"Something Went Wrong\nPlease Check {finaljpg}")
 
 """
 Runs "find_dupe" with async

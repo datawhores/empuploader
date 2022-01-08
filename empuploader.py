@@ -33,12 +33,9 @@ if __name__ == '__main__':
     general.create_binaries_linux(args)
   else:
     general.create_binaries_windows(args)
-  if general.check_valid(args)==False:
+  if general.valid_dir(args)==False:
     quit()
-  choices=general.get_choices(args)
-  if len(choices)==1:
-    general.single_upload(args,args.media)
-  else:
-    general.batch_upload(args,choices)
+  general.preparer(args)
+   
 
  
