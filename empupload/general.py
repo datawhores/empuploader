@@ -133,7 +133,7 @@ Selection Menu For what Mode to Run
 def MenuPicker():
     menu_entry_index=None
     options=["Prepare: Generate A YAML","Upload: Upload With YAML ","Update Template: Apply Changes to Template", \
-    "Torrent Creator: Make A EMP Torrent"]
+    "Torrent Creator: Make A EMP Torrent","Quit"]
     t=True
     while t:
         if sys.platform!="win32":
@@ -170,10 +170,13 @@ Prepares Processor
 :returns: None
 """
 def preparer(args):
-    keepgoing="yes"
+    t=True
     choices=get_choices(args)
-    while keepgoing=="Yes" or keepgoing=="yes" or keepgoing=="Y" or keepgoing=="y"  or keepgoing=="YES":
+    while t:
         program_index=MenuPicker()
+        if program_index==4:
+            print("Come Back Soon!!!!")
+            quit()
         if len(choices)==1:
             processor(program_index,args.media,args)
             keepgoing=input("Do Something Else?: ")
