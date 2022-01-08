@@ -1,32 +1,36 @@
-[bg=#6666CC][table]
-[tr]
-[td]{cover}
-[/td][td][align=center][font=Times New Roman][size=5][color=#000033][b]Main Title....<Main Title>
-
-{Title}
-
-Type....<dvd ova?>
-
-Year....<Year>[/b][/color][/size][/font]
-[hr]
-[img]https://fapping.empornium.sx/images/2016/03/23/ablbSYai.png[/img]
-[font=Comic Sans MS][color=black][size=3][b]<Plot>[/b][/size][/color][/font][/align]
+[table=852px,nball]
+[tr=gradient:to right;#0000 5%;#000000;#000000;#0000 95%]
+[td=90%][align=center][color=#f4f4f4][b][size=5]{Title}[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+[align=center][img=800]{cover}[/img][/align]
 
 
 
-[hr]
-[align=center][img]https://fapping.empornium.sx/images/2016/03/23/acqgI7ve.png[/img]
-[font=Times New Roman][size=3][color=#FFFFFF][b]Format:
-Codec:
-Resolution:
-Audio:
-Language(s):
-Subtitles:
-Groups: Optional [/b][/color][/size][/font][/align]
-[hr]
-[/td][/tr]
-[/table][/bg]
-[align=center][bg=#6666CC][img]https://fapping.empornium.sx/images/2016/03/23/ablTvAKJ.png[/img]
-[table=30%,nball,center]
-[tr]
-[td]{thumbs}
+[hr][hr]
+
+
+
+
+[table=60%,nball]
+[tr][td][size=2]
+{desc}
+[/size][/td]
+[/tr]
+[/table]
+
+
+[hr][hr]
+
+
+
+
+[hr][hr]
+
+
+[table=nball]
+[tr=gradient:to right;#0000 15%;#000000;#000000;#0000 85%]
+[td=90%][align=center][color=#f4f4f4][b][size=3]SCREENSHOTS[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+[align=center][img=1100]{thumbs}[/img][/align]

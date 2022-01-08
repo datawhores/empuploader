@@ -73,11 +73,15 @@ def upload_emp(yamlpath,args):
         cookie=json.load(g)
 
     dupe,page=puppet.find_dupe(upload_dict,cookie)
+    
+       
 
     if dupe==True:
         upload=input("Ignore dupes and continue upload?: ")
-    if dupe==False or upload=="Yes" or upload=="YES" or upload=="Y" or upload=="y" or upload=="YES":
+    if dupe!=None  and \
+        (dupe==False or upload=="Yes" or upload=="YES" or upload=="Y" or upload=="y" or upload=="YES"):
         puppet.upload_torrent(page,upload_dict,catdict)
+        
 
 """
 Get yamlpath based on path
@@ -165,7 +169,7 @@ def process_yaml(path,args,yamlpath):
         h=''.join(h)
         matches=re.findall("{.*}",h)
     for element in matches:
-        key=re.sub("{|}","",element)
+        key=re.sub("{|}","",element).lower()
         if re.search("video",element):
             key=key.split(".")[1]
             value=emp_dict["video"].get(key,"")
@@ -220,7 +224,7 @@ def update_template(args,yamlpath):
         else:
              value=emp_dict.get(key,"")
         h=re.sub(element,value,h)
-    emp_dict["Template"]=h
+    emp_dict["template"]=h
 
     pprint(emp_dict,width=1)
     check=input("Do you want to Update the yaml: ")

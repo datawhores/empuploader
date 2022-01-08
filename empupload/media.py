@@ -59,11 +59,11 @@ def create_images(path,picdir,args):
         print("Their are ",len(t.splitlines())," Video Files")
         for line in t.splitlines():
             print("Video Number:" +str(count))
-            subprocess.call([args.mtn,'-c','3','-r','3','-w','2880','-j','92','-b','2','-f',args.font,line,'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            subprocess.call([args.mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',args.font,line,'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             count=count+1
 ## Files not in Dir
     else:
-        subprocess.call([args.mtn,'-c','3','-r','3','-w','2880','-j','92','-b','2','-f',args.font,path,'-O',picdir], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        subprocess.call([args.mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',args.font,path,'-O',picdir], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     zip_images(count,path,picdir)
     return upload_image(picdir)
 """
