@@ -1,3 +1,5 @@
 venv/
 cookie.json
 template
+*.jpg
+*pycache*/
