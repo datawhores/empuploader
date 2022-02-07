@@ -7,6 +7,7 @@ from threading import Thread
 from pprint import pprint
 from prompt_toolkit import prompt as input
 import empupload.general as general
+import empupload.puppet as puppet
 
 
 """
@@ -30,7 +31,7 @@ if __name__ == '__main__':
   args=general.setup_parser()
   general.create_config(args)
   if sys.platform=="linux":
-    general.create_chrome(workingdir,binfolder)
+    puppet.create_chrome(workingdir,binfolder)
     general.create_binaries_linux(args)
   else:
     general.create_binaries_windows(args)
