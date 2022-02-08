@@ -14,6 +14,10 @@ if sys.platform!="win32":
 import empupload.emp as emp
 from shutil import which
 from prompt_toolkit import prompt as input
+from datetime import datetime
+import random
+import string
+
 """
 Inputs User settings into args
 
@@ -115,6 +119,7 @@ def processor(index,path,args):
         emp.process_yaml(path,args,yamlpath)
     elif index==1:
         print("Upload Mode\n")
+        createImages(get_workdir())
         emp.pre_upload_emp(args,path)
     elif index==2:
         print("Update Template Mode\n")
@@ -194,6 +199,7 @@ def preparer(args):
             path=choices[(menu_entry_index)]
             path=os.path.join(args.media,path)
             processor(program_index,path,args)
+        print("\n Lets Do this Again?")
         
 """
 Embedded Pre-selected Images
@@ -242,7 +248,7 @@ def get_workdir():
 
 
 """
-Set Binary Path on Linux
+Set Binaries on Linux
 
 :param args: user Commandline/Config arguments
 
@@ -280,7 +286,7 @@ def create_binaries_linux(args):
         dottorrent=os.path.join(workingdir,"bin","dottorrent")
         args.dottorrent=dottorrent
 """
-Set Binary Path on Windows
+Set Binaries on Windows
 
 :param args: user Commandline/Config arguments
 
@@ -316,3 +322,48 @@ def create_binaries_windows(args):
         dottorrent=os.path.join(workingdir,"bin","dottorrent.exe")
         args.dottorrent=dottorrent
     
+"""
+Set PATH 
+
+:param binfolder: bin directory of program
+
+:returns: None
+"""
+
+
+def setPath(binfolder):
+    t=os.listdir(binfolder)
+    binlist=[]
+    for path in t:
+        full=os.path.join(binfolder,path)
+        if os.path.isdir(full) and full not in os.environ["PATH"]:
+            binlist.append(full)
+    os.environ["PATH"] += os.pathsep + os.pathsep.join(binlist)
+
+"""
+Creates Images Folder
+
+:param workingdir: main directory of program
+
+:returns: None
+"""
+
+
+
+def createImages(workingdir):
+    Images=os.path.join(workingdir,"Images")
+    if os.path.isdir(Images)==False:
+        os.mkdir(Images)
+
+"""
+generates random Prefix
+
+:param arguments: arguments passed by template
+
+:returns: randomized prefix string
+"""
+def getrandomPrefix(upload_dict):
+    title=upload_dict.get("title","")
+    date=datetime.today().strftime('%Y-%m-%d')
+    randomstring=''.join(random.choices(string.ascii_lowercase, k=8))
+    return f"{date}_{randomstring}_{title}"   

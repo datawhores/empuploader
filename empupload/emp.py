@@ -65,6 +65,7 @@ def upload_emp(yamlpath,args):
     g=open(os.path.join(workingdir,"cat.yaml"),"r")
     catdict= yaml.safe_load(g)
     cookie=None
+    randomImageString=general.getrandomPrefix(upload_dict)
     if args.cookie==None or args.cookie=="":
         print("You need a cookie file")
         quit()
@@ -72,7 +73,7 @@ def upload_emp(yamlpath,args):
         g=open(args.cookie,"r")
         cookie=json.load(g)
 
-    dupe,page=puppet.find_dupe(upload_dict,cookie)
+    dupe,page=puppet.find_dupe(upload_dict,cookie,randomImageString)
     
        
 
@@ -80,7 +81,7 @@ def upload_emp(yamlpath,args):
         upload=input("Ignore dupes and continue upload?: ")
     if dupe!=None  and \
         (dupe==False or upload=="Yes" or upload=="YES" or upload=="Y" or upload=="y" or upload=="YES"):
-        puppet.upload_torrent(page,upload_dict,catdict)
+        puppet.upload_torrent(page,upload_dict,catdict,randomImageString)
         
 
 """
