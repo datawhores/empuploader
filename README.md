@@ -67,16 +67,35 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 
 ## Step 4: Cookies
 
+There are numberous extensions that can export cookies in a json format. Some Recommendations are below, but it is not required to use those specific ones
 
-Here a examples of extension that will allow you to grab cookie info. \
-chttps://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search'; \
+
+You should be exporting the data as a json
+Their should be "brackets,colons,curlybrackets" as part of the text
+Copy the provided text into a file, and pass that file into the program with the --cookie arg or config file.
+
+
+### Recomendations
+
+#### editthiscookie: Chrome or Opera,Chromium Browsers 
+if your not sure which one to get I would recommend this one
+https://www.editthiscookie.com/blog/
+
+##### Exporting Cookies
 
 https://www.editthiscookie.com/blog/2014/03/import-export-cookies/
 
-Follow the instructions in the link above for how to export cookies, and make sure it is in the JSON format. Usually the default. If it is in the correct format you should see
-"brackets,colons,curlybrackets" as part of the text.
 
-Copy the provided text into a file, and pass that file into the program with the --cookie arg or config file.
+#### editthiscookie: Firefox
+if your not sure which one to get I would recommend this one
+ttps://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search'; \
+
+
+##### Exporting Cookies
+
+https://addons.mozilla.org/user-media/previews/thumbs/211/211229.jpg?modified=1622132880
+
+
 
 # ARGs
 
