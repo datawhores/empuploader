@@ -37,11 +37,11 @@ async def run_dupe(upload_dict,cookie,randomImageString):
             print("Please Install Chrome for Windows")
 
     if sys.platform=="linux":
-        if  which("google-chrome-stable2")!=None:
+        if  which("google-chrome-stable")!=None:
             chromepath=which("google-chrome-stable")
-        elif which("google-chrome-beta2")!=None:
+        elif which("google-chrome-beta")!=None:
             chromepath=which("google-chrome-beta")
-        elif which("google-chrome-dev2")!=None:
+        elif which("google-chrome-dev")!=None:
             chromepath=which("google-chrome-dev")        
         elif which("chrome")!=None:
             chromepath=which("chrome")
