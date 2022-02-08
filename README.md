@@ -77,23 +77,21 @@ Copy the provided text into a file, and pass that file into the program with the
 
 ### Recomendations
 
-#### editthiscookie: Chrome or Opera,Chromium Browsers 
-if your not sure which one to get I would recommend this one
-https://www.editthiscookie.com/blog/
+#### Chrome or Opera,Chromium Browsers 
 
-##### Exporting Cookies
-
-https://www.editthiscookie.com/blog/2014/03/import-export-cookies/
+* editthiscookie:https://www.editthiscookie.com/blog/
+* Exporting Cookies: Follow the instructions here -> https://www.editthiscookie.com/blog/2014/03/import-export-cookies/
 
 
-#### editthiscookie: Firefox
-if your not sure which one to get I would recommend this one
-ttps://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search'; \
+#### Firefox 
 
+* cookie-quick-manager:https://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search
+* Exporting Cookies: This is button to look for ->  https://addons.mozilla.org/user-media/previews/thumbs/211/211229.jpg?modified=1622132880
 
-##### Exporting Cookies
-
-https://addons.mozilla.org/user-media/previews/thumbs/211/211229.jpg?modified=1622132880
+1. You'll want to click the icon on the extension bar
+2. Click Search for Cookies
+3. Look for the folder Icon 
+4. Click Copy all
 
 
 
