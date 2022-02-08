@@ -11,7 +11,6 @@ import shutil
 import tempfile
 import os
 
-
 page=None
 dupe=None
 
@@ -24,11 +23,11 @@ Handles Dupes with User Input
 
 :returns: None
 """
-async def run_dupe(upload_dict,cookie):
+async def run_dupe(upload_dict,cookie,randomImageString):
     print("Searching for Dupes")
     workingdir=general.get_workdir()
     chromepath=None
-    finaljpg=os.path.join(workingdir,"final.jpg")
+    Images=os.path.join(workingdir,"Images")
     if  sys.platform=="win32":
         if which("chrome.exe")==None:
             chromepath=os.path.join("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
@@ -38,8 +37,12 @@ async def run_dupe(upload_dict,cookie):
             print("Please Install Chrome for Windows")
 
     if sys.platform=="linux":
-        if  which("google-chrome-stable")!=None:
+        if  which("google-chrome-stable2")!=None:
             chromepath=which("google-chrome-stable")
+        elif which("google-chrome-beta2")!=None:
+            chromepath=which("google-chrome-beta")
+        elif which("google-chrome-dev2")!=None:
+            chromepath=which("google-chrome-dev")        
         elif which("chrome")!=None:
             chromepath=which("chrome")
         else:
@@ -63,6 +66,7 @@ async def run_dupe(upload_dict,cookie):
         await page.waitFor(5000);
         element = await page.querySelector("#messagebar")
         msg = await page.evaluate('(element) => element.textContent', element)
+    
         if msg!=None and re.search("category|dupes",msg)!=None:
             dupebox= await page.querySelector("#upload_table > div:nth-child(2)")
             dupemsg = await page.evaluate('(dupebox) => dupebox.textContent', dupebox)
@@ -90,16 +94,25 @@ async def run_dupe(upload_dict,cookie):
                 i=i+2
             dupemsg='\n'.join(dupelist)
             print(dupemsg)
+            #print page
+            dupeimage= os.path.join(Images,f"{randomImageString}_Dupes.jpg")
+            await page.waitFor(5000)
+            await page.setViewport({ "width": 1920, "height": 2300 })
+            await page.screenshot({'path': dupeimage,'fullPage':True,'type':'jpeg'})
+            print(f"Dupes Screenshot: {dupeimage}")
+
+
+       
             return True,page
         else:
             print("No Dupes")
             return False,page
     except:
-      
-        await page.waitFor(10000)
+        errorimage= os.path.join(Images,f"{randomImageString}_DupeError.jpg")
+        await page.waitFor(5000)
         await page.setViewport({ "width": 1920, "height": 2300 })
-        await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
-        print(f"Error Finding Dupe Check {finaljpg}")
+        await page.screenshot({'path': errorimage,'fullPage':True,'type':'jpeg'})
+        print(f"Error Finding Dupes: {errorimage}")
         return None,None
 
 """
@@ -112,9 +125,9 @@ Uploads Torrent to EMP
 :returns: None
 """
 
-async def run_upload(page,upload_dict,catdict):
+async def run_upload(page,upload_dict,catdict,randomImageString):
     workingdir=general.get_workdir()
-    finaljpg=os.path.join(workingdir,"final.jpg")
+    Images=os.path.join(workingdir,"Images")
     try:
         await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
         await page.focus("#image")
@@ -137,15 +150,20 @@ async def run_upload(page,upload_dict,catdict):
         catvalue=catdict.get(upload_dict.get("Category",""),"1")
         await page.select('#category', catvalue)
         await page.click('#post');
-        await page.waitFor(10000);
-        await page.setViewport({ "width": 1920, "height": 2300 });
-        await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
-        print(f"File Should Be Uploaded\nPlease Check {finaljpg}\nIf Upload Not Showing")
+        #print page
+
+        uploadimage= os.path.join(Images,f"{randomImageString}_Upload.jpg")
+        await page.waitFor(5000)
+        await page.setViewport({ "width": 1920, "height": 2300 })
+        await page.screenshot({'path': uploadimage,'fullPage':True,'type':'jpeg'})
+        print(f"File Should Be Uploaded\nPlease Check {uploadimage}\nIf Upload Not Showing")
     except:
-        await page.waitFor(10000);
-        await page.setViewport({ "width": 1920, "height": 2300 });
-        await page.screenshot({'path': os.path.join(workingdir,"final.jpg"),'fullPage':True,'type':'jpeg'})
-        print(f"Something Went Wrong\nPlease Check {finaljpg}")
+        errorimage= os.path.join(Images,f"{randomImageString}_UploadError.jpg")
+        await page.waitFor(5000)
+        await page.setViewport({ "width": 1920, "height": 2300 })
+        await page.screenshot({'path': errorimage,'fullPage':True,'type':'jpeg'})
+        print(f"Error Uploading: {errorimage}")
+
 
 """
 Runs "find_dupe" with async
@@ -155,8 +173,8 @@ Runs "find_dupe" with async
 
 :returns: None
 """
-def find_dupe(upload_dict,cookie):
-    dupe,page=asyncio.get_event_loop().run_until_complete(run_dupe(upload_dict,cookie))
+def find_dupe(upload_dict,cookie,randomImageString):
+    dupe,page=asyncio.get_event_loop().run_until_complete(run_dupe(upload_dict,cookie,randomImageString))
     return dupe,page
 
 """
@@ -168,8 +186,8 @@ Runs "run_upload" with async
 
 :returns: None
 """
-def upload_torrent(page,upload_dict,catdict):
-    asyncio.get_event_loop().run_until_complete(run_upload(page,upload_dict,catdict))
+def upload_torrent(page,upload_dict,catdict,randomImageString):
+    asyncio.get_event_loop().run_until_complete(run_upload(page,upload_dict,catdict,randomImageString))
 
 """
 Download Chrome if required on Linux
@@ -182,6 +200,8 @@ Download Chrome if required on Linux
 """
 def create_chrome(workingdir,binfolder):
   chromepath=os.path.join(binfolder,"Chrome-Linux")
+  if os.path.isdir(chromepath)==False:
+      os.mkdir(chromepath)
   if os.path.isfile(os.path.join(chromepath,"chrome"))==False:
       if os.path.isdir(chromepath):
           shutil.rmtree(chromepath)
@@ -199,3 +219,4 @@ def create_chrome(workingdir,binfolder):
       for element in os.scandir():
           shutil.move(element.name, chromepath)
       os.chdir(workingdir)
+

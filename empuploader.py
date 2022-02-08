@@ -21,20 +21,15 @@ if __name__ == '__main__':
     #setup path
   workingdir=os.path.dirname(os.path.abspath(__file__))
   binfolder=os.path.join(workingdir,"bin")
-  binlist=[]
-  t=os.listdir(binfolder)
-  for path in t:
-      full=os.path.join(binfolder,path)
-      if os.path.isdir(full) and full not in os.environ["PATH"]:
-          binlist.append(full)
-  os.environ["PATH"] += os.pathsep + os.pathsep.join(binlist)
   args=general.setup_parser()
   general.create_config(args)
   if sys.platform=="linux":
     puppet.create_chrome(workingdir,binfolder)
     general.create_binaries_linux(args)
+    general.setPath(binfolder)
   else:
     general.create_binaries_windows(args)
+    general.setPath(binfolder)
   if general.valid_dir(args)==False:
     quit()
   general.preparer(args)
