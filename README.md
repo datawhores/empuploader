@@ -29,8 +29,8 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
 ### Windows
 * git clone ​
-* py -3.8 -m pip install --user virtualenv
-* py -3.8 -m venv env
+* py -3 -m pip install --user virtualenv
+* py -3 -m venv env
 * .\env\Scripts\activate
 * which python -> should be the virtualenv
 * py -m pip install -r requirements.txt
