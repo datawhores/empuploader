@@ -240,7 +240,7 @@ def create_chrome():
         shutil.rmtree(chromepath)     
     os.mkdir(chromepath)
     console.console.print(f"Install Chrome to {chromepath}",style="green")
-    tempchrome=tempfile.mkdtemp(tempfile.mkdtemp(dir=settings.tmpfile))
+    tempchrome=tempfile.mkdtemp(dir=settings.tmpfile)
     chrome="chrome.tar"
     os.chdir(tempchrome)
 

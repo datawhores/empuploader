@@ -193,7 +193,7 @@ Creates a Torrent using path and torrentpath
 def create_torrent(path,torrentpath):
     #make torrent path
     Path( os.path.dirname(torrentpath)).mkdir( parents=True, exist_ok=True )
-    t=dottorrent.Torrent(path, trackers=[args.prepare.tracker], private=True)
+    t=dottorrent.Torrent(path, trackers=[args.prepare.tracker], private=True,exclude=args.prepare.exclude)
     t.piece_size=min(t.get_info()[2],16777216)
     #Progress Bar
     files = set()

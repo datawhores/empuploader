@@ -17,6 +17,7 @@ def getargs():
     prepare.add_argument('-tr','--tracker',help="announce url",required=True)
     prepare.add_argument('-c','--cover',help="set a preset image to use for torrent cover",required=False)
     prepare.add_argument('-i','--images',help="Folder with static images for upload",required=False)
+    prepare.add_argument('-e','--exclude',help="file patterns for dottorrent to exclude\nCan be passed multiple times",required=False,nargs='*',default=[])
 
     # upload= ArgumentParser()
     edit= ArgumentParser()
