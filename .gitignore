@@ -4,3 +4,5 @@ template
 *.jpg
 *pycache*/
 Chrome-Linux/
+empupload.conf
+Images

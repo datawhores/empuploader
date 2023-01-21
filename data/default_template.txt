@@ -1,0 +1,41 @@
+[table=852px,nball]
+[tr=gradient:to right;#0000 5%;#000000;#000000;#0000 95%]
+[td=90%][align=center][color=#f4f4f4][b][size=5]${title}[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+[align=center][img=500]${cover}[/img][/align]
+
+
+
+[img=200]${sexy}[/img]
+
+[img=200]${sexy2}[/img]
+
+[img=200]${sexy2}[/img]
+
+
+[hr][hr]
+
+
+
+[table=nball]
+[tr=gradient:to right;#0000 15%;#000000;#000000;#0000 85%]
+[td=90%][align=center][color=#f4f4f4][b][size=3]Desc[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+${desc}
+
+[hr][hr]
+
+
+
+
+[hr][hr]
+
+
+[table=nball]
+[tr=gradient:to right;#0000 15%;#000000;#000000;#0000 85%]
+[td=90%][align=center][color=#f4f4f4][b][size=3]SCREENSHOTS[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+[align=center][img=1100]${thumbs}[/img][/align]
