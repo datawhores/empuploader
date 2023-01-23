@@ -3,4 +3,8 @@ cookie.json
 template
 *.jpg
 *pycache*/
-Chrome-Linux/
+chrome_Linux
+empupload.conf
+Images
+*.yaml
+.vscode

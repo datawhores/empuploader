@@ -9,44 +9,36 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
 
 # Install
-## Step 1: Repo
-> - git clone https://github.com/excludedBittern8/empuploader
-> - cd empuploader
 
-## Step 2: Virtual Env
-* This will allow you to install packages for this project only. Without effecting the global install of python
-* This is the recommended method, as it protects from conflicting packages. It also will work without sudo on Linux
+## Repo
+- git clone https://github.com/excludedBittern8/empuploader
+- cd empuploader
+
+## Python
 
 ### Linux
-> #### create virtual venv
-> 
-> - python3 -m pip install --user virtualenv
-> - python3 -m venv venv
-> 
-> 
-> 
-> #### Add required modules
-> ./venv/bin/pip3 install -r requirements.txt
-> #### Running 
-> /venv/bin/python3
+
+* python3 -m pip install --user virtualenv
+* python3 -m venv env
+* source env/bin/activate
+* which python -> should be the virtualenv
+* pip3 install -r requirements.txt
+* pip install imageio[ffmpeg]
+* deactivate -> Do this after installing the requirements
+
 
 ### Windows
-#### create virtual venv
-> 
-> py -m pip install --user virtualenv
-> 
-> python3 -m venv venv or  py -m venv venv
->
-> #### Add required modules
-> 
-> venv\Scripts\pip3.exe install -r requirements.txt
-> 
-> #### Running
-> 
-> venv\Scripts\python
+* git clone ​
+* py -3 -m pip install --user virtualenv
+* py -3 -m venv env
+* .\env\Scripts\activate
+* which python -> should be the virtualenv
+* py -m pip install -r requirements.txt
+* pip install imageio[ffmpeg]
+* deactivate -> Do this after installing the requirements
 
 
-## Step 3: Chrome
+## Chrome
 Chrome is needed for pyppeteer which is required to auto upload to the site. 
  
  ### Linux
@@ -62,7 +54,8 @@ Chrome is needed for pyppeteer which is required to auto upload to the site.
 > - Download and install a non portable version of chrome
 > - it should be in your x86 program files folder. This is the default install directory on 64bit Windows
 
-# Note:
+
+## Note:
 * on Linux you may need to chmod + x -R ./bin/ to give permession to the binaries in that folder
 
 ## Step 4: Cookies
@@ -93,6 +86,7 @@ Copy the provided text into a file, and pass that file into the program with the
 3. Look for the folder Icon 
 4. Click Copy all
 
+# Requirements
 
 
 # ARGs

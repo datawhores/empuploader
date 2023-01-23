@@ -1,18 +1,25 @@
-#!/usr/bin/env python3.6
 import asyncio
+import os
+import tarfile
+import json
 from pyppeteer import launch
 from pyppeteer import __pyppeteer_home__
 import sys
 import re
+import requests
 from shutil import which
-import empupload.general as general
-import subprocess
 import shutil
 import tempfile
-import os
+from tqdm import tqdm
+import settings as settings
+import runner as runner
+import general.console as console
+import empupload.network as network
+import general.arguments as arguments
+import general.paths as paths
 
-page=None
-dupe=None
+args=arguments.getargs()
+
 
 
 """
@@ -21,34 +28,12 @@ Handles Dupes with User Input
 :param upload_dict: Options to Embedded in Upload
 :param cookie: Cookie For Login
 
-:returns: None
+:returns tuple: return dupe bool, page Object, and a string to dupe fappening upload
 """
-async def run_dupe(upload_dict,cookie,randomImageString):
-    print("Searching for Dupes")
-    workingdir=general.get_workdir()
-    chromepath=None
-    Images=os.path.join(workingdir,"Images")
-    if  sys.platform=="win32":
-        if which("chrome.exe")==None:
-            chromepath=os.path.join("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
-        elif which("google-chrome.exe")!=None:
-            chromepath=which("google-chrome.exe")
-        else:
-            print("Please Install Chrome for Windows")
-
-    if sys.platform=="linux":
-        if  which("google-chrome-stable")!=None:
-            chromepath=which("google-chrome-stable")
-        elif which("google-chrome-beta")!=None:
-            chromepath=which("google-chrome-beta")
-        elif which("google-chrome-dev")!=None:
-            chromepath=which("google-chrome-dev")        
-        elif which("chrome")!=None:
-            chromepath=which("chrome")
-        else:
-            print("Please Install Chrome for Linux")
-    url="https://www.empornium.is"
-    browser = await launch(executablePath=chromepath, headless=True, args=['--no-sandbox'])
+async def run_dupe(upload_dict,cookie):
+    console.console.print("Searching for Dupes",style="yellow")
+    url=settings.empURl
+    browser = await launch(executablePath=getChrome(), headless=True, args=['--no-sandbox'])
     page = await browser.newPage()
     page.setDefaultNavigationTimeout(40000)
     for element in cookie:
@@ -63,71 +48,67 @@ async def run_dupe(upload_dict,cookie,randomImageString):
         await page.keyboard.type(upload_dict.get("title",""))
         await page.click("#upload_table > table > tbody > tr:nth-child(1) > td:nth-child(2) > span > input[type=submit]")
         #wait for navigation doesn't seem to work
-        await page.waitFor(5000);
+        await page.waitFor(10000)
         element = await page.querySelector("#messagebar")
         msg = await page.evaluate('(element) => element.textContent', element)
-    
-        if msg!=None and re.search("category|dupes",msg)!=None:
-            dupebox= await page.querySelector("#upload_table > div:nth-child(2)")
-            dupemsg = await page.evaluate('(dupebox) => dupebox.textContent', dupebox)
-            dupemsg= re.sub('\n ', '', dupemsg)
-            dupemsg= re.sub(' \n', '', dupemsg)
-            dupemsg= re.sub(' +', ' ', dupemsg)
-            dupemsg= re.sub('\n+', '\n', dupemsg)
-            dupemsg= re.sub('\t+', '*', dupemsg)
-            dupemsg=re.sub(" Your file File matched File Size Torrent Files Time Size Uploader ","",dupemsg)
-            dupelist=dupemsg.split('\n')
-
-            i=0
-            length=len(dupelist)
-            #clean up some unneeded data
-            while i<length-2:
-                dupelist[i]="Your File:"+dupelist[i]
-                dupelist[i+1]="File on EMP:"+dupelist[i+1]
-                dupelist[i+2]="Conflict Size:"+dupelist[i+2]
-                i=i+3
-                dupelist.pop(i)
-                dupelist.pop(i)
-                dupelist[i]="Offending Torrent on Site:"+dupelist[i]
-                dupelist[i+1]=" "
-                length=length-2
-                i=i+2
-            dupemsg='\n'.join(dupelist)
-            print(dupemsg)
-            #print page
-            dupeimage= os.path.join(Images,f"{randomImageString}_Dupes.jpg")
-            await page.waitFor(5000)
-            await page.setViewport({ "width": 1920, "height": 2300 })
-            await page.screenshot({'path': dupeimage,'fullPage':True,'type':'jpeg'})
-            print(f"Dupes Screenshot: {dupeimage}")
-
-
-       
-            return True,page
-        else:
-            print("No Dupes")
-            return False,page
-    except:
-        errorimage= os.path.join(Images,f"{randomImageString}_DupeError.jpg")
-        await page.waitFor(5000)
+        p=tempfile.NamedTemporaryFile(suffix=".png")
+        #get dupe preview
+        await page.waitFor(1000)
         await page.setViewport({ "width": 1920, "height": 2300 })
-        await page.screenshot({'path': errorimage,'fullPage':True,'type':'jpeg'})
-        print(f"Error Finding Dupes: {errorimage}")
-        return None,None
+        await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
+        if msg!=None and re.search("category|dupes",msg)!=None:
+            dupemsg=await dupemsgHelper(page)
+            return True,page,f"{dupemsg}\nDupes Screenshot: {network.fapping_upload(p.name)}"
+        else:  
+                return False,page,f"Dupes Screenshot: {network.fapping_upload(p.name)}"
+    except Exception as E:
+            console.console.print(f"Error Finding Dupes\n{E}",style="red")
+            quit()
+
+"""
+Generates msg for found dupes
+
+:param page: Page Object Used to handle request
+
+:returns str: a string with information on dupes
+"""
+
+async def dupemsgHelper(page):
+    dupebox= await page.querySelector("#upload_table > div:nth-child(2)")
+    dupemsg = await page.evaluate('(dupebox) => dupebox.textContent', dupebox)
+    dupemsg= re.sub('\n | \n|Your file File matched File Size Torrent Files Time Size Uploader', '', dupemsg)
+    dupemsg= re.sub(' +', ' ', dupemsg)
+    dupemsg= re.sub('\n+', '\n', dupemsg)
+    dupemsg= re.sub('\t+', '*', dupemsg)
+    dupelist=dupemsg.split('\n')
+    i=0
+    length=len(dupelist)
+    #clean up some unneeded data
+    while i<length-2:
+        dupelist[i]="Your File:"+dupelist[i]
+        dupelist[i+1]="File on EMP:"+dupelist[i+1]
+        dupelist[i+2]="Conflict Size:"+dupelist[i+2]
+        i=i+3
+        dupelist.pop(i)
+        dupelist.pop(i)
+        dupelist[i]="Offending Torrent on Site:"+dupelist[i]
+        dupelist[i+1]=" "
+        length=length-2
+        i=i+2
+    return '\n'.join(dupelist) 
+    
 
 """
 Uploads Torrent to EMP
 
 :param page: Page Object Used to handle request
 :param upload_dict: Options to Embedded in Upload
-:param catdict: Categories for EMP
 
 :returns: None
 """
 
-async def run_upload(page,upload_dict,catdict,randomImageString):
-    workingdir=general.get_workdir()
-    Images=os.path.join(workingdir,"Images")
+async def run_upload(page,upload_dict):
+    catdict= paths.getcat()
     try:
         await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
         await page.focus("#image")
@@ -149,22 +130,75 @@ async def run_upload(page,upload_dict,catdict,randomImageString):
 
         catvalue=catdict.get(upload_dict.get("Category",""),"1")
         await page.select('#category', catvalue)
-        await page.click('#post');
-        #print page
-
-        uploadimage= os.path.join(Images,f"{randomImageString}_Upload.jpg")
-        await page.waitFor(5000)
+        await page.click('#post')
+        p=tempfile.NamedTemporaryFile(suffix=".png")
+        await page.waitFor(10000)
         await page.setViewport({ "width": 1920, "height": 2300 })
-        await page.screenshot({'path': uploadimage,'fullPage':True,'type':'jpeg'})
-        print(f"File Should Be Uploaded\nPlease Check {uploadimage}\nIf Upload Not Showing")
-    except:
-        errorimage= os.path.join(Images,f"{randomImageString}_UploadError.jpg")
-        await page.waitFor(5000)
+        await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
+        return f"Upload Screenshot: {network.fapping_upload(p.name)}"
+    except Exception as E:
+        print(f"Error Uploading\n{E}")
+    finally:
+        await page.close()
+
+
+
+"""
+Generates preview of upload
+
+:params upload_dict: Options to Embedded in Upload
+:params cookie: path to cookie json
+
+:returns str: a string to a fappening post with upload preview
+"""
+
+async def run_preview(upload_dict,cookie):
+    print("Generating Preview")
+    url=settings.empURl
+    browser = await launch(executablePath=getChrome(), headless=True, args=['--no-sandbox'])
+    page = await browser.newPage()
+    page.setDefaultNavigationTimeout(40000)
+    for element in cookie:
+        await page.setCookie(element)
+    try:
+        await page.goto(f'{url}/upload.php')
+        inputUploadHandle=await page.querySelector("input[type=file]")
+        await inputUploadHandle.uploadFile(upload_dict.get("torrent",""))
+
+        # we need to type the title before checking for dupes , otherwise it fs up
+        await page.focus("#title")
+        await page.keyboard.type(upload_dict.get("title",""))
+
+        await page.focus("#image")
+        await page.keyboard.type(upload_dict.get("cover",""))
+        await page.focus("#taginput")
+        await page.keyboard.type(upload_dict.get("taglist",""))
+        await page.focus("#desc")
+        if upload_dict.get("template","")!="":
+            await page.keyboard.type(upload_dict.get("template",""))
+        else:
+            await page.keyboard.type(upload_dict.get("desc",""))
+            await page.keyboard.press("Enter")
+            if upload_dict.get("images","")!=None:
+                await page.keyboard.type(upload_dict.get("images",""))
+            else:
+                await page.keyboard.type(upload_dict.get("thumbs",""))
+            await page.keyboard.press("Enter")
+        catvalue=paths.getcat().get(upload_dict.get("Category",""),"1")
+        await page.select('#category', catvalue)
+        await page.click('#post_preview')
+        p=tempfile.NamedTemporaryFile(suffix=".png")
+        await page.waitFor(10000)
         await page.setViewport({ "width": 1920, "height": 2300 })
-        await page.screenshot({'path': errorimage,'fullPage':True,'type':'jpeg'})
-        print(f"Error Uploading: {errorimage}")
+        await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
+        return f"File Preview: {network.fapping_upload(p.name)}"
+    except Exception as E:
+        console.console.print(f"Error Generating Preview\n{E}",style="red")
+    finally:
+        await page.close()
 
-
+   
+ 
 """
 Runs "find_dupe" with async
 
@@ -173,50 +207,100 @@ Runs "find_dupe" with async
 
 :returns: None
 """
-def find_dupe(upload_dict,cookie,randomImageString):
-    dupe,page=asyncio.get_event_loop().run_until_complete(run_dupe(upload_dict,cookie,randomImageString))
-    return dupe,page
+def find_dupe(upload_dict,cookie):
+    dupe,page,dupeurl=asyncio.get_event_loop().run_until_complete(run_dupe(upload_dict,cookie))
+    return dupe,page,dupeurl
+
+"""
+Runs "run_preview" with async
+
+:param upload_dict: Options to Embedded in Upload
+:param cookie: Cookie For Login
+
+:returns: None
+"""
+def create_preview(upload_dict,cookie):
+    previewurl= asyncio.get_event_loop().run_until_complete(run_preview(upload_dict,cookie))
+    return previewurl
 
 """
 Runs "run_upload" with async
 
 :param page: Page Object Used to handle request
 :param upload_dict: Options to Embedded in Upload
-:param catdict: Categories for EMP
 
 :returns: None
 """
-def upload_torrent(page,upload_dict,catdict,randomImageString):
-    asyncio.get_event_loop().run_until_complete(run_upload(page,upload_dict,catdict,randomImageString))
+def upload_torrent(page,upload_dict):
+    uploadurl=asyncio.get_event_loop().run_until_complete(run_upload(page,upload_dict))
+    return uploadurl
 
 """
 Download Chrome if required on Linux
 
-:param workingdir: Main Directory
-:param binfolder: Bin folder in Main Directory
-
-
 :returns: None
 """
-def create_chrome(workingdir,binfolder):
-  chromepath=os.path.join(binfolder,"Chrome-Linux")
-  if os.path.isdir(chromepath)==False:
-      os.mkdir(chromepath)
+def create_chrome():
+  if sys.platform!="linux":
+    return
+  chromepath=settings.chrome_Linux
   if os.path.isfile(os.path.join(chromepath,"chrome"))==False:
-      if os.path.isdir(chromepath):
-          shutil.rmtree(chromepath)
-      os.mkdir(chromepath)
-      tempchrome=os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}/")
-      os.mkdir(tempchrome)
-      os.chdir(tempchrome)
+    console.console.print("Missing Chrome Install",style="green")
+    if os.path.isdir(chromepath):
+        shutil.rmtree(chromepath)     
+    os.mkdir(chromepath)
+    console.console.print(f"Install Chrome to {chromepath}",style="green")
+    tempchrome=tempfile.mkdtemp(dir=settings.tmpdir)
+    chrome="chrome.tar"
+    os.chdir(tempchrome)
 
-      subprocess.run(["wget","https://github.com/macchrome/linchrome/releases/download/v90.0.4430.93-r857950-portable-ungoogled-Lin64/ungoogled-chromium_90.0.4430.93_1.vaapi_linux.tar.xz"])
-      subprocess.run(["tar","xf","ungoogled-chromium_90.0.4430.93_1.vaapi_linux.tar.xz"])
-      os.remove("ungoogled-chromium_90.0.4430.93_1.vaapi_linux.tar.xz")
-      c=os.listdir()[0]
+    response = requests.get(settings.chromeURL, stream=True,)
+    total_size_in_bytes = int(response.headers.get('content-length', 0))
+    block_size = 1024  # 1 Kibibyte
+    progressBar = tqdm(total=total_size_in_bytes, unit='B',
+                        unit_scale=True, unit_divisor=1024)
 
-      os.chdir(c)
-      for element in os.scandir():
-          shutil.move(element.name, chromepath)
-      os.chdir(workingdir)
+    with open(chrome, "wb") as fp:
+        for data in response.iter_content(block_size):
+            fp.write(data)
+            progressBar.update(len(data))
+    with tarfile.open(chrome) as fp:
+        fp.extractall(".")
+    os.remove(chrome)
+    os.chdir(os.listdir()[0])
+    for element in os.scandir():
+        shutil.move(element.name, chromepath)
+    os.chdir(settings.workingdir)
+    shutil.rmtree(tempchrome)
+    return chromepath
+    
+"""
+Get path to chrome passed on system
 
+:returns chrome: path to chrome binary
+"""
+def getChrome():
+    if sys.platform=="win32":
+        chromepath= which("chrome.exe") or which("google-chrome.exe") or settings.chrome_Windows
+        if chromepath==None or os.path.exists(chromepath)==False:
+             console.console.print("Please install chrome for windows")
+    elif sys.platform=="linux":
+        chromepath=which("google-chrome-stable") or which("google-chrome-beta") or which("google-chrome-dev") or which("chrome") or settings.chrome_Linux
+        if chromepath==None or os.path.exists(chromepath)==False:
+            chromepath=create_chrome()
+           
+           
+   
+"""
+loads cookie argument into dicitonary with json parse
+
+:returns cookiedict: dictionary from json cookie file
+"""   
+def loadcookie():
+    if args.cookie==None or args.cookie=="":
+        print("You need a cookie file")
+        quit()
+    else:
+        g=open(args.cookie,"r")
+        return json.load(g)
+        

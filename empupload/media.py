@@ -1,16 +1,26 @@
-#! /usr/bin/env python3
-from pymediainfo import MediaInfo
-import empupload.network as network
 import os
 import subprocess
 import shutil
 import json
-import empupload.general as general
-
-import math
-import imageio
-from pygifsicle import gifsicle
 import tempfile
+import math
+import sys
+import zipfile
+import re
+from pathlib import Path
+import imageio
+import xxhash
+from pygifsicle import gifsicle
+from pymediainfo import MediaInfo
+import general.arguments as arguments
+import empupload.network as network
+import runner as runner
+import general.console as console
+import settings as settings
+import general.paths as paths
+
+
+args=arguments.getargs()
 
 
 
@@ -19,7 +29,7 @@ Returns media_info for video and audio track
 
 :param path: path chosen by user
 
-:returns: tuple video,audio data
+:returns: tuple video data,audio data
 """
 def metadata(path):
     media_info = MediaInfo.parse(path)
@@ -40,154 +50,154 @@ def metadata(path):
 
 
 """
-Creates Images in picdir
+Finds Videos Recursively, and generates thumbnails for each
+Uploads images to host
 
-:param path: path chosen by user
+:param path: directory to scan for video
 :param picdir: directory used to store images
-:param args: user Commandline/Config arguments
-:returns: tuple video,audio data
+:returns uploadstr: returns a string for all images uploaded
 """
-def create_images(path,picdir,args):
+def create_images(inputFolder,picdir):
     count=1
-    print("Creating thumbs")
-    #files in directory
-    if os.path.isdir(path):
-        os.chdir(path)
-        t=subprocess.run([args.fd,'--absolute-path','-e','.mp4','-e','.flv','-e','.mkv','-e','.m4v','-e','.mov','-e','.webm'],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        t=t.stdout.decode('utf-8')
-#Loop files in Directory
-        print("Their are ",len(t.splitlines())," Video Files")
-        for line in t.splitlines():
-            print("Video Number:" +str(count))
-            subprocess.call([args.mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',args.font,line,'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            count=count+1
-## Files not in Dir
-    else:
-        subprocess.call([args.mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',args.font,path,'-O',picdir], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    zip_images(count,path,picdir)
-    return upload_image(picdir)
+   
+    console.console.print("Creating Thumbs",style="yellow")
+    mediafiles=[inputFolder]
+    if os.path.isdir(inputFolder):
+        mediafiles=paths.search(inputFolder,"\.mkv|\.mp4",recursive=True)
+        
+    mtn=mtnHelper()
+    for count,file in enumerate(mediafiles): 
+        t=subprocess.run([mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',settings.font,file,'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if t.returncode==0 or t.returncode==1:
+            console.console.print(f"{count+1}. Image created -> {file}",style="yellow")
+        else:
+            print(t.stdout)
+            print(t.returncode)
+            console.console.print(f"{t.stdout.decode()}\nreturncode:{t.returncode}\nError with mtn",style="red")
+    zip_images(inputFolder,picdir)
+    return uploadgalleryHelper(picdir)
+"""
+retrives mtn path based on os
+
+:returns mtn:path to mtn binary
+"""
+def mtnHelper():
+    if sys.platform=="linux":
+        return settings.mtn_Linux
+    return settings.mtn_Windows
+
+
+
+
+    
+
+
+
 """
 uploads images to fappening
 
 :param picdir: directory used to store images
-:returns: string imagestring with urls
+:returns: string combined image string for all uploads
 """   
-def upload_image(picdir):
+def uploadgalleryHelper(picdir):
     imgstring=""
-    for i, image in enumerate(os.listdir(picdir)):
+    for i, image in enumerate(Path(picdir).iterdir()):
             if i>100:
-                print("Max images reached")
+                console.console.print("Max images reached",style="yellow")
                 break
-            image=picdir+image
-            upload=network.fapping_upload(False,image)
-            cover=False
-            imgstring=imgstring+upload
+            image=os.path.join(picdir,image)
+            upload=network.fapping_upload(image,msg=True)
+            if i<settings.maxpostThumbs and upload!="":
+                imgstring=f"{imgstring}[img={settings.postthumbsSize}]{upload}[/img]"
     return imgstring
 """
-Move Files To Final Destionation for upload
+Zip images or create thumbs directory or photo storage
 
-:param count:Number of files 
-:param path: path chosen by user
+:param inputFolder:path to store generated photo storage
 :param picdir: directory used to store images
 
-:returns: tuple video,audio data
+:returns None: 
 """
-def zip_images(count,path,picdir):
+def zip_images(inputFolder,picdir):
     #zip or just move images to directory being uploaded to EMP
+    files=list(Path(picdir).iterdir())
+    count=len(files)
     if(count>=100):
-        zipfile=os.path.join(path,"thumbnail.zip")
-        if os.path.isfile(zipfile):
-            os.remove(zipfile)
-        subprocess.call(['7z','a',zipfile,picdir])
+        with zipfile.ZipFile(os.path.join(inputFolder,"thumbnail.zip"), mode="w") as archive:
+            for filename in files:
+                archive.write(filename)
     elif count>=10:
-        photos=os.path.join(path,"thumbs")
-        print(photos)
-        if os.path.isdir(photos):
-            shutil.rmtree(photos)
+        photos=os.path.join(inputFolder,"thumbs")
+        shutil.rmtree(ignore_errors=True)
         shutil.copytree(picdir, photos)
 
-
 """
-Move Files To Final Destionation for upload
+Generates a cover gif using a video file
 
 :param gifpath:gif image path
-:param basename: basename of path chosen by user
-:param args: user Commandline/Config arguments
+:param maxfile: File used to generate gif
 
 :returns: imageurl 
 """
-def createcovergif(gifpath,maxfile,args):
-    if args.cover!=None:
-      gifpath=args.cover
-      print("Using Predetermined Path")
-    else:
-      numframes=0
-      video,audio=metadata(maxfile)
-      duration=video.get("other_duration")/1000
-      width = video.get("other_width")
-      reader = imageio.get_reader(maxfile)
-      fps = reader.get_meta_data()['fps']
-      writer = imageio.get_writer(gifpath, fps=fps/2)
-      startTime=float(duration)
-      startTime=math.floor(startTime)*.75
-      start=fps*startTime
-      endTime=startTime+5
-      end=fps*endTime
-      print("Generating GIF")
-      for i ,frames in enumerate(reader):
+def createcovergif(gifpath,maxfile):
+    video,audio=metadata(maxfile)
+    duration=video.get("other_duration")/1000
+    reader = imageio.get_reader(maxfile)
+    fps = reader.get_meta_data()['fps']
+    writer = imageio.get_writer(gifpath, fps=fps/2)
+    startTime=float(duration)
+    startTime=math.floor(startTime)*.75
+    start=fps*startTime
+    endTime=startTime+5
+    end=fps*endTime
+    console.console.print("Generating GIF",style="yellow")
+    for i ,frames in enumerate(reader):
         if i<start or i%3!=0:
             continue
         if i>end:
             break
         writer.append_data(frames)
-      writer.close()
+    writer.close()
 
-      factor=1
-      startloop=True
-      tempgif=os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}.gif")
-      print("Compressing GIF")
-      while startloop:
+    factor=1
+    tempgif=os.path.join(tempfile.gettempdir(), f"{os.urandom(24).hex()}.gif")
+    console.console.print("Compressing GIF")
+    while True:
         scale=f"--scale={factor}"
-
         gifsicle(sources=[gifpath],destination=tempgif, optimize=True,options=[scale])
-        if os.stat(tempgif).st_size>5000000:
-          print(f"File too big at {os.stat(tempgif).st_size} bytes\nReducing Size")
-          factor=factor*.7
-          continue
-        startloop=False
-    try:
-        upload=network.fapping_upload(True,tempgif)
-
-    except:
-        print("Try a different Approved host gif too large/Host Down")
-        return
-    return upload
+        if os.stat(tempgif).st_size<5000000:
+            break
+        print(f"File too big at {os.stat(tempgif).st_size} bytes\nReducing Size")
+        factor=factor*.7 
+    return network.fapping_upload(tempgif,msg=True)
+    
 
 """
 finds the Larget File in Directory
 
-:param args: user Commandline/Config arguments
-:param path: path chosen by user
-
-:returns: path as string
+:param inputFolder: Directory to scan for video files
+:returns: path to selected video file
 """
 
 
-def find_maxfile(path,args):
-    max=0
-    maxfile=path
-    if os.path.isdir(path):
-        os.chdir(path)
-        t=subprocess.run([args.fd,'--absolute-path','-e','.mp4','-e','.flv','-e','.mkv','-e','.m4v','-e','.mov','-e','.webm'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        t=t.stdout.decode('utf-8')
-        if len(t)==0:
-          return "No Video Files for gif creation"
-        for file in t.splitlines():
-            temp=os.path.getsize(file)
-            if(temp>max):
-                max=temp
-                maxfile=file
-    return maxfile
+def find_maxfile(inputFolder):
+    files=paths.search(inputFolder,".*",recursive=True)
+    media=list(filter(lambda x:re.search("\.mkv|\.mp4",str(x)),files))
+    if len(media)==0:
+        return None
+    fullpaths=list(map(lambda x:str(x),media))
+    return list(sorted(fullpaths,key=lambda x:os.path.getsize(x),reverse=True))[0]
 
+"""
+Generates a dictionary for static images
+
+:param inputFolder: Directory to scan for video files
+:returns: path to selected video file
+"""
+def createStaticImagesDict(input):
+    outdict={}
+    for ele in paths.search(input,".*",recursive=True,dir=False):
+        outdict[xxhash.xxh32_hexdigest(ele)]={"original":ele,"link":network.fapping_upload(ele)}
+    return outdict
 
 

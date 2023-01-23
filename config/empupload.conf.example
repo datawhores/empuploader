@@ -1,0 +1,9 @@
+output: /home/user/txt
+cookie: /home/user/txt/cookie.txt
+prepare: 
+    media: /home/user/Downloads
+    torrent: /home/user/Torrents/
+    tracker: http://tracker.empornium.sx:2710/aaaaaaaaaaaaaaaaaa/announce
+    images: /home/user/Images
+    exclude: ["*.nfo"]
+
