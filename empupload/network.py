@@ -34,7 +34,7 @@ def fapping_upload(img_path,thumbnail=True,msg=False):
             return link
     
         else:
-            link= soup.find_all("input")[1]
+            link= soup.find_all("input")[1]["value"]
             printmsgHelper(link,msg)
             return link
 
