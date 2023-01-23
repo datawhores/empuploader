@@ -2,7 +2,6 @@ import yaml
 import os
 import re
 import shutil
-from string import Template
 from threading import Thread
 import tempfile
 import string
@@ -17,6 +16,7 @@ import general.selection as selection
 import settings as settings
 import general.arguments as arguments
 import general.paths as paths
+from Cheetah.Template import Template
 
 args=arguments.getargs()
 
@@ -151,29 +151,18 @@ Retrive Post string that is used for torrent description
 """
 
 def getPostStr(emp_dict):
-    t=Template(emp_dict.get("template") or templateHelper() or "") 
-    t=t.safe_substitute(
-            {"title":emp_dict.get("title","placeholder"),
+    nameSpace={
+            "title":emp_dict.get("title","placeholder"),
             "cover":emp_dict.get("cover",["placeholder"]),
                 "desc":emp_dict.get("desc",["placeholder"]),
             "thumbs":emp_dict.get("thumbs")
-        })
-    t=updateTemplateImgHelper(emp_dict["staticimg"],t)
-    t=updateTemplateMediaInfoHelper(emp_dict["media"]["audio"],emp_dict["media"]["video"],t)
-    return t
+        }
+    nameSpace.update(emp_dict["staticimg"])
+    nameSpace.update(templateMediaInfoHelper(emp_dict["media"]["audio"],emp_dict["media"]["video"]))
+    t = Template((emp_dict.get("template") or templateHelper() or ""),searchList=[nameSpace])
+    return str(t)
 
-
-"""
-function to substitute placeholder images in loaded template
-
-:param emp_dict: staticimage key value of config yml
-
-:returns templatestr: str with subsititutions
-"""
-def updateTemplateImgHelper(emp_dict,inputStr):
-    for key in emp_dict.keys():
-        inputStr=Template(inputStr).safe_substitute({key:emp_dict[key]["link"]})
-    return inputStr
+        
             
 
 
@@ -184,12 +173,13 @@ def updateTemplateImgHelper(emp_dict,inputStr):
 
 :returns templatestr: str with subsititutions
 """
-def updateTemplateMediaInfoHelper(audio,video,inputStr):
+def templateMediaInfoHelper(audio,video):
+    namespace={}
     for key in audio.keys():
-        inputStr=Template(inputStr).safe_substitute({f"audio_{key}":audio[key]})
+        namespace.update({f"audio_{key}":audio[key]})
     for key in video.keys():
-        inputStr=Template(inputStr).safe_substitute({f"video_{key}":video[key]})       
-    return inputStr
+        namespace.update({f"video_{key}":video[key]})    
+    return namespace
 
 
 
