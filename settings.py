@@ -23,7 +23,7 @@ ffmpeg=os.path.join(workingdir,"bin/ffmpeg")
 gifsicle=os.path.join(workingdir,"bin/gifsicle")
 mtn_Linux=os.path.join(workingdir,"bin/mtn_Linux/mtn")
 mtn_Windows=os.path.join(workingdir,"bin/mtn_Windows/mtn.exe")
-#These are to help reduce post size to meet size limites
+#These are to help reduce post size to meet size limits
 postthumbsSize=100
 maxpostThumbs=10
 
