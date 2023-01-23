@@ -172,6 +172,7 @@ async def run_preview(upload_dict,cookie):
 
         await page.focus("#image")
         await page.keyboard.type(upload_dict.get("cover",""))
+        await page.click("[name=autocomplete_toggle]")
         await page.focus("#taginput")
         await page.keyboard.type(upload_dict.get("taglist",""))
         await page.focus("#desc")
@@ -187,6 +188,7 @@ async def run_preview(upload_dict,cookie):
             await page.keyboard.press("Enter")
         catvalue=paths.getcat().get(upload_dict.get("Category",""),"1")
         await page.select('#category', catvalue)
+        await page.waitFor(30000)
         await page.click('#post_preview')
         p=tempfile.NamedTemporaryFile(suffix=".png")
         await page.waitFor(10000)
@@ -244,10 +246,10 @@ Download Chrome if required on Linux
 def create_chrome():
   if sys.platform!="linux":
     return
-  chromeSystem= which("google-chrome-stable") or which("google-chrome-beta") or which("google-chrome-dev") or which("chrome")
+  chromeSystem=settings.chrome_Linux
   if chromeSystem:
     return
-  chromepath=settings.chrome_Linux
+  chromepath=os.path.join(settings.binfolder,"chrome_Linux/chrome")
   if os.path.isfile(os.path.join(chromepath,"chrome"))==False:
     chromeDir=str(pathlib.Path(chromepath).parents[0])
     console.console.print("Missing Chrome Install",style="green")
@@ -284,9 +286,9 @@ Get path to chrome passed on system
 """
 def getChrome():
     if sys.platform=="win32":
-        chromepath= which("chrome.exe") or which("google-chrome.exe") or settings.chrome_Windows
+        chromepath= settings.chrome_Windows
     elif sys.platform=="linux":
-        chromepath=which("google-chrome-stable") or which("google-chrome-beta") or which("google-chrome-dev") or which("chrome") or settings.chrome_Linux
+        chromepath= settings.chrome_Linux
       
            
            
