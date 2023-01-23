@@ -5,6 +5,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 import general.console as console
+import settings as settings
 def fapping_upload(img_path,thumbnail=True,msg=False):
     """
     Uploads an image to fapping.sx and returns the image_id to access it
@@ -36,7 +37,7 @@ def fapping_upload(img_path,thumbnail=True,msg=False):
         else:
             link= soup.find_all("input")[1]["value"]
             printmsgHelper(link,msg)
-            return link
+            return f"[img={settings.postthumbsSize}]{link}[/img]"
 
 
 

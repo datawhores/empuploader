@@ -69,7 +69,7 @@ def create_images(inputFolder,picdir):
     for count,file in enumerate(mediafiles): 
         t=subprocess.run([mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',settings.font,file,'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if t.returncode==0 or t.returncode==1:
-            console.console.print(f"{count+1}. Image created -> {file}",style="yellow")
+            console.console.print(f"{count+1}. Image created for {file}",style="yellow")
         else:
             print(t.stdout)
             print(t.returncode)
@@ -111,7 +111,7 @@ def uploadgalleryHelper(picdir):
             image=os.path.join(picdir,image)
             upload=network.fapping_upload(image,msg=True)
             if i<settings.maxpostThumbs and upload!="":
-                imgstring=f"{imgstring}[img={settings.postthumbsSize}]{upload}[/img]"
+                imgstring=f"{imgstring}{upload}"
     return imgstring
 """
 Zip images or create thumbs directory or photo storage

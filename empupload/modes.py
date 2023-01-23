@@ -128,7 +128,7 @@ def update_yml(ymlpath):
     if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
         maxfile=media.find_maxfile(emp_dict["inputFolder"])
         emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
-    if selection.singleoptions("Generate New thumbs?",choices=["Yes","No"])=="Yes":
+    if selection.singleoptions("Generate new thumbs?",choices=["Yes","No"])=="Yes":
         emp_dict["thumbs"]=media.create_images(emp_dict["inputFolder"],picdir)
     if selection.singleoptions("Edit Upload String?",choices=["Yes","No"])=="Yes":
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
