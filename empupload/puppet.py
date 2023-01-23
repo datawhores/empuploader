@@ -2,6 +2,7 @@ import asyncio
 import os
 import tarfile
 import json
+import pathlib
 from pyppeteer import launch
 from pyppeteer import __pyppeteer_home__
 import sys
@@ -243,12 +244,15 @@ Download Chrome if required on Linux
 def create_chrome():
   if sys.platform!="linux":
     return
+  chromeSystem= which("google-chrome-stable") or which("google-chrome-beta") or which("google-chrome-dev") or which("chrome")
+  if chromeSystem:
+    return
   chromepath=settings.chrome_Linux
   if os.path.isfile(os.path.join(chromepath,"chrome"))==False:
+    chromeDir=str(pathlib.Path(chromepath).parents[0])
     console.console.print("Missing Chrome Install",style="green")
-    if os.path.isdir(chromepath):
-        shutil.rmtree(chromepath)     
-    os.mkdir(chromepath)
+    shutil.rmtree(chromeDir,ignore_errors=True)     
+    pathlib.Path(chromeDir).mkdir(parents=True,exist_ok=True)
     console.console.print(f"Install Chrome to {chromepath}",style="green")
     tempchrome=tempfile.mkdtemp(dir=settings.tmpdir)
     chrome="chrome.tar"
@@ -267,7 +271,6 @@ def create_chrome():
     with tarfile.open(chrome) as fp:
         fp.extractall(".")
     os.remove(chrome)
-    os.chdir(os.listdir()[0])
     for element in os.scandir():
         shutil.move(element.name, chromepath)
     os.chdir(settings.workingdir)
@@ -282,12 +285,9 @@ Get path to chrome passed on system
 def getChrome():
     if sys.platform=="win32":
         chromepath= which("chrome.exe") or which("google-chrome.exe") or settings.chrome_Windows
-        if chromepath==None or os.path.exists(chromepath)==False:
-             console.console.print("Please install chrome for windows")
     elif sys.platform=="linux":
         chromepath=which("google-chrome-stable") or which("google-chrome-beta") or which("google-chrome-dev") or which("chrome") or settings.chrome_Linux
-        if chromepath==None or os.path.exists(chromepath)==False:
-            chromepath=create_chrome()
+      
            
            
    

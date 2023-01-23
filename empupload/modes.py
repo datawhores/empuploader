@@ -32,6 +32,7 @@ def upload(ymlpath):
     fp=open(ymlpath,"r")
     emp_dict= yaml.safe_load(fp)
     emp_dict["template"]=getPostStr(emp_dict)
+    puppet.create_chrome()
     dupe,page,dupeurl=puppet.find_dupe(emp_dict,puppet.loadcookie())
     if dupe==True:
         console.console.print(dupeurl,style="yellow")
@@ -232,6 +233,7 @@ def generatepreview(ymlpath):
     f=open(ymlpath,"r")
     emp_dict= yaml.safe_load(f)
     emp_dict["template"]=getPostStr(emp_dict)
+    puppet.create_chrome()
     previewurl=puppet.create_preview(emp_dict,puppet.loadcookie())
     #print outputs
     console.console.print(f"Template String:\n{emp_dict['template']}\n{previewurl}",style="yellow")
