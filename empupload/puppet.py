@@ -59,9 +59,9 @@ async def run_dupe(upload_dict,cookie):
         await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
         if msg!=None and re.search("category|dupes",msg)!=None:
             dupemsg=await dupemsgHelper(page)
-            return True,page,f"{dupemsg}\nDupes Screenshot: {network.fapping_upload(p.name)}"
+            return True,page,f"{dupemsg}\nDupes Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
         else:  
-                return False,page,f"Dupes Screenshot: {network.fapping_upload(p.name)}"
+                return False,page,f"Dupes Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
     except Exception as E:
             console.console.print(f"Error Finding Dupes\n{E}",style="red")
             quit()
@@ -136,7 +136,7 @@ async def run_upload(page,upload_dict):
         await page.waitFor(10000)
         await page.setViewport({ "width": 1920, "height": 2300 })
         await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
-        return f"Upload Screenshot: {network.fapping_upload(p.name)}"
+        return f"Upload Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
     except Exception as E:
         print(f"Error Uploading\n{E}")
     finally:
@@ -194,7 +194,7 @@ async def run_preview(upload_dict,cookie):
         await page.waitFor(10000)
         await page.setViewport({ "width": 1920, "height": 2300 })
         await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
-        return f"File Preview: {network.fapping_upload(p.name)}"
+        return f"File Preview: {network.fapping_upload(p.name,thumbnail=False)}"
     except Exception as E:
         console.console.print(f"Error Generating Preview\n{E}",style="red")
     finally:

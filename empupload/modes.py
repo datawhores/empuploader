@@ -123,7 +123,7 @@ def update_yml(ymlpath):
     emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:",default=emp_dict['taglist']))
     emp_dict["desc"]=selection.strinput("Enter Description: ",multiline=True,default=emp_dict["desc"])
     picdir=tempfile.mkdtemp(dir=settings.tmpdir)
-    if selection.singleoptions("Change Category>",choices=["Yes","No"])=="Yes":
+    if selection.singleoptions("Change Category",choices=["Yes","No"])=="Yes":
         emp_dict["category"]=paths.getcat()[selection.singleoptions("Update Category: ",paths.getcat().keys())]
     if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
         maxfile=media.find_maxfile(emp_dict["inputFolder"])
@@ -132,12 +132,12 @@ def update_yml(ymlpath):
         emp_dict["thumbs"]=media.create_images(emp_dict["inputFolder"],picdir)
     if selection.singleoptions("Edit Upload String?",choices=["Yes","No"])=="Yes":
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
-    if selection.singleoptions("Recreate torrent?",choices=["Yes","No"])=="Yes":
+    if selection.singleoptions("Recreate torrent file?",choices=["Yes","No"])=="Yes":
         basename=paths.get_upload_name(emp_dict["inputFolder"])
         console.console.print("Making Torren",style="yellow")
         create_torrent(emp_dict["inputFolder"],os.path.join(args.prepare.torrent,f"{basename}.torrent"))
     console.console.print(emp_dict,style="yellow")
-    if selection.singleoptions("Do you want to update configuration yml?",choices=["Yes","No"])=="Yes":
+    if selection.singleoptions("Do you want to save your changes?",choices=["Yes","No"])=="Yes":
         fp=open(ymlpath,"w")
         yaml.dump(emp_dict,fp, default_flow_style=False)
         fp.close() 

@@ -2,9 +2,10 @@
 #! /usr/bin/env python3
 import json
 import requests
+import re
 from bs4 import BeautifulSoup
 import general.console as console
-def fapping_upload(img_path,cover=False,msg=False):
+def fapping_upload(img_path,thumbnail=True,msg=False):
     """
     Uploads an image to fapping.sx and returns the image_id to access it
     Parameters
@@ -25,17 +26,25 @@ def fapping_upload(img_path,cover=False,msg=False):
         image="https://fapping.empornium.sx/image/" +image
         image=requests.get(image)
         soup = BeautifulSoup(image.text, 'html.parser')
-        soup= soup.find('div',{'class' :'image-tools-section thumb_plus_link'})
-        inputitem=soup.find('div',{'class' :'input-item'}).descendants
+        list=soup.find_all("input")
         #get bbcode for upload, thumbnails
-        link=list(inputitem)
-        link=str(link[3]).split()[3].split(']')[2][0:-5]
-        link=link.replace('.th','')
-        if msg==True:
-            console.console.print("Image Uploaded",style="yellow")
-            console.console.print(link,style="yellow")
-        return link
+        if thumbnail:
+            link=list[2]["value"]
+            printmsgHelper(link,msg)
+            return link
+    
+        else:
+            link= soup.find_all("input")[1]
+            printmsgHelper(link,msg)
+            return link
+
+
 
     else:
         print(f"Error Uploading\n Status: {r.status_code}\n{r.text}")
         return ""
+
+def printmsgHelper(link,msg):
+    if msg==True:
+        console.console.print("Image Uploaded",style="yellow")
+        console.console.print(link,style="yellow")

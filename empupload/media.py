@@ -75,7 +75,10 @@ def create_images(inputFolder,picdir):
             print(t.returncode)
             console.console.print(f"{t.stdout.decode()}\nreturncode:{t.returncode}\nError with mtn",style="red")
     zip_images(inputFolder,picdir)
-    return uploadgalleryHelper(picdir)
+    imgstr=uploadgalleryHelper(picdir)
+    shutil.rmtree(picdir,ignore_errors=True)
+    return imgstr
+
 """
 retrives mtn path based on os
 
@@ -128,8 +131,11 @@ def zip_images(inputFolder,picdir):
                 archive.write(filename)
     elif count>=10:
         photos=os.path.join(inputFolder,"thumbs")
-        shutil.rmtree(ignore_errors=True)
+        shutil.rmtree(photos,
+        ignore_errors=True)
         shutil.copytree(picdir, photos)
+
+
 
 """
 Generates a cover gif using a video file
@@ -169,7 +175,7 @@ def createcovergif(gifpath,maxfile):
             break
         print(f"File too big at {os.stat(tempgif).st_size} bytes\nReducing Size")
         factor=factor*.7 
-    return network.fapping_upload(tempgif,msg=True)
+    return network.fapping_upload(tempgif,msg=True,thumbnail=False)
     
 
 """
