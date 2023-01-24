@@ -29,16 +29,15 @@ def fapping_upload(img_path,thumbnail=True,msg=False):
         soup = BeautifulSoup(image.text, 'html.parser')
         list=soup.find_all("input")
         #get bbcode for upload, thumbnails
-        link=None
         if thumbnail:
-            link=list[3]["value"]
+            link=list[2]["value"]
             printmsgHelper(link,msg)
             return link
     
         else:
             link= soup.find_all("input")[1]["value"]
             printmsgHelper(link,msg)
-            return link
+            return f"[img={settings.postthumbsSize}]{link}[/img]"
 
 
 
