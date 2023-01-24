@@ -38,7 +38,7 @@ def upload(ymlpath):
         console.console.print(dupeurl,style="yellow")
         if selection.singleoptions("Ignore dupes and continue upload?",["Yes","No"])=="No":
             return
-    print(f"{emp_dict['template']}\n")
+    # print(f"{emp_dict['template']}\n")
     console.console.print(puppet.upload_torrent(page,emp_dict),style="yellow")
     fp.close()
 
@@ -73,7 +73,6 @@ def process_yml(inputFolder,ymlpath):
     Path(picdir ).mkdir( parents=True, exist_ok=True )
     torrent=Thread(target = create_torrent, args = (inputFolder,torrentpath))
     torrent.start()
-    paths.setPath()
     emp_dict={}
     sug=re.sub("\."," ",basename)
     sug=string.capwords(sug)
@@ -83,7 +82,7 @@ def process_yml(inputFolder,ymlpath):
     emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:"))
     emp_dict["desc"]=selection.strinput("Enter Description:",multiline=True)
     emp_dict["cover"]=args.prepare.cover or media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
-    emp_dict["thumbs"]=media.create_images(inputFolder,picdir)
+    emp_dict["screens"]=media.create_images(inputFolder,picdir)
     emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
     emp_dict["media"]={}
     emp_dict["media"]["audio"]=audio
@@ -117,8 +116,8 @@ Update yml config
 def update_yml(ymlpath):
     f=open(ymlpath,"r")
     emp_dict= yaml.safe_load(f)
-
     f.close()
+    paths.setPath()
     emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=emp_dict["title"])
     emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:",default=emp_dict['taglist']))
     emp_dict["desc"]=selection.strinput("Enter Description: ",multiline=True,default=emp_dict["desc"])
@@ -128,8 +127,8 @@ def update_yml(ymlpath):
     if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
         maxfile=media.find_maxfile(emp_dict["inputFolder"])
         emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
-    if selection.singleoptions("Generate new thumbs?",choices=["Yes","No"])=="Yes":
-        emp_dict["thumbs"]=media.create_images(emp_dict["inputFolder"],picdir)
+    if selection.singleoptions("Generate new screens?",choices=["Yes","No"])=="Yes":
+        emp_dict["screens"]=media.create_images(emp_dict["inputFolder"],picdir)
     if selection.singleoptions("Edit Upload String?",choices=["Yes","No"])=="Yes":
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
     if selection.singleoptions("Recreate torrent file?",choices=["Yes","No"])=="Yes":
@@ -155,7 +154,7 @@ def getPostStr(emp_dict):
             "title":emp_dict.get("title","placeholder"),
             "cover":emp_dict.get("cover",["placeholder"]),
                 "desc":emp_dict.get("desc",["placeholder"]),
-            "thumbs":emp_dict.get("thumbs")
+            "screens":emp_dict.get("screens")
         }
     nameSpace.update(emp_dict["staticimg"])
     nameSpace.update(templateMediaInfoHelper(emp_dict["media"]["audio"],emp_dict["media"]["video"]))

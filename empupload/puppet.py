@@ -125,11 +125,11 @@ async def run_upload(page,upload_dict):
             if upload_dict.get("images","")!=None:
                 await page.keyboard.type(upload_dict.get("images",""))
             else:
-                await page.keyboard.type(upload_dict.get("thumbs",""))
+                await page.keyboard.type(upload_dict.get("screens",""))
             await page.keyboard.press("Enter")
 
 
-        catvalue=catdict.get(upload_dict.get("Category",""),"1")
+        catvalue=catdict.get(upload_dict.get("category",""),"1")
         await page.select('#category', catvalue)
         await page.click('#post')
         p=tempfile.NamedTemporaryFile(suffix=".png")
@@ -163,9 +163,6 @@ async def run_preview(upload_dict,cookie):
         await page.setCookie(element)
     try:
         await page.goto(f'{url}/upload.php')
-        inputUploadHandle=await page.querySelector("input[type=file]")
-        await inputUploadHandle.uploadFile(upload_dict.get("torrent",""))
-
         # we need to type the title before checking for dupes , otherwise it fs up
         await page.focus("#title")
         await page.keyboard.type(upload_dict.get("title",""))
@@ -175,22 +172,16 @@ async def run_preview(upload_dict,cookie):
         await page.click("[name=autocomplete_toggle]")
         await page.focus("#taginput")
         await page.keyboard.type(upload_dict.get("taglist",""))
+        await page.waitForSelector("#desc")
         await page.focus("#desc")
         if upload_dict.get("template","")!="":
             await page.keyboard.type(upload_dict.get("template",""))
-        else:
-            await page.keyboard.type(upload_dict.get("desc",""))
-            await page.keyboard.press("Enter")
-            if upload_dict.get("images","")!=None:
-                await page.keyboard.type(upload_dict.get("images",""))
-            else:
-                await page.keyboard.type(upload_dict.get("thumbs",""))
-            await page.keyboard.press("Enter")
+  
+  
         catvalue=paths.getcat().get(upload_dict.get("Category",""),"1")
         await page.select('#category', catvalue)
-        await page.waitFor(30000)
-        await page.click('#post_preview')
         p=tempfile.NamedTemporaryFile(suffix=".png")
+        await page.click('#post_preview')
         await page.waitFor(10000)
         await page.setViewport({ "width": 1920, "height": 2300 })
         await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
