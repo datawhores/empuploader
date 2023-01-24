@@ -178,7 +178,7 @@ async def run_preview(upload_dict,cookie):
             await page.keyboard.type(upload_dict.get("template",""))
   
   
-        catvalue=paths.getcat().get(upload_dict.get("Category",""),"1")
+        catvalue=paths.getcat().get(upload_dict.get("category",""),"1")
         await page.select('#category', catvalue)
         p=tempfile.NamedTemporaryFile(suffix=".png")
         await page.click('#post_preview')

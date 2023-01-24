@@ -37,7 +37,7 @@ def fapping_upload(img_path,thumbnail=True,msg=False):
         else:
             link= soup.find_all("input")[1]["value"]
             printmsgHelper(link,msg)
-            return f"[img={settings.postthumbsSize}]{link}[/img]"
+            return f"[img={settings.postImageSize}]{link}[/img]"
 
 
 
