@@ -11,6 +11,7 @@ from pathlib import Path
 import xxhash
 from pygifsicle import gifsicle
 from pymediainfo import MediaInfo
+from PIL import Image
 import general.arguments as arguments
 import empupload.network as network
 import runner as runner
