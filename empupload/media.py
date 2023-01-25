@@ -150,11 +150,11 @@ Generates a cover gif using a video file
 def createcovergif(gifpath,maxfile):
     trimedVideo=videoSplitter(maxfile)
     palette=os.path.join(os.path.dirname(trimedVideo),"palette.png")
-    console.console.print("Creating GIF",style="yellow")
+    console.console.print("Creating GIF from section",style="yellow")
     subprocess.run(["ffmpeg" ,'-i', trimedVideo,'-filter_complex', '[0:v] palettegen',palette],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     subprocess.run(["ffmpeg" ,'-i', trimedVideo,'-i' ,palette,'-filter_complex', '[0:v] paletteuse',gifpath],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     tempgif=os.path.join(settings.tmpdir, f"{os.urandom(24).hex()}.gif")
-    console.console.print("Compressing GIF")
+    console.console.print("Compressing GIF",style="yellow")
     factor=1
     while True:
         scale=f"--scale={factor}"
@@ -212,7 +212,7 @@ def videoSplitter(maxfile):
     endTime=startTime+5
     tempVideoDir=tempfile.mkdtemp(dir=settings.tmpdir)
     tempVideo=os.path.join(tempVideoDir,f"tempvid{suffix}")
-    console.console.print(f"Trimming Video from {startTime} secs to {endTime} secs",style="yellow")
+    console.console.print(f"Splitting section of video from {startTime} secs to {endTime} secs",style="yellow")
     subprocess.run(["ffmpeg","-i",maxfile, "-ss" ,f"{startTime}", "-to", f"{endTime}" ,"-c" ,"copy", tempVideo],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     return tempVideo
     

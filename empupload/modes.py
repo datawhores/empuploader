@@ -87,14 +87,13 @@ def process_yml(inputFolder,ymlpath):
     emp_dict["media"]={}
     emp_dict["media"]["audio"]=audio
     emp_dict["media"]["video"]=video
-    
-    
-    console.console.print(f"Torrent Save to {torrentpath}",style="yellow")
-
+    if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
+        emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True) 
     emp_dict["torrent"]=torrentpath
+    console.console.print(f"Torrent Save to {torrentpath}",style="yellow")
     yaml.dump(emp_dict,fp, default_flow_style=False)
     fp.close()
-    console.pprint(emp_dict)
+    console.console.print(emp_dict)
     shutil.rmtree(picdir,ignore_errors=True)
 
 
@@ -120,7 +119,7 @@ def update_yml(ymlpath):
     paths.setPath()
     emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=emp_dict["title"])
     emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:",default=emp_dict['taglist']))
-    emp_dict["desc"]=selection.strinput("Enter Description: ",multiline=True,default=emp_dict["desc"])
+    emp_dict["desc"]=selection.strinput("Enter Description for upload: ",multiline=True,default=emp_dict["desc"])
     picdir=tempfile.mkdtemp(dir=settings.tmpdir)
     if selection.singleoptions("Change Category",choices=["Yes","No"])=="Yes":
         emp_dict["category"]=paths.getcat()[selection.singleoptions("Update Category: ",paths.getcat().keys())]
@@ -129,7 +128,7 @@ def update_yml(ymlpath):
         emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
     if selection.singleoptions("Generate new screens?",choices=["Yes","No"])=="Yes":
         emp_dict["screens"]=media.create_images(emp_dict["inputFolder"],picdir)
-    if selection.singleoptions("Edit Upload String?",choices=["Yes","No"])=="Yes":
+    if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
     if selection.singleoptions("Recreate torrent file?",choices=["Yes","No"])=="Yes":
         basename=paths.get_upload_name(emp_dict["inputFolder"])

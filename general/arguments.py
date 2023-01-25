@@ -10,7 +10,7 @@ def getargs():
     parser = ArgumentParser(prog="empuploader")
     parser.add_argument('-c','--config', action=ActionConfigFile,help="override config file")  
     parser.add_argument('-k','--cookie',help="cookie File for preview and upload mode",required=False)
-    parser.add_argument("-t","--template",help="Template file for creating upload file",default=os.path.join(settings.workingdir,"data/default_template.txt"))
+    parser.add_argument("-t","--template",help="Template file for creating desc string",default=os.path.join(settings.workingdir,"data/default_template.txt"))
 
     prepare = ArgumentParser(description="Prepare a upload by creating a YAML File\nFilled with configurations")
     prepare.add_argument("-b","--batch",help="Seperate a folder into seperate entries for upload", action='store_true')

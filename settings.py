@@ -31,5 +31,5 @@ maxNumPostImages=20
 font=os.path.join(workingdir,"data/OpenSans-Regular.ttf")
 
 #testvalues
-testMaxImagesCount=float("inf") #restrict number of images generated
+testMaxImagesCount=10 #restrict number of images generated
 
