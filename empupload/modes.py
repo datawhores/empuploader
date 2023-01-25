@@ -89,6 +89,7 @@ def process_yml(inputFolder,ymlpath):
     emp_dict["media"]["video"]=video
     if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True) 
+    torrent.join(
     emp_dict["torrent"]=torrentpath
     console.console.print(f"Torrent Save to {torrentpath}",style="yellow")
     yaml.dump(emp_dict,fp, default_flow_style=False)
