@@ -29,6 +29,9 @@ maxNumPostImages=20
 
 #other
 font=os.path.join(workingdir,"data/OpenSans-Regular.ttf")
+gifLength=5
+#value 1-100 on where to start gif
+gifStart=75
 
 #testvalues
 testMaxImagesCount=10 #restrict number of images generated

@@ -1,8 +1,0 @@
-this is a template
-<%
-    x = ["dd"]
-    y = t
-%>
-% for elem in y:
-    element: ${elem}
-% endfor

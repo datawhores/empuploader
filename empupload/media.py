@@ -208,8 +208,8 @@ def videoSplitter(maxfile):
     suffix=Path(maxfile).suffixes[-1]
     video,audio=metadata(maxfile)
     duration=video.get("other_duration")/1000
-    startTime=math.floor(float(duration))*.75
-    endTime=startTime+5
+    startTime=math.floor(float(duration))*(settings.gifStart/100)
+    endTime=min(startTime+settings.gifLength,duration)
     tempVideoDir=tempfile.mkdtemp(dir=settings.tmpdir)
     tempVideo=os.path.join(tempVideoDir,f"tempvid{suffix}")
     console.console.print(f"Splitting section of video from {startTime} secs to {endTime} secs",style="yellow")

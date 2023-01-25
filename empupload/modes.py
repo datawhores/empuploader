@@ -157,6 +157,8 @@ def getPostStr(emp_dict):
         }
     nameSpace.update(emp_dict["staticimg"])
     nameSpace.update(templateMediaInfoHelper(emp_dict["media"]["audio"],emp_dict["media"]["video"]))
+    nameSpace.update({"args":args})
+    nameSpace.update({"torrent":emp_dict["torrent"]})
     t = Template((emp_dict.get("template") or templateHelper() or ""),searchList=[nameSpace])
     return str(t)
 
