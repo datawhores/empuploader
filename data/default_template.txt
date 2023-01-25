@@ -1,6 +1,34 @@
-#from Cheetah.Template import Template
-#extends Template
+[table=852px,nball]
+[tr=gradient:to right;#0000 5%;#000000;#000000;#0000 95%]
+[td=90%][align=center][color=#f4f4f4][b][size=5]${title}[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+[align=center][img=300]${cover}[/img][/align]
 
-#set $torrent = $args
 
-$torrent these are the arguments passed
+
+[hr][hr]
+
+
+
+[table=nball]
+[tr=gradient:to right;#0000 15%;#000000;#000000;#0000 85%]
+[td=90%][align=center][color=#f4f4f4][b][size=3]Desc[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+${desc}
+
+[hr][hr]
+
+
+
+
+[hr][hr]
+
+
+[table=nball]
+[tr=gradient:to right;#0000 15%;#000000;#000000;#0000 85%]
+[td=90%][align=center][color=#f4f4f4][b][size=3]SCREENSHOTS[/size][/b][/color][/align][/td]
+[/tr]
+[/table]
+[align=center]${thumbs}[/align]

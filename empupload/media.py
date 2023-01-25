@@ -148,21 +148,23 @@ Generates a cover gif using a video file
 :returns: imageurl 
 """
 def createcovergif(gifpath,maxfile):
+    console.console.print("Starting GIF Process",style="yellow")
     trimedVideo=videoSplitter(maxfile)
     palette=os.path.join(os.path.dirname(trimedVideo),"palette.png")
     console.console.print("Creating GIF from section",style="yellow")
-    subprocess.run(["ffmpeg" ,'-i', trimedVideo,'-filter_complex', '[0:v] palettegen',palette],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    subprocess.run(["ffmpeg" ,'-i', trimedVideo,'-i' ,palette,'-filter_complex', '[0:v] paletteuse',gifpath],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    subprocess.run(["ffmpeg" ,'-i', trimedVideo,'-filter_complex', f'[0:v] palettegen',palette],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    subprocess.run(["ffmpeg" ,'-i', trimedVideo,'-i' ,palette,'-filter_complex', f'[0:v] paletteuse',gifpath],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     tempgif=os.path.join(settings.tmpdir, f"{os.urandom(24).hex()}.gif")
     console.console.print("Compressing GIF",style="yellow")
     factor=1
     while True:
         scale=f"--scale={factor}"
-        gifsicle(sources=[gifpath],destination=tempgif, optimize=True,options=[scale,"--optimize=3"])
+        subprocess.call(["gifsicle", *[scale,"--optimize=3","-lossy=30" ], *[gifpath],  "--output", tempgif],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if os.stat(tempgif).st_size<5000000:
             break
-        print(f"File too big at {os.stat(tempgif).st_size/1048576} megabytes\nReducing Size")
         factor=factor*.7 
+        print(f"File too big at {os.stat(tempgif).st_size/1048576} megabytes\nChanging Scale Factor to {factor}")
+
         
     return network.fapping_upload(tempgif,msg=True,thumbnail=False)
     
@@ -207,15 +209,19 @@ def getImageSizeHelper(filepath):
 def videoSplitter(maxfile):
     suffix=Path(maxfile).suffixes[-1]
     video,audio=metadata(maxfile)
+    fps=float(re.search("[0-9.]*",video.get("frame_rate")).group(0))
     duration=video.get("other_duration")/1000
     startTime=math.floor(float(duration))*(settings.gifStart/100)
     endTime=min(startTime+settings.gifLength,duration)
     tempVideoDir=tempfile.mkdtemp(dir=settings.tmpdir)
+    intervid=os.path.join(tempVideoDir,f"inter{suffix}")
     tempVideo=os.path.join(tempVideoDir,f"tempvid{suffix}")
     console.console.print(f"Splitting section of video from {startTime} secs to {endTime} secs",style="yellow")
-    subprocess.run(["ffmpeg","-i",maxfile, "-ss" ,f"{startTime}", "-to", f"{endTime}" ,"-c" ,"copy", tempVideo],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    subprocess.run(["ffmpeg","-i",maxfile, "-ss" ,f"{startTime}", "-to", f"{endTime}" ,"-c" ,"copy", intervid],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    subprocess.run(["ffmpeg","-i",intervid,"-filter:v", f"fps={fps/2}",tempVideo],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    Path(intervid).unlink()
     return tempVideo
     
-  
 
+    
   

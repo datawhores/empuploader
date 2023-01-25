@@ -84,9 +84,9 @@ def process_yml(inputFolder,ymlpath):
     emp_dict["cover"]=args.prepare.cover or media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
     emp_dict["screens"]=media.create_images(inputFolder,picdir)
     emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
-    emp_dict["media"]={}
-    emp_dict["media"]["audio"]=audio
-    emp_dict["media"]["video"]=video
+    emp_dict["mediaInfo"]={}
+    emp_dict["mediaInfo"]["audio"]=audio
+    emp_dict["mediaInfo"]["video"]=video
     if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True) 
     emp_dict["torrent"]=torrentpath
@@ -156,9 +156,8 @@ def getPostStr(emp_dict):
             "screens":emp_dict.get("screens")
         }
     nameSpace.update(emp_dict["staticimg"])
-    nameSpace.update(templateMediaInfoHelper(emp_dict["media"]["audio"],emp_dict["media"]["video"]))
-    nameSpace.update({"args":args})
-    nameSpace.update({"torrent":emp_dict["torrent"]})
+    nameSpace.update(templateMediaInfoHelper(emp_dict["mediaInfo"]["audio"],emp_dict["mediaInfo"]["video"]))
+    nameSpace.update({"torrent":emp_dict["torrent"],"args":args,"inputFolder":emp_dict["inputFolder"]})
     t = Template((emp_dict.get("template") or templateHelper() or ""),searchList=[nameSpace])
     return str(t)
 
