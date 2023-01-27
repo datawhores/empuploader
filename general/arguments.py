@@ -13,14 +13,14 @@ def getargs():
     parser.add_argument("-t","--template",help="Template file for creating desc string",default=os.path.join(settings.workingdir,"data/default_template.txt"))
 
     prepare = ArgumentParser(description="Prepare a upload by creating a YAML File\nFilled with configurations")
-    prepare.add_argument("-b","--batch",help="Seperate a folder into seperate entries for upload", action='store_true')
     prepare.add_argument('-m','--media',help="Directory to retrive media files",required=True)
     prepare.add_argument('-t','--torrent',help="Directory to store torrent files",required=True)
     prepare.add_argument('-p','--picdir',help="Path to store output mediafiles\nStored in tmpfile if not set",required=False)
     prepare.add_argument('-tr','--tracker',help="announce url",required=True)
     prepare.add_argument('-c','--cover',help="set a preset image to use for torrent cover",required=False)
     prepare.add_argument('-i','--images',help="Folder with static images for upload",required=False)
-    prepare.add_argument('-e','--exclude',help="file patterns for dottorrent to exclude\nCan be passed multiple times",required=False,nargs='*',default=[])
+    prepare.add_argument('-e','--exclude',help="file patterns for dottorrent to exclude\nCan be passed multiple times\nregex match",required=False,nargs='*',default=[])
+    prepare.add_argument('-n','--manual',help="Manually select which files to upload\nCan be combined with exclude to reduce options",required=False,nargs='*',default=[])
 
     # upload= ArgumentParser()
     edit= ArgumentParser()

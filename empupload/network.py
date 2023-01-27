@@ -6,6 +6,7 @@ import re
 from bs4 import BeautifulSoup
 import general.console as console
 import settings as settings
+from InquirerPy.utils import patched_print as print
 def fapping_upload(img_path,thumbnail=True,msg=False):
     """
     Uploads an image to fapping.sx and returns the image_id to access it

@@ -33,6 +33,5 @@ gifLength=5
 #value 1-100 on where to start gif
 gifStart=75
 
-#testvalues
-testMaxImagesCount=10 #restrict number of images generated
+
 

@@ -2,11 +2,10 @@ import yaml
 import os
 import re
 import shutil
-from threading import Thread
 import tempfile
 import string
+from threading import Thread
 from pathlib import Path
-import dottorrent
 import general.console as console
 import empupload.puppet as puppet
 import runner as runner
@@ -17,7 +16,8 @@ import settings as settings
 import general.arguments as arguments
 import general.paths as paths
 from Cheetah.Template import Template
-
+import general.torrent as torrent
+import asyncio
 args=arguments.getargs()
 
 """
@@ -55,7 +55,7 @@ Prepare yml by embedding generated Info
 :returns None:
 """
 
-def process_yml(inputFolder,ymlpath):
+async def process2_yml(inputFolder,ymlpath):
     video=None
     audio=None
     console.console.print(f"\nAttempting to Create yaml at {ymlpath}",style="yellow")
@@ -64,37 +64,52 @@ def process_yml(inputFolder,ymlpath):
         return
     Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
     fp=open(ymlpath,"w")
-    maxfile=media.find_maxfile(inputFolder)
+    files=None
+    if os.path.isdir(inputFolder):
+        files=paths.search(inputFolder,".*",recursive=True,exclude=args.prepare.exclude)
+        if args.prepare.manual:
+            files=selection.multioptions("Select Files from folder to upload",files)
+    else:
+        files=[inputFolder]
+    maxfile=media.find_maxfile(files)
     if maxfile:
         video,audio=media.metadata(maxfile)   
     basename=paths.get_upload_name(inputFolder)
     torrentpath=os.path.join(args.prepare.torrent,f"{basename}.torrent")
     picdir=args.prepare.picdir or tempfile.mkdtemp(dir=settings.tmpdir)
     Path(picdir ).mkdir( parents=True, exist_ok=True )
-    torrent=Thread(target = create_torrent, args = (inputFolder,torrentpath))
-    torrent.start()
     emp_dict={}
+    asyncio.create_task(backgroundtask(inputFolder,files,torrentpath,picdir,maxfile,emp_dict),)
+
+
+
+
+
+   
+
+  
     sug=re.sub("\."," ",basename)
     sug=string.capwords(sug)
     emp_dict["inputFolder"]=inputFolder
+    emp_dict["inputFiles"]=set(files)
     emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=sug)
     emp_dict["category"]=paths.getcat()[selection.singleoptions("Enter Category:",paths.getcat().keys())]
     emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:"))
     emp_dict["desc"]=selection.strinput("Enter Description:",multiline=True)
-    emp_dict["cover"]=args.prepare.cover or media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
-    emp_dict["screens"]=media.create_images(inputFolder,picdir)
     emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
     emp_dict["mediaInfo"]={}
     emp_dict["mediaInfo"]["audio"]=audio
     emp_dict["mediaInfo"]["video"]=video
+
+
     if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True) 
     emp_dict["torrent"]=torrentpath
+
     console.console.print(f"Torrent Save to {torrentpath}",style="yellow")
     yaml.dump(emp_dict,fp, default_flow_style=False)
     fp.close()
     console.console.print(emp_dict)
-    shutil.rmtree(picdir,ignore_errors=True)
 
 
 
@@ -133,7 +148,7 @@ def update_yml(ymlpath):
     if selection.singleoptions("Recreate torrent file?",choices=["Yes","No"])=="Yes":
         basename=paths.get_upload_name(emp_dict["inputFolder"])
         console.console.print("Making Torren",style="yellow")
-        create_torrent(emp_dict["inputFolder"],os.path.join(args.prepare.torrent,f"{basename}.torrent"))
+        torrent.create_torrent(emp_dict["inputFolder"],emp_dict["inputFiles"],os.path.join(args.prepare.torrent,f"{basename}.torrent"))
     console.console.print(emp_dict,style="yellow")
     if selection.singleoptions("Do you want to save your changes?",choices=["Yes","No"])=="Yes":
         fp=open(ymlpath,"w")
@@ -183,22 +198,7 @@ def templateMediaInfoHelper(audio,video):
 
 
 
-"""
-Creates a Torrent using inputFolder and torrentpath
 
-:param path: path chosen by user
-:param torrent path: path for torrent file
-
-:returns: None
-"""
-
-def create_torrent(inputFolder,torrentpath):
-    Path( os.path.dirname(torrentpath)).mkdir( parents=True, exist_ok=True )
-    t=dottorrent.Torrent(inputFolder, trackers=[args.prepare.tracker], private=True,exclude=args.prepare.exclude)
-    t.piece_size=min(t.get_info()[2],8388608)
-    t.generate()
-    with open(torrentpath, 'wb') as f:
-        t.save(f)               
 """
 helper to read args.template file
 
@@ -230,4 +230,70 @@ def generatepreview(ymlpath):
    
    
     
-        
+async def backgroundtask(inputFolder,files,torrentpath,picdir,maxfile,emp_dict):
+    emp_dict["screens"]=media.create_images(files,inputFolder,picdir) 
+    emp_dict["cover"]=args.prepare.cover or media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
+    media.cleanup(picdir)
+    torrent.create_torrent(inputFolder,set(files),torrentpath)
+    shutil.rmtree(picdir,ignore_errors=True)
+
+
+def process_yml(inputFolder,ymlpath):
+    video=None
+    audio=None
+    console.console.print(f"\nAttempting to Create yaml at {ymlpath}",style="yellow")
+    paths.setPath()
+    if os.path.isfile(ymlpath) and selection.singleoptions("File Exist Do you want to overwrite?",["Yes","No"])=="No":
+        return
+    Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
+    files=None
+    if os.path.isdir(inputFolder):
+        files=paths.search(inputFolder,".*",recursive=True,exclude=args.prepare.exclude)
+        if args.prepare.manual:
+            files=selection.multioptions("Select Files from folder to upload",files)
+    else:
+        files=[inputFolder]
+    maxfile=media.find_maxfile(files)
+    basename=paths.get_upload_name(inputFolder)
+    torrentpath=os.path.join(args.prepare.torrent,f"{basename}.torrent")
+    picdir=args.prepare.picdir or tempfile.mkdtemp(dir=settings.tmpdir)
+    Path(picdir ).mkdir( parents=True, exist_ok=True )
+    emp_dict={}
+    backgroundthread=Thread(target=asyncio.run,args=(process_yml_helper(inputFolder,files,torrentpath,picdir,maxfile,emp_dict),))
+    backgroundthread.start()
+    fp=open(ymlpath,"w")
+    video=None
+    audio=None
+    if maxfile:
+        video,audio=media.metadata(maxfile)   
+    sug=re.sub("\."," ",basename)
+    sug=string.capwords(sug)
+    emp_dict["inputFolder"]=inputFolder
+    emp_dict["inputFiles"]=set(files)
+    emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=sug)
+    emp_dict["category"]=paths.getcat()[selection.singleoptions("Enter Category:",paths.getcat().keys())]
+    emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:"))
+    emp_dict["desc"]=selection.strinput("Enter Description:",multiline=True)
+    emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
+    emp_dict["mediaInfo"]={}
+    emp_dict["mediaInfo"]["audio"]=audio
+    emp_dict["mediaInfo"]["video"]=video
+    backgroundthread.join()
+
+async def process_yml_helper(inputFolder,files,torrentpath,picdir,maxfile,emp_dict):
+    task = asyncio.create_task(backgroundtask(inputFolder,files,torrentpath,picdir,maxfile,emp_dict))
+    await task
+   
+
+
+    # if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
+    #     emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True) 
+    # emp_dict["torrent"]=torrentpath
+    # await task
+    # console.console.print(f"Torrent Save to {torrentpath}",style="yellow")
+    # yaml.dump(emp_dict,fp, default_flow_style=False)
+    # fp.close()
+    # console.console.print(emp_dict)
+
+
+

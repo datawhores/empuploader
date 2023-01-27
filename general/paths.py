@@ -19,31 +19,34 @@ Search for matching files in directory
 
 :return: list of matching directories
 """
-def search(path,filterStr,recursive=False,dir=False):
+def search(path,filterStr,recursive=False,dir=False,exclude=None):
+    if exclude==None:
+        exclude=[]
 
     search='**/*'
     if recursive==False:
         search="*"
     
-    results=map(lambda x:str(x),Path(path).glob(search))
+    results=list(map(lambda x:str(x),Path(path).glob(search)))
     filteredPaths=list(filter(lambda x:os.path.isdir(x)==dir,results))
+    filteredPaths=list(filter(lambda x:not any(re.search(ele,x) for ele in exclude),filteredPaths))
     sortedPaths=natsort.natsorted(filteredPaths)
     return list(filter(lambda x:re.search(filterStr,x)!=None,sortedPaths))
     
 
-
+def getmediaFiles(inputFolder,recursive=True):
+    return search(inputFolder,"\.mkv|\.mp4",recursive=True)
 
 
 """
-Generates list of media files for user to pick
+Generates list of media files/directories files for user to pick
 
 :returns None:
 """
 
 def get_choices():
-     if args.prepare.batch:
-        return [args.prepare.media]
-     elif os.path.isdir(args.prepare.media):
+     files=None
+     if os.path.isdir(args.prepare.media):
         files=search(args.prepare.media,".*",recursive=False)
         files.extend(search(args.prepare.media,".*",recursive=False,dir=True))
         return natsort.natsorted(files)

@@ -5,6 +5,8 @@ import general.console as console
 import general.selection as selection
 import general.paths as paths
 import empupload.modes as modes
+import asyncio
+
 
 args=arguments.getargs()
 
@@ -18,9 +20,9 @@ def start():
     while True:
         console.console.print(f"{args.subcommand.capitalize()} Mode",style="green")
         if args.subcommand=="prepare":
-                path=selection.singleoptions(msg="Which path Do you want to prepare?",choices=paths.get_choices())
-                ymlpath=paths.generate_yaml(path)
-                modes.process_yml(path,ymlpath)
+                input=selection.singleoptions(msg="Which path Do you want to prepare?",choices=paths.get_choices())
+                ymlpath=paths.generate_yaml(input)
+                modes.process_yml(input,ymlpath)
         elif args.subcommand=="edit":
             ymlpath=args.output
             if not ymlpath.endswith(".yml") and not ymlpath.endswith(".yaml"):
