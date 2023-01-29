@@ -9,12 +9,14 @@ import fnmatch
 import math
 import os
 import sys
+import general.paths as paths
 from urllib.parse import urlparse
-
 from bencoder import bencode
-
 from dottorrent import exceptions
 from dottorrent.version import __version__
+from tqdm import tqdm
+import general.console as console
+
 
 
 DEFAULT_CREATOR = "dottorrent/{} (https://github.com/kz26/dottorrent)".format(
@@ -65,17 +67,10 @@ class TorrentOverride(Torrent):
         if single_file:
             files.append((self.path, os.path.getsize(self.path), {}))
         elif os.path.exists(self.path):
-            for x in os.walk(self.path):
-                for fn in x[2]:
-                    fpath = os.path.normpath(os.path.join(x[0], fn))
-                    if fpath not in self.fileSet:
+            for x in self.fileSet:
+                if any(fnmatch.fnmatch(Path(x).suffix, ext) for ext in self.exclude):
                         continue
-                    rel_path = os.path.relpath(fpath, self.path)
-                    if any(fnmatch.fnmatch(rel_path, ext) for ext in self.exclude):
-                        continue
-                    fsize = os.path.getsize(fpath)
-                    if fsize and not is_hidden_file(fpath):
-                        files.append((fpath, fsize, {}))
+                files.append((x, os.path.getsize(x), {}))
         else:
             raise exceptions.InvalidInputException
         total_size = sum([x[1] for x in files])
@@ -169,13 +164,68 @@ class TorrentOverride(Torrent):
 
         self._data = data
         return True
-        
+    def get_info(self):
+        """
+        Scans the input path and automatically determines the optimal
+        piece size based on ~1500 pieces (up to MAX_PIECE_SIZE) along
+        with other basic info, including total size (in bytes), the
+        total number of files, piece size (in bytes), and resulting
+        number of pieces. If ``piece_size`` has already been set, the
+        custom value will be used instead.
+        :return: ``(total_size, total_files, piece_size, num_pieces)``
+        """
+        if os.path.isfile(self.path):
+            total_size = os.path.getsize(self.path)
+            total_files = 1
+        elif os.path.exists(self.path):
+            total_size = 0
+            total_files = 0
+            for x in self.fileSet:
+                    if any(fnmatch.fnmatch(Path(x).suffix, ext) for ext in self.exclude):
+                            continue
+                    fsize = os.path.getsize(x)
+                    if fsize and not is_hidden_file(x):
+                        total_size += fsize
+                        total_files += 1
+        else:
+            raise exceptions.InvalidInputException
+        if not (total_files and total_size):
+            raise exceptions.EmptyInputException
+        if self.piece_size:
+            ps = self.piece_size
+        else:
+            ps = 1 << max(0, math.ceil(math.log(total_size / 1500, 2)))
+            if ps < MIN_PIECE_SIZE:
+                ps = MIN_PIECE_SIZE
+            if ps > MAX_PIECE_SIZE:
+                ps = MAX_PIECE_SIZE
+        return (total_size, total_files, ps, math.ceil(total_size / ps))        
 
-def create_torrent(inputFolder,fileSet,torrentpath):
+def create_torrent(torrentpath,inputFolder,fileSet,tracker=None):
+    console.console.print("Creating Torrent",style="yellow")
     Path( os.path.dirname(torrentpath)).mkdir( parents=True, exist_ok=True )
-    t=TorrentOverride(inputFolder,fileSet, trackers=[args.prepare.tracker], private=True)
+    t=TorrentOverride(inputFolder,fileSet, trackers=[tracker], private=True)
     t.piece_size=min(t.get_info()[2],8388608)
     t.generate()
+
+    completed= set()
+
+    pbar = tqdm(
+        total=t.get_info()[2] * t.get_info()[3] / 1048576,
+        unit=' MB')
+    def progress_callback(fn, pieces_completed, total_pieces):
+        if fn not in completed:
+            completed.add(fn)
+        #verbose
+        # print("{}/{} {}".format(pieces_completed, total_pieces, fn))
+        pbar.update(t.get_info()[2] / 1048576)    
+    print("Generating and Saving Torrent File")
+    t.generate(progress_callback)
+    pbar.close()
+   
+   
+   
     with open(torrentpath, 'wb') as f:
         t.save(f)
+    return torrentpath
 

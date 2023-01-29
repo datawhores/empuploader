@@ -6,7 +6,6 @@ import re
 from bs4 import BeautifulSoup
 import general.console as console
 import settings as settings
-from InquirerPy.utils import patched_print as print
 def fapping_upload(img_path,thumbnail=True,msg=False):
     """
     Uploads an image to fapping.sx and returns the image_id to access it
@@ -31,19 +30,19 @@ def fapping_upload(img_path,thumbnail=True,msg=False):
         list=soup.find_all("input")
         #get bbcode for upload, thumbnails
         if thumbnail:
-            link=list[2]["value"]
+            link=list[3]["value"]
             printmsgHelper(link,msg)
             return link
     
         else:
             link= soup.find_all("input")[1]["value"]
             printmsgHelper(link,msg)
-            return f"[img={settings.postImageSize}]{link}[/img]"
+            return link
 
 
 
     else:
-        print(f"Error Uploading\n Status: {r.status_code}\n{r.text}")
+        console.console.print(f"Error Uploading\n Status: {r.status_code}\n{r.text}",style="red")
         return ""
 
 def printmsgHelper(link,msg):

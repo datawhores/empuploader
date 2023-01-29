@@ -31,4 +31,4 @@ ${desc}
 [td=90%][align=center][color=#f4f4f4][b][size=3]SCREENSHOTS[/size][/b][/color][/align][/td]
 [/tr]
 [/table]
-[align=center]${thumbs}[/align]
+[align=center]${screens}[/align]

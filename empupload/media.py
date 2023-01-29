@@ -19,7 +19,6 @@ import general.console as console
 import settings as settings
 import general.paths as paths
 
-from InquirerPy.utils import patched_print as print
 args=arguments.getargs()
 
 
@@ -60,22 +59,21 @@ Uploads images to host
 """
 def create_images(mediafiles,inputFolder,picdir):
     count=1
-   
+    #filter only mediafiles
+    mediafiles=list(filter(lambda x: re.search("\.mkv|\.mp4",x),mediafiles))
 
-    print("Creating screens")
-    mediafiles=list(filter(lambda x:re.search("\.mkv|\.mp4",x),mediafiles))
+    console.console.print("Creating screens",style="yellow")
     mtn=mtnHelper()
     for count,file in enumerate(mediafiles): 
         t=subprocess.run([mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',settings.font,file,'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
         if t.returncode==0 or t.returncode==1:
-            print(f"{count+1}. Image created for {file}")
+            console.console.print(f"{count+1}. Image created for {file}",style="yellow")
         else:
-            print(t.stdout)
-            print(t.returncode)
-            print(f"{t.stdout.decode()}\nreturncode:{t.returncode}\nError with mtn")
-    zip_images(inputFolder,picdir)
-    imgstr=uploadgalleryHelper(imagesorter(picdir))
-    return imgstr
+            console.console.print(t.stdout,style="red")
+            console.console.print(t.returncode,style="red")
+            console.console.print(f"{t.stdout.decode()}\nreturncode:{t.returncode}\nError with mtn",style="red")
+    return zip_images(inputFolder,picdir)
+
 
 """
 retrives mtn path based on os
@@ -100,11 +98,12 @@ uploads images to fappening
 :param picdir: directory used to store images
 :returns: string combined image string for all uploads
 """   
-def uploadgalleryHelper(imageList):
+def upload_images(imageList):
     imgstring=""
+
     for i, image in enumerate(imageList):
             if i>100:
-                # console.console.print("Max images reached",style="yellow")
+                console.console.print("Max images reached",style="yellow")
                 break
             upload=network.fapping_upload(image,msg=True)
             if i<settings.maxNumPostImages and upload!="":
@@ -124,14 +123,20 @@ def zip_images(inputFolder,picdir):
     files=list(Path(picdir).iterdir())
     count=len(files)
     if(count>=100):
-        with zipfile.ZipFile(os.path.join(inputFolder,"thumbnail.zip"), mode="w") as archive:
+        zipLocation=os.path.join(inputFolder,"thumbnail.zip")
+        console.console.print(f"Creating Zip: {zipLocation}")
+        with zipfile.ZipFile(zipLocation, mode="w") as archive:
             for filename in files:
                 archive.write(filename)
+        return [zipLocation]
     elif count>=10:
         photos=os.path.join(inputFolder,"screens")
+        console.console.print(f"Creating screens folder: {photos}")
         shutil.rmtree(photos,
         ignore_errors=True)
         shutil.copytree(picdir, photos)
+        return paths.search(photos,".*",recursive=False)
+    return []
 
 
 
@@ -144,10 +149,11 @@ Generates a cover gif using a video file
 :returns: imageurl 
 """
 def createcovergif(gifpath,maxfile):
-    print("Starting GIF Process")
+    console.console.print(f"Largest File Selected: {maxfile}",style="yellow")
+    console.console.print("Starting GIF Process",style="yellow")
     trimedVideo=videoSplitter(maxfile)
     palette=os.path.join(os.path.dirname(trimedVideo),"palette.png")
-    print("Creating GIF from section")
+    console.console.print("Creating GIF from section",style="yellow")
     proc=subprocess.run([shutil.which("ffmpeg") ,'-i', trimedVideo,'-filter_complex', f'[0:v] palettegen',palette],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     proc2=subprocess.run([shutil.which("ffmpeg") ,'-i', trimedVideo,'-i' ,palette,'-filter_complex', f'[0:v] paletteuse',gifpath],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     # print(proc.stdout.decode())
@@ -155,7 +161,7 @@ def createcovergif(gifpath,maxfile):
     # print(proc.stderr.decode())
     # print(proc2.stderr.decode())
     tempgif=os.path.join(settings.tmpdir, f"{os.urandom(24).hex()}.gif")
-    print("Compressing GIF")
+    console.console.print("Compressing GIF",style="yellow")
     factor=1
     while True:
         scale=f"--scale={factor}"
@@ -163,7 +169,7 @@ def createcovergif(gifpath,maxfile):
         if os.stat(tempgif).st_size<5000000:
             break
         factor=factor*.7 
-        print(f"File too big at {os.stat(tempgif).st_size/1048576} megabytes\nChanging Scale Factor to {factor}")
+        console.console.print(f"File too big at {os.stat(tempgif).st_size/1048576} megabytes\nChanging Scale Factor to {factor}",style="yellow")
 
         
     return network.fapping_upload(tempgif,msg=True,thumbnail=False)
@@ -214,7 +220,7 @@ def videoSplitter(maxfile):
     tempVideoDir=tempfile.mkdtemp(dir=settings.tmpdir)
     intervid=os.path.join(tempVideoDir,f"inter{suffix}")
     tempVideo=os.path.join(tempVideoDir,f"tempvid{suffix}")
-    print(f"Splitting section of video from {startTime} secs to {endTime} secs")
+    console.console.print(f"Splitting section of video from {startTime} secs to {endTime} secs",style="yellow")
     proc=subprocess.run([shutil.which("ffmpeg"),"-i",maxfile, "-ss" ,f"{startTime}", "-to", f"{endTime}" ,"-c" ,"copy", intervid],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     proc2=subprocess.run([shutil.which("ffmpeg"),"-i",intervid,"-filter:v", f"fps={fps/2}",tempVideo],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     # print(proc.stdout.decode())

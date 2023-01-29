@@ -41,14 +41,12 @@ async def run_dupe(upload_dict,cookie):
         await page.setCookie(element)
     try:
         await page.goto(f'{url}/upload.php')
-        inputUploadHandle=await page.querySelector("input[type=file]");
+        inputUploadHandle=await page.querySelector("input[type=file]")
         await inputUploadHandle.uploadFile(upload_dict.get("torrent",""))
-
-        # we need to type the title before checking for dupes , otherwise it fs up
-        await page.focus("#title")
-        await page.keyboard.type(upload_dict.get("title",""))
-        await page.click("#upload_table > table > tbody > tr:nth-child(1) > td:nth-child(2) > span > input[type=submit]")
+        await submitBasicInfo(upload_dict,page)
+        
         #wait for navigation doesn't seem to work
+        await page.click("input[name=checkonly]")
         await page.waitFor(10000)
         element = await page.querySelector("#messagebar")
         msg = await page.evaluate('(element) => element.textContent', element)
@@ -59,9 +57,10 @@ async def run_dupe(upload_dict,cookie):
         await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
         if msg!=None and re.search("category|dupes",msg)!=None:
             dupemsg=await dupemsgHelper(page)
-            return True,page,f"{dupemsg}\nDupes Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
+            return True,page,f"{dupemsg}\nDupes Found True\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
         else:  
-                return False,page,f"Dupes Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
+            return False,page,f"Dupes Found  False\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
+
     except Exception as E:
             console.console.print(f"Error Finding Dupes\n{E}",style="red")
             quit()
@@ -109,28 +108,9 @@ Uploads Torrent to EMP
 """
 
 async def run_upload(page,upload_dict):
-    catdict= paths.getcat()
     try:
-        await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
-        await page.focus("#image")
-        await page.keyboard.type(upload_dict.get("cover",""))
-        await page.focus("#taginput")
-        await page.keyboard.type(upload_dict.get("taglist",""))
-        await page.focus("#desc")
-        if upload_dict.get("template","")!="":
-            await page.keyboard.type(upload_dict.get("template",""))
-        else:
-            await page.keyboard.type(upload_dict.get("desc",""))
-            await page.keyboard.press("Enter")
-            if upload_dict.get("images","")!=None:
-                await page.keyboard.type(upload_dict.get("images",""))
-            else:
-                await page.keyboard.type(upload_dict.get("screens",""))
-            await page.keyboard.press("Enter")
-
-
-        catvalue=catdict.get(upload_dict.get("category",""),"1")
-        await page.select('#category', catvalue)
+        # await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
+        await submitBasicInfo(upload_dict,page)
         await page.click('#post')
         p=tempfile.NamedTemporaryFile(suffix=".png")
         await page.waitFor(10000)
@@ -164,22 +144,7 @@ async def run_preview(upload_dict,cookie):
     try:
         await page.goto(f'{url}/upload.php')
         # we need to type the title before checking for dupes , otherwise it fs up
-        await page.focus("#title")
-        await page.keyboard.type(upload_dict.get("title",""))
-
-        await page.focus("#image")
-        await page.keyboard.type(upload_dict.get("cover",""))
-        await page.click("[name=autocomplete_toggle]")
-        await page.focus("#taginput")
-        await page.keyboard.type(upload_dict.get("taglist",""))
-        await page.waitForSelector("#desc")
-        await page.focus("#desc")
-        if upload_dict.get("template","")!="":
-            await page.keyboard.type(upload_dict.get("template",""))
-  
-  
-        catvalue=paths.getcat().get(upload_dict.get("category",""),"1")
-        await page.select('#category', catvalue)
+        await submitBasicInfo(upload_dict,page)
         p=tempfile.NamedTemporaryFile(suffix=".png")
         await page.click('#post_preview')
         await page.waitFor(10000)
@@ -190,8 +155,34 @@ async def run_preview(upload_dict,cookie):
         console.console.print(f"Error Generating Preview\n{E}",style="red")
     finally:
         await page.close()
+"""
+Submit some basic information required for uploads
+:params upload_dict: Options to Embedded in Upload
+:params page: Object representing html page
+:returns None:
+"""
+async def submitBasicInfo(upload_dict,page):
+    await page.focus("#title")
+    await page.keyboard.type(upload_dict.get("title",""))
 
-   
+    await page.focus("#image")
+    await page.keyboard.type(upload_dict.get("cover",""))
+    await page.click("[name=autocomplete_toggle]")
+    await page.focus("#taginput")
+    await page.keyboard.type(upload_dict.get("taglist",""))
+    await page.waitForSelector("#desc")
+    await page.focus("#desc")
+    if upload_dict.get("template","")!="":
+        await page.keyboard.type(upload_dict.get("template",""))
+    else:
+        await page.keyboard.type(upload_dict.get("desc",""))
+        await page.keyboard.press("Enter")
+        await page.keyboard.type(upload_dict.get("screens",""))
+        await page.keyboard.press("Enter")
+    catvalue=paths.getcat().get(upload_dict.get("category",""),"1")
+    await page.select('#category', catvalue)
+    
+
  
 """
 Runs "find_dupe" with async
