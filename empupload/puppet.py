@@ -57,9 +57,9 @@ async def run_dupe(upload_dict,cookie):
         await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
         if msg!=None and re.search("category|dupes",msg)!=None:
             dupemsg=await dupemsgHelper(page)
-            return True,page,f"{dupemsg}\nDupes Found True\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
+            return True,page,f"{dupemsg}\nDupes Found True\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False)}"
         else:  
-            return False,page,f"Dupes Found  False\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
+            return False,page,f"Dupes Found  False\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False)}"
 
     except Exception as E:
             console.console.print(f"Error Finding Dupes\n{E}",style="red")
@@ -121,13 +121,12 @@ async def run_upload(page,upload_dict):
             await page.keyboard.type(upload_dict.get("screens",""))
             await page.keyboard.press("Enter")
         #submit and preview
-        await submitBasicInfo(upload_dict,page)
         await page.click('#post')
         p=tempfile.NamedTemporaryFile(suffix=".png")
         await page.waitFor(10000)
         await page.setViewport({ "width": 1920, "height": 2300 })
         await page.screenshot({'path': p.name,'fullPage':True,'type':'jpeg'})
-        return f"Upload Screenshot: {network.fapping_upload(p.name,thumbnail=False)}"
+        return f"Upload Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False)}"
     except Exception as E:
         print(f"Error Uploading\n{E}")
     finally:

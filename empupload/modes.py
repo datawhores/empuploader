@@ -37,7 +37,6 @@ def upload(ymlpath):
     if dupe==True:
         if selection.singleoptions("Ignore dupes and continue upload?",["Yes","No"])=="No":
             return
-    # print(f"{emp_dict['template']}\n")
     console.console.print(puppet.upload_torrent(page,emp_dict),style="yellow")
     fp.close()
 
@@ -93,8 +92,8 @@ def process_yml(inputFolder,ymlpath):
 
 
 
-    files.extend(media.create_images(files,inputFolder,picdir))
     emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
+    files.extend(media.create_images(files,inputFolder,picdir))
 
     emp_dict["screens"]=media.upload_images(media.imagesorter(picdir))
     emp_dict["torrent"]=torrent.create_torrent(os.path.join(args.prepare.torrent,f"{basename}.torrent"),inputFolder,files,tracker=args.prepare.tracker)
@@ -137,13 +136,13 @@ def update_yml(ymlpath):
         allFiles=paths.search(emp_dict["inputFolder"],".*",recursive=True,exclude=[os.path.join(emp_dict["inputFolder"],"thumbnail.zip"),os.path.join(emp_dict["inputFolder"],"screens")]+emp_dict["exclude"])
         files=selection.multioptions("Select files from folder to upload",allFiles,transformer=lambda result: f"Number of files selected: {len(result)}")
         picdir=tempfile.mkdtemp(dir=settings.tmpdir)
-        files.extend(media.create_images(files,emp_dict["inputFolder"],picdir))
-        media.upload_images(media.imagesorter(picdir))
+    
         
         if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
             maxfile=media.find_maxfile(files)
             emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
-        
+        files.extend(media.create_images(files,emp_dict["inputFolder"],picdir))
+        media.upload_images(media.imagesorter(picdir))
         shutil.rmtree(picdir,ignore_errors=True)
         temptorrent=tempfile.NamedTemporaryFile(suffix=".torrent").name
         torrent.create_torrent(temptorrent,emp_dict["inputFolder"],files,tracker=emp_dict["tracker"])

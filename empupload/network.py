@@ -2,11 +2,11 @@
 #! /usr/bin/env python3
 import json
 import requests
-import re
+from pathlib import Path
 from bs4 import BeautifulSoup
 import general.console as console
 import settings as settings
-def fapping_upload(img_path,thumbnail=True,msg=False):
+def fapping_upload(img_path,thumbnail=True,msg=False,remove=True):
     """
     Uploads an image to fapping.sx and returns the image_id to access it
     Parameters
@@ -22,6 +22,8 @@ def fapping_upload(img_path,thumbnail=True,msg=False):
     """
     # posts the image as a binary file with the upload form
     r = requests.post('https://fapping.empornium.sx/upload.php',files=dict(ImageUp=open(img_path, 'rb')))
+    if remove==True:
+        Path(img_path).unlink(missing_ok=True)
     if r.status_code == 200:
         image=json.loads(r.text)['image_id_public']
         image="https://fapping.empornium.sx/image/" +image

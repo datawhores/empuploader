@@ -105,7 +105,7 @@ def upload_images(imageList):
             if i>100:
                 console.console.print("Max images reached",style="yellow")
                 break
-            upload=network.fapping_upload(image,msg=True)
+            upload=network.fapping_upload(image,msg=True,remove=True)
             if i<settings.maxNumPostImages and upload!="":
                 upload=f"[img={settings.postImageSize}]{upload}[/img]"
                 imgstring=f"{imgstring}{upload}"
@@ -170,9 +170,8 @@ def createcovergif(gifpath,maxfile):
             break
         factor=factor*.7 
         console.console.print(f"File too big at {os.stat(tempgif).st_size/1048576} megabytes\nChanging Scale Factor to {factor}",style="yellow")
-
-        
-    return network.fapping_upload(tempgif,msg=True,thumbnail=False)
+    Path(gifpath).unlink(True)
+    return network.fapping_upload(tempgif,msg=True,thumbnail=False,remove=True)
     
 
 """
