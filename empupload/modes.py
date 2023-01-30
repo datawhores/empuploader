@@ -4,7 +4,6 @@ import re
 import shutil
 import tempfile
 import string
-from threading import Thread
 from pathlib import Path
 import general.console as console
 import empupload.puppet as puppet
@@ -17,7 +16,6 @@ import general.arguments as arguments
 import general.paths as paths
 from Cheetah.Template import Template
 import general.torrent as torrent
-import asyncio
 args=arguments.getargs()
 
 """
@@ -67,7 +65,7 @@ def process_yml(inputFolder,ymlpath):
     fp=open(ymlpath,"w")
     files=None
     if os.path.isdir(inputFolder):
-        files=paths.search(inputFolder,".*",recursive=True,exclude=args.prepare.exclude)
+        files=paths.search(inputFolder,".*",recursive=True,exclude=[os.path.join(emp_dict["inputFolder"],"thumbnail.zip"),os.path.join(emp_dict["inputFolder"],"screens")]+args.prepare.exclde)
         if args.prepare.manual:
             files=selection.multioptions("Select Files from folder to upload",files,transformer=lambda result: f"Number of files selected: {len(result)}")
     else:
@@ -136,10 +134,9 @@ def update_yml(ymlpath):
         emp_dict["category"]=paths.getcat()[selection.singleoptions("Update Category: ",paths.getcat().keys())]
     
     if selection.singleoptions("Update file selection",choices=["Yes","No"])=="Yes":
-        allFiles=paths.search(emp_dict["inputFolder"],".*",recursive=True,exclude=emp_dict["exclude"])
+        allFiles=paths.search(emp_dict["inputFolder"],".*",recursive=True,exclude=[os.path.join(emp_dict["inputFolder"],"thumbnail.zip"),os.path.join(emp_dict["inputFolder"],"screens")]+emp_dict["exclude"])
         files=selection.multioptions("Select files from folder to upload",allFiles,transformer=lambda result: f"Number of files selected: {len(result)}")
         picdir=tempfile.mkdtemp(dir=settings.tmpdir)
-
         files.extend(media.create_images(files,emp_dict["inputFolder"],picdir))
         media.upload_images(media.imagesorter(picdir))
         
@@ -148,10 +145,15 @@ def update_yml(ymlpath):
             emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
         
         shutil.rmtree(picdir,ignore_errors=True)
-        torrent.create_torrent(emp_dict["torrent"],emp_dict["inputFolder"],files,tracker=emp_dict["tracker"])
-        
+        temptorrent=tempfile.NamedTemporaryFile(suffix=".torrent").name
+        torrent.create_torrent(temptorrent,emp_dict["inputFolder"],files,tracker=emp_dict["tracker"])
     if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
+        Path(emp_dict["torrent"]).unlink(missing_ok=True)
+        shutil.copy(temptorrent,emp_dict["torrent"])
         emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
+    else:
+        emp_dict["template"]=getPostStr(emp_dict)
+
     console.console.print(emp_dict,style="yellow")
     if selection.singleoptions("Do you want to save your changes?",choices=["Yes","No"])=="Yes":
         fp=open(ymlpath,"w")

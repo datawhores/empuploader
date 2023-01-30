@@ -111,7 +111,8 @@ Uploads Torrent to EMP
 async def run_upload(page,upload_dict):
     catdict= paths.getcat()
     try:
-        await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
+        if await page.querySelector("input[name=ignoredupes]"):
+            await page.click("input[name=ignoredupes]")
         await page.focus("#image")
         await page.keyboard.type(upload_dict.get("cover",""))
         await page.focus("#taginput")
@@ -163,7 +164,6 @@ async def run_preview(upload_dict,cookie):
         await page.setCookie(element)
     try:
         await page.goto(f'{url}/upload.php')
-        # we need to type the title before checking for dupes , otherwise it fs up
         await page.focus("#title")
         await page.keyboard.type(upload_dict.get("title",""))
 

@@ -24,7 +24,7 @@ DEFAULT_CREATOR = "dottorrent/{} (https://github.com/kz26/dottorrent)".format(
 
 
 MIN_PIECE_SIZE = 2 ** 14
-MAX_PIECE_SIZE = 2 ** 26
+MAX_PIECE_SIZE = 2 ** 23
 
 args=arguments.getargs()
 import os
@@ -51,7 +51,7 @@ class TorrentOverride(Torrent):
     def __init__(self,inpath,fileSet,trackers=None,private=None)->None:
         super().__init__(inpath,trackers=trackers,private=private)
         self.fileSet=fileSet
-    def generate(self, callback=None):
+    def generate(self, torrentinfo,callback=None):
         """
         Computes and stores piece data. Returns ``True`` on success, ``False``
         otherwise.
@@ -78,7 +78,7 @@ class TorrentOverride(Torrent):
             raise exceptions.EmptyInputException
         # set piece size if not already set
         if self.piece_size is None:
-            self.piece_size = self.get_info()[2]
+            self.piece_size = torrentinfo[2]
         if files:
             self._pieces = bytearray()
             i = 0
@@ -202,25 +202,25 @@ class TorrentOverride(Torrent):
         return (total_size, total_files, ps, math.ceil(total_size / ps))        
 
 def create_torrent(torrentpath,inputFolder,fileSet,tracker=None):
-    console.console.print("Creating Torrent",style="yellow")
+    #remove any dupes
+    console.console.print("Starting Torrent Process",style="yellow")
     Path( os.path.dirname(torrentpath)).mkdir( parents=True, exist_ok=True )
     t=TorrentOverride(inputFolder,fileSet, trackers=[tracker], private=True)
-    t.piece_size=min(t.get_info()[2],8388608)
-    t.generate()
-
+    console.console.print("Getting Torrent Info",style="yellow")
+    torrentinfo=t.get_info()
+    t.piece_size=torrentinfo[2]
     completed= set()
-
     pbar = tqdm(
-        total=t.get_info()[2] * t.get_info()[3] / 1048576,
+        total=torrentinfo[2] * torrentinfo[3] / 1048576,
         unit=' MB')
     def progress_callback(fn, pieces_completed, total_pieces):
         if fn not in completed:
             completed.add(fn)
         #verbose
         # print("{}/{} {}".format(pieces_completed, total_pieces, fn))
-        pbar.update(t.get_info()[2] / 1048576)    
-    print("Generating and Saving Torrent File")
-    t.generate(progress_callback)
+        pbar.update(torrentinfo[2] / 1048576)    
+    console.console.print("Generating and Saving Torrent File",style="yellow")
+    t.generate(torrentinfo,callback=progress_callback)
     pbar.close()
    
    
