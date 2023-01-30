@@ -109,7 +109,18 @@ Uploads Torrent to EMP
 
 async def run_upload(page,upload_dict):
     try:
-        # await page.click("#upload_table > div.box.pad.shadow.center.rowa > div > input[type=checkbox]")
+        if await page.querySelector("input[name=ignoredupes]"):
+            await page.click("input[name=ignoredupes]")
+        #add desc
+        await page.focus("#desc")
+        if upload_dict.get("template","")!="":
+            await page.keyboard.type(upload_dict.get("template",""))
+        else:
+            await page.keyboard.type(upload_dict.get("desc",""))
+            await page.keyboard.press("Enter")
+            await page.keyboard.type(upload_dict.get("screens",""))
+            await page.keyboard.press("Enter")
+        #submit and preview
         await submitBasicInfo(upload_dict,page)
         await page.click('#post')
         p=tempfile.NamedTemporaryFile(suffix=".png")
@@ -171,14 +182,6 @@ async def submitBasicInfo(upload_dict,page):
     await page.focus("#taginput")
     await page.keyboard.type(upload_dict.get("taglist",""))
     await page.waitForSelector("#desc")
-    await page.focus("#desc")
-    if upload_dict.get("template","")!="":
-        await page.keyboard.type(upload_dict.get("template",""))
-    else:
-        await page.keyboard.type(upload_dict.get("desc",""))
-        await page.keyboard.press("Enter")
-        await page.keyboard.type(upload_dict.get("screens",""))
-        await page.keyboard.press("Enter")
     catvalue=paths.getcat().get(upload_dict.get("category",""),"1")
     await page.select('#category', catvalue)
     
