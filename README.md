@@ -97,36 +97,37 @@ Args that appear before the mode, and they apply changes in multiple modes
 
 `
 --config  [optional]
-override config file
-`
-
-`
---cookie [required]
-cookie File for preview and upload mode
-`
-
-`
---template [optional]
-Template file for creating desc string
-`
-
-`
- --output [optional]
-   prepare mode: Path to dir or a yml/yaml terminated path to store text file
-   other modes: full path or dir where a previously created yml or yaml is stored
-`
-`
- --output [optional]
-   prepare mode: Path to dir or a yml/yaml terminated path to store text file
-   other modes: full path or dir where a previously created yml or yaml is stored
-`
-
-`
- --config [optional]
+ ```
    path to config file
    Note: Config file negates any required args
    Note: If a arg is passed with config arg set, the arg is given higher priority then        any config args
-`
+ ```
+
+
+--cookie [required]
+ ```
+cookie File for preview and upload mode
+ ```
+
+
+--template [optional]
+ ```
+Template file for creating desc string
+ ```
+
+
+ --output [optional]
+  ```
+   prepare mode: Path to dir or a yml/yaml terminated path to store text file
+   other modes: full path or dir where a previously created yml or yaml is stored
+ ```
+ 
+ --output [optional]
+  ```
+   prepare mode: Path to dir or a yml/yaml terminated path to store text file
+   other modes: full path or dir where a previously created yml or yaml is stored
+ ```
+
 
 
 
