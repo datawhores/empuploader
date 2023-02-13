@@ -8,7 +8,7 @@ sets up Argument Parser with required settings
 """
 def getargs():
     parser = ArgumentParser(prog="empuploader")
-    parser.add_argument('-c','--config', action=ActionConfigFile,help="override config file")  
+    parser.add_argument('-c','--config', action=ActionConfigFile,help="path to a config file")  
     parser.add_argument('-k','--cookie',help="cookie File for preview and upload mode",required=False)
     parser.add_argument("-t","--template",help="Template file for creating desc string",default=os.path.join(settings.workingdir,"data/default_template.txt"))
 
