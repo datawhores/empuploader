@@ -9,8 +9,6 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
 
 # Install
-## Part 1: Installing the Software
-
 ### Linux
 - git clone https://github.com/excludedBittern8/empuploader
 - cd empuploader
@@ -39,35 +37,6 @@ it can also be installed automatically
 - deactivate -> Do this after installing the requirements
 ### Chrome
 You should install chrome for windows through the chrome web site
-
-
-
-## Part 2: Cookies
-
-There are numberous extensions that can export cookies in a json format. Some Recommendations are below, but it is not required to use those specific ones
-
-You should be exporting the data as a json
-Their should be "brackets,colons,curlybrackets" as part of the text
-Copy the provided text into a file, and pass that file into the program with the --cookie arg or config file.
-
-### Recomendations
-
-#### Chrome or Opera,Chromium Browsers 
-
-* editthiscookie:https://www.editthiscookie.com/blog/
-* Exporting Cookies: Follow the instructions here -> https://www.editthiscookie.com/blog/2014/03/import-export-cookies/
-
-
-#### Firefox 
-
-* cookie-quick-manager:https://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search
-* Exporting Cookies: This is button to look for ->  https://addons.mozilla.org/user-media/previews/thumbs/211/211229.jpg?modified=1622132880
-
-1. You'll want to click the icon on the extension bar
-2. Click Search for Cookies
-3. Look for the folder Icon 
-4. Click Copy all
-
 
 
 
