@@ -128,62 +128,63 @@ Template file for creating desc string
    other modes: full path or dir where a previously created yml or yaml is stored
  ```
 
+### prepare mode args
+These are for prepare mode only
+--media [required]
+```
+Directory to retrive media files
+```
+
+--torrent[required]
+```
+Directory to store torrent files
+```
+
+--picdic[optional]
+```
+ Path to store output mediafiles Stored in
+```
+ 
+--tracker[required]
+```
+ Your tracker announce url
+```
+
+--cover[optional]
+```
+ set a preset image to use for cover image
+```
+
+--images[optional]
+```
+ scan a directory for images
+```
+
+--exclude[optional]
+```
+   file patterns for dottorrent to exclude
+   Can be passed multiple times 
+   regex match
+```                       
+--manual
+```
+ Manually select which files to include
+  ```
+## edit mode args
+```
+Edit Mode only has global args
+```
+
+## preview mode args
+```
+Preview Mode only has global args
+```
+## upload mode args
+```
+Preview Mode only has global args
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-# ARGs
-
-> --torrents 
->  - Path where torrentfile will  save
-> 
-> --data
-> - This is the path where json files are stored
-> 
-> --trackerurl
-> - url to save upload with
-> - Your personal url is on the upload page
-> 
-> --media
-> - Directory to retrieve files/folders 
-> 
-> --screens
-> - Set a folder to save thumbs in; default is random tempdir
-> 
-> --batch
-> - If set to false any folder will be consider one entry to be uploaded
-> - true then every element in directory will be A seperate upload 
-> --input
-> - Change the path of the json that is generated 
-> 
-> --cover
-> - Provide the full path to the cover image
-> - if selected then this image we replace any gif that would have been created
-> > 
-> > --image
-> - add static images to your upload
-> 
-> --template
-> - template is read, and information on text json is updated
-> 
-> --cookie
-> - with content in the json format
-> 
-> 
-> --config
-> - use config to import arguments into program
-> 
->--font
-> - change the font file utilize by mtn to generate thumbs
 
 
 
