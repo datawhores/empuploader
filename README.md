@@ -9,9 +9,9 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 
 
 # Install
-Part 1: Installing the Software
+## Part 1: Installing the Software
 
-## Linux
+### Linux
 - git clone https://github.com/excludedBittern8/empuploader
 - cd empuploader
 - python3 -m pip install --user virtualenv
@@ -22,11 +22,11 @@ Part 1: Installing the Software
 - pip install imageio[ffmpeg]
 - on Linux you may need to chmod + x -R ./bin/ to give permission to the binaries in that folder
 - deactivate -> Do this after installing the requirements
-### Optional 
+#### Optional 
 Chrome can be installed through this link https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/843831/
 it can also be installed automatically
 
-## Windows
+### Windows
 - git clone https://github.com/excludedBittern8/empuploader
 - cd empuploader
 - git clone ​
@@ -42,7 +42,7 @@ You should install chrome for windows through the chrome web site
 
 
 
-Part 2: Cookies
+## Part 2: Cookies
 
 There are numberous extensions that can export cookies in a json format. Some Recommendations are below, but it is not required to use those specific ones
 
@@ -50,15 +50,15 @@ You should be exporting the data as a json
 Their should be "brackets,colons,curlybrackets" as part of the text
 Copy the provided text into a file, and pass that file into the program with the --cookie arg or config file.
 
-## Recomendations
+### Recomendations
 
-### Chrome or Opera,Chromium Browsers 
+#### Chrome or Opera,Chromium Browsers 
 
 * editthiscookie:https://www.editthiscookie.com/blog/
 * Exporting Cookies: Follow the instructions here -> https://www.editthiscookie.com/blog/2014/03/import-export-cookies/
 
 
-### Firefox 
+#### Firefox 
 
 * cookie-quick-manager:https://addons.mozilla.org/en-CA/firefox/addon/cookie-quick-manager/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search
 * Exporting Cookies: This is button to look for ->  https://addons.mozilla.org/user-media/previews/thumbs/211/211229.jpg?modified=1622132880
