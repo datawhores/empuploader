@@ -1,6 +1,5 @@
 output: /home/user/txt
 cookie: /home/user/txt/cookie.txt
-manual: False
 prepare: 
     media: /home/user/Downloads
     torrent: /home/user/Torrents/
