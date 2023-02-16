@@ -8,16 +8,19 @@ Provides a menu limited by one choice
 :params default: choice to highlight on init
 :returns any: choice selected
 """
-def singleoptions(msg,choices,default=None,mandatory =True,validate=None):
+def singleoptions(msg,choices,default=None,mandatory =True,validate=None,sync=True):
     if not validate:
         validate=lambda selection: len(selection) >= 1
-    return inquirer.select(
+    result= inquirer.select(
         message=msg,
         choices=choices,
         default=default,
         validate=validate,
         mandatory =mandatory 
-    ).execute()
+    )
+    if sync:
+        return result.execute()
+    return result.execute_async()
 
 """
 Provides a menu that allows multiple choices
@@ -26,7 +29,7 @@ Provides a menu that allows multiple choices
 :params default: choice to highlight on init
 :returns any: choice selected
 """
-def multioptions(msg,choices,mandatory =True,default=None,instruction=None,validate=None,transformer=None):
+def multioptions(msg,choices,mandatory =True,default=None,instruction=None,validate=None,transformer=None,sync=True):
     if not instruction:
         instruction=\
             """
@@ -36,7 +39,7 @@ def multioptions(msg,choices,mandatory =True,default=None,instruction=None,valid
             """
     if not validate:
         validate=lambda selection: len(selection) >= 1
-    return inquirer.checkbox(
+    result= inquirer.checkbox(
         message=msg,
         choices=choices,
         default=default,
@@ -44,7 +47,11 @@ def multioptions(msg,choices,mandatory =True,default=None,instruction=None,valid
         validate=validate,
         instruction=instruction,
         transformer=transformer
-    ).execute()
+    )
+    if sync:
+        return result.execute()
+    return result.execute_async()
+
 
 """
 Provides a prompt to enter a string
@@ -54,11 +61,13 @@ Provides a prompt to enter a string
 :instructions: Advanced instructions for multiline mode
 :returns any: choice selected
 """
-def strinput(msg,default="",multiline=False,instructions=None):
+def strinput(msg,default="",multiline=False,instructions=None,sync=True):
     if multiline and not instructions:
         instructions="Press Enter to Move to new line\nESC + Enter to Finish"
-    return inquirer.text(message=msg,default=default,multiline=multiline,instruction=instructions).execute()
-  
+    result=inquirer.text(message=msg,default=default,multiline=multiline,instruction=instructions)
+    if sync:
+        return result.execute()
+    return result.execute_async()
 
 
 

@@ -20,7 +20,7 @@ def getargs():
     prepare.add_argument('-c','--cover',help="set a preset image to use for torrent cover",required=False)
     prepare.add_argument('-i','--images',help="Folder with static images for upload",required=False)
     prepare.add_argument('-e','--exclude',help="file patterns for dottorrent to exclude\nCan be passed multiple times\nregex match",required=False,nargs='*',default=[])
-    prepare.add_argument('-n','--manual',help="Manually select which files to upload from a directory\nCan be combined with exclude to reduce options",required=False,nargs='*',default=[])
+    prepare.add_argument('-n','--manual',help="Manually select which files to upload from a directory\nDefault is to upload all files if a directory is passed\nCan be combined with exclude to reduce options",required=False,nargs='*',default=[])
 
     # upload= ArgumentParser()
     edit= ArgumentParser()

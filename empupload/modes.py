@@ -30,15 +30,9 @@ def upload(ymlpath):
     fp=open(ymlpath,"r")
     emp_dict= yaml.safe_load(fp)
     emp_dict["template"]=getPostStr(emp_dict)
-    puppet.create_chrome()
-    dupe,page,dupestr=puppet.find_dupe(emp_dict,puppet.loadcookie())
-    console.console.print(dupestr,style="yellow")
-
-    if dupe==True:
-        if selection.singleoptions("Ignore dupes and continue upload?",["Yes","No"])=="No":
-            return
-    console.console.print(puppet.upload_torrent(page,emp_dict),style="yellow")
+    console.console.print(puppet.upload_torrent(emp_dict),style="yellow")
     fp.close()
+
 
         
 
@@ -60,11 +54,11 @@ def process_yml(inputFolder,ymlpath):
     paths.setPath()
     if os.path.isfile(ymlpath) and selection.singleoptions("File Exist Do you want to overwrite?",["Yes","No"])=="No":
         return
-    Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
-    fp=open(ymlpath,"w")
+    temp=tempfile.NamedTemporaryFile(suffix=".yml").name
+    fp=open(temp,"w")
     files=None
     if os.path.isdir(inputFolder):
-        files=paths.search(inputFolder,".*",recursive=True,exclude=[os.path.join(emp_dict["inputFolder"],"thumbnail.zip"),os.path.join(emp_dict["inputFolder"],"screens")]+args.prepare.exclde)
+        files=paths.search(inputFolder,".*",recursive=True,exclude=[os.path.join(inputFolder,"thumbnail.zip"),os.path.join(inputFolder,"screens")]+args.prepare.exclude)
         if args.prepare.manual:
             files=selection.multioptions("Select Files from folder to upload",files,transformer=lambda result: f"Number of files selected: {len(result)}")
     else:
@@ -81,7 +75,7 @@ def process_yml(inputFolder,ymlpath):
     emp_dict["inputFolder"]=inputFolder
     emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=sug)
     emp_dict["category"]=paths.getcat()[selection.singleoptions("Enter Category:",paths.getcat().keys())]
-    emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:"))
+    emp_dict["taglist"]=_tagfixer(selection.strinput("Enter Tags Seperated By Space:"))
     emp_dict["desc"]=selection.strinput("Enter Description:",multiline=True)
     emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
     emp_dict["mediaInfo"]={}
@@ -103,6 +97,8 @@ def process_yml(inputFolder,ymlpath):
     console.console.print(f"Torrent Save to {emp_dict['torrent']}",style="yellow")
     yaml.dump(emp_dict,fp, default_flow_style=False)
     fp.close()
+    Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
+    os.replace( temp,ymlpath)
     console.console.print(emp_dict)
   
 
@@ -225,11 +221,19 @@ def generatepreview(ymlpath):
     f=open(ymlpath,"r")
     emp_dict= yaml.safe_load(f)
     emp_dict["template"]=getPostStr(emp_dict)
-    puppet.create_chrome()
-    previewurl=puppet.create_preview(emp_dict,puppet.loadcookie())
+    previewurl=puppet.create_preview(emp_dict)
     #print outputs
-    console.console.print(f"Template String:\n{emp_dict['template']}\n{previewurl}",style="yellow")
+    console.console.print(f"Template String:\n{emp_dict['template']}\n-------------------------------\n{previewurl}",style="yellow")
+"""
+Fixes formating of taglist
 
+:params taglist: taglist
+
+:returns taglist: fixed taglist string
+"""
    
-   
-    
+def _tagfixer(taglist):
+    taglist= re.sub(" *\.",".",taglist)
+    taglist=re.sub(" +"," ",taglist)
+    taglist= re.sub(" ",",",taglist)
+    return re.sub(",+",",",taglist)
