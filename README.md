@@ -20,9 +20,17 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 - pip install imageio[ffmpeg]
 - on Linux you may need to chmod + x -R ./bin/ to give permission to the binaries in that folder
 - deactivate -> Do this after installing the requirements
-#### Optional 
-Chrome can be installed through this link https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Linux_x64/843831/
-it can also be installed automatically
+#### Optional Chrome
+Install Chrome with playwright
+Note: You must have sudo
+- cd empuploader
+- source env/bin/activate
+- pip install playwright
+- playwright install chromium
+
+Don't have sudo?
+
+Don't worry the script will auto download a portable version of chromium for you
 
 ### Windows
 - git clone https://github.com/excludedBittern8/empuploader
@@ -34,10 +42,10 @@ it can also be installed automatically
 - which python -> should be the virtualenv
 - py -m pip install -r requirements.txt
 - pip install imageio[ffmpeg]
+- playwright install chromium
 - deactivate -> Do this after installing the requirements
 ### Chrome
 You should install chrome for windows through the chrome web site
-
 
 
 # Running the program
