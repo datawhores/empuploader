@@ -22,10 +22,12 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 - deactivate -> Do this after installing the requirements
 #### Optional Chrome
 Install Chrome with playwright
-Note: You must have sudo
+
 - cd empuploader
 - source env/bin/activate
 - pip install playwright
+
+##### Next step requires sudo
 - playwright install chromium
 
 Don't have sudo?
