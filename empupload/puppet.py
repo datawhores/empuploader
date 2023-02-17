@@ -26,9 +26,8 @@ CHROMEURL="https://github.com/macchrome/linchrome/releases/download/v108.5359.98
 Handles Dupes with User Input
 
 :param upload_dict: Options to Embedded in Upload
-:param cookie: Cookie For Login
 
-:returns tuple: return dupe bool, page Object, and a string to dupe fappening upload
+:returns tuple: dupe bool and a string to dupe fappening upload
 """
 async def run_upload(upload_dict):
     async with async_playwright() as playwright:
@@ -48,9 +47,8 @@ async def run_upload(upload_dict):
 Handles Dupes with User Input
 
 :param upload_dict: Options to Embedded in Upload
-:param cookie: Cookie For Login
 
-:returns tuple: return dupe bool, page Object, and a string to dupe fappening upload
+:returns tuple: return dupe bool and a string to dupe fappening upload
 """
 
 async def find_dupe(upload_dict,page):
@@ -120,7 +118,7 @@ Uploads Torrent to EMP
 :param page: Page Object Used to handle request
 :param upload_dict: Options to Embedded in Upload
 
-:returns: None
+:returns: upload screenshot on fappening
 """
 
 async def upload(page):
@@ -146,7 +144,6 @@ async def upload(page):
 Generates preview of upload
 
 :params upload_dict: Options to Embedded in Upload
-:params cookie: path to cookie json
 
 :returns str: a string to a fappening post with upload preview
 """
@@ -207,7 +204,6 @@ async def submitBasicInfo(upload_dict,page):
 Runs "run_preview" with async
 
 :param upload_dict: Options to Embedded in Upload
-:param cookie: Cookie For Login
 
 :returns: None
 """
@@ -231,7 +227,7 @@ def upload_torrent(upload_dict):
 """
 loads cookie argument into dicitonary with json parse
 
-:returns cookiedict: dictionary from json cookie file
+:returns cookie array: array of cookies from cookie file
 """   
 def loadcookie():
     if args.cookie==None or args.cookie=="":
@@ -253,6 +249,10 @@ async def getbrowserHelper(playwright):
  
     
 
+"""
+Download Chrome if required on Linux
+:returns str: str path to installed chrome
+"""
 def create_chrome():
     if os.name!="posix":
         return
