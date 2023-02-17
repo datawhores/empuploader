@@ -41,7 +41,7 @@ async def run_upload(upload_dict):
         console.console.print(dupestr,style="yellow")
         if dupe==True and \
         await selection.singleoptions("Ignore dupes and continue upload?",["Yes","No"],sync=False)=="No":
-            return
+            return "Not Uploaded"
         return await upload(page)
 
 """
@@ -256,13 +256,13 @@ async def getbrowserHelper(playwright):
 def create_chrome():
     if os.name!="posix":
         return
-    chromepath=os.path.join(settings.binfolder,"chrome_Linux")
+    chromepath=os.path.join(settings.binfolder,"chrome_Linux","chrome")
     if os.path.isfile(os.path.join(chromepath,"chrome"))==False:
         chromeDir=str(pathlib.Path(chromepath).parents[0])
         console.console.print("Missing Chrome Install",style="green")
         shutil.rmtree(chromeDir,ignore_errors=True)     
         pathlib.Path(chromeDir).mkdir(parents=True,exist_ok=True)
-        console.console.print(f"Install Chrome to {chromepath}",style="green")
+        console.console.print(f"Install Chrome to {chromeDir}",style="green")
         tempchrome=tempfile.mkdtemp(dir=settings.tmpdir)
         chrome="chrome.tar"
         os.chdir(tempchrome)
@@ -280,9 +280,10 @@ def create_chrome():
         with tarfile.open(chrome) as fp:
             fp.extractall(".")
         os.remove(chrome)
+        os.chdir(os.listdir()[0])
         for element in os.scandir():
-            shutil.move(element.name, chromepath)
+            shutil.move(element.name, chromeDir)
         os.chdir(settings.workingdir)
         shutil.rmtree(tempchrome)
     os.chmod(chromepath, 0o775)
-    return os.path.join(chromepath,"chrome")
+    return chromepath
