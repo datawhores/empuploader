@@ -20,7 +20,7 @@ https://github.com/excludedBittern8/empuploader/wiki/Uploading-Torrents
 - pip install imageio[ffmpeg]
 - on Linux you may need to chmod + x -R ./bin/ to give permission to the binaries in that folder
 - deactivate -> Do this after installing the requirements
-#### Optional Chrome
+#### Chrome
 Install Chrome with playwright
 
 - cd empuploader
