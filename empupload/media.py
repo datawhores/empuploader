@@ -82,11 +82,28 @@ retrives mtn path based on os
 """
 def mtnHelper():
     if sys.platform=="linux":
-        return settings.mtn_Linux
-    return settings.mtn_Windows
+        return shutil.which("mtn") or os.path.join(settings.mtn,"mtn")
+    return shutil.which("mtn.exe") or os.path.join(settings.mtn,"windows","mtn.exe")
+"""
+retrives ffmpeg path based on os
+
+:returns ffmpeg:path to ffmpeg binary
+"""
+def ffmpegHelper():
+    if sys.platform=="linux":
+        return shutil.which("ffmpeg") or os.path.join(settings.ffmpeg,"ffmpeg")
+    return shutil.which("ffmpeg.exe") or os.path.join(settings.ffmpeg,"ffmpeg.exe")
 
 
+"""
+retrives gifsicle path based on os
 
+:returns gifsicle:path to gifsiclebinary
+"""
+def gifsicleHelper():
+    if sys.platform=="linux":
+        return shutil.which("gifsicle") or os.path.join(settings.gifsicle,"gisicle")
+    return shutil.which("gifsicle.exe") or os.path.join(settings.ffmpeg,"gifsicle.exe")
 
     
 
@@ -154,8 +171,9 @@ def createcovergif(gifpath,maxfile):
     trimedVideo=videoSplitter(maxfile)
     palette=os.path.join(os.path.dirname(trimedVideo),"palette.png")
     console.console.print("Creating GIF from section",style="yellow")
-    proc=subprocess.run([shutil.which("ffmpeg") ,'-i', trimedVideo,'-filter_complex', f'[0:v] palettegen',palette],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    proc2=subprocess.run([shutil.which("ffmpeg") ,'-i', trimedVideo,'-i' ,palette,'-filter_complex', f'[0:v] paletteuse',gifpath],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    ffmpeg=ffmpegHelper()
+    proc=subprocess.run([ffmpeg,'-i', trimedVideo,'-filter_complex', f'[0:v] palettegen',palette],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    proc2=subprocess.run([ffmpeg ,'-i', trimedVideo,'-i' ,palette,'-filter_complex', f'[0:v] paletteuse',gifpath],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     # print(proc.stdout.decode())
     # print(proc.stderr.decode())
     # print(proc.stderr.decode())
@@ -165,7 +183,8 @@ def createcovergif(gifpath,maxfile):
     factor=1
     while True:
         scale=f"--scale={factor}"
-        gif=subprocess.run([shutil.which("gifsicle"), *[scale,"--optimize=3","-lossy=30" ], *[gifpath],  "--output", tempgif],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        gifsicle=gifsicleHelper()
+        gif=subprocess.run([gifsicle, *[scale,"--optimize=3","-lossy=30" ], *[gifpath],  "--output", tempgif],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if os.stat(tempgif).st_size<5000000:
             break
         factor=factor*.7 
@@ -220,8 +239,9 @@ def videoSplitter(maxfile):
     intervid=os.path.join(tempVideoDir,f"inter{suffix}")
     tempVideo=os.path.join(tempVideoDir,f"tempvid{suffix}")
     console.console.print(f"Splitting section of video from {startTime} secs to {endTime} secs",style="yellow")
-    proc=subprocess.run([shutil.which("ffmpeg"),"-i",maxfile, "-ss" ,f"{startTime}", "-to", f"{endTime}" ,"-c" ,"copy", intervid],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    proc2=subprocess.run([shutil.which("ffmpeg"),"-i",intervid,"-filter:v", f"fps={fps/2}",tempVideo],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    ffmpeg=ffmpegHelper()
+    proc=subprocess.run([ffmpeg,"-i",maxfile, "-ss" ,f"{startTime}", "-to", f"{endTime}" ,"-c" ,"copy", intervid],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    proc2=subprocess.run([ffmpeg,"-i",intervid,"-filter:v", f"fps={fps/2}",tempVideo],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     # print(proc.stdout.decode())
     # print(proc.stderr.decode())
     # print(proc.stderr.decode())

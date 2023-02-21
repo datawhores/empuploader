@@ -15,8 +15,7 @@ empURl="https://www.empornium.is"
 #binaries
 ffmpeg=os.path.join(workingdir,"bin/ffmpeg")
 gifsicle=os.path.join(workingdir,"bin/gifsicle")
-mtn_Linux=os.path.join(workingdir,"bin/mtn_Linux/mtn")
-mtn_Windows=os.path.join(workingdir,"bin/mtn_Windows/mtn.exe")
+mtn=os.path.join(workingdir,"bin/mtn")
 #These are to help reduce post size to meet size limits
 postImageSize=300
 maxNumPostImages=20

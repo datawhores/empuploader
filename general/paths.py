@@ -93,10 +93,3 @@ def getcat():
     workingdir=settings.workingdir
     g=open(os.path.join(workingdir,"data/cat.yml"),"r")
     return yaml.safe_load(g)
-"""
-Updates system path 
-
-:returns None:
-"""
-def setPath():
-    os.environ["PATH"] = os.pathsep + os.pathsep.join([settings.ffmpeg,settings.gifsicle])

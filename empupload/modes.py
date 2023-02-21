@@ -51,7 +51,6 @@ def process_yml(inputFolder,ymlpath):
     video=None
     audio=None
     console.console.print(f"\nAttempting to Create yaml at {ymlpath}",style="yellow")
-    paths.setPath()
     if os.path.isfile(ymlpath) and selection.singleoptions("File Exist Do you want to overwrite?",["Yes","No"])=="No":
         return
     temp=tempfile.NamedTemporaryFile(suffix=".yml").name
@@ -98,7 +97,7 @@ def process_yml(inputFolder,ymlpath):
     yaml.dump(emp_dict,fp, default_flow_style=False)
     fp.close()
     Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
-    os.replace( temp,ymlpath)
+    shutil.move( temp,ymlpath)
     console.console.print(emp_dict)
   
 
@@ -121,7 +120,6 @@ def update_yml(ymlpath):
     f=open(ymlpath,"r")
     emp_dict= yaml.safe_load(f)
     f.close()
-    paths.setPath()
     emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=emp_dict["title"])
     emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:",default=emp_dict['taglist']))
     emp_dict["desc"]=selection.strinput("Enter Description for upload: ",multiline=True,default=emp_dict["desc"])
