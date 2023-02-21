@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import tempfile
+import traceback
 import string
 from pathlib import Path
 import general.console as console
@@ -48,58 +49,61 @@ Prepare yml by embedding generated Info
 """
 
 def process_yml(inputFolder,ymlpath):
-    video=None
-    audio=None
-    console.console.print(f"\nAttempting to Create yaml at {ymlpath}",style="yellow")
-    if os.path.isfile(ymlpath) and selection.singleoptions("File Exist Do you want to overwrite?",["Yes","No"])=="No":
-        return
-    temp=tempfile.NamedTemporaryFile(suffix=".yml").name
-    fp=open(temp,"w")
-    files=None
-    if os.path.isdir(inputFolder):
-        files=paths.search(inputFolder,".*",recursive=True,exclude=[os.path.join(inputFolder,"thumbnail.zip"),os.path.join(inputFolder,"screens")]+args.prepare.exclude)
-        if args.prepare.manual:
-            files=selection.multioptions("Select Files from folder to upload",files,transformer=lambda result: f"Number of files selected: {len(result)}")
-    else:
-        files=[inputFolder]
-    maxfile=media.find_maxfile(files)
-    if maxfile:
-        video,audio=media.metadata(maxfile)   
-    basename=paths.get_upload_name(inputFolder)
-    picdir=args.prepare.picdir or tempfile.mkdtemp(dir=settings.tmpdir)
-    Path(picdir ).mkdir( parents=True, exist_ok=True )
-    emp_dict={} 
-    sug=re.sub("\."," ",basename)
-    sug=string.capwords(sug)
-    emp_dict["inputFolder"]=inputFolder
-    emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=sug)
-    emp_dict["category"]=paths.getcat()[selection.singleoptions("Enter Category:",paths.getcat().keys())]
-    emp_dict["taglist"]=_tagfixer(selection.strinput("Enter Tags Seperated By Space:"))
-    emp_dict["desc"]=selection.strinput("Enter Description:",multiline=True)
-    emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
-    emp_dict["mediaInfo"]={}
-    emp_dict["mediaInfo"]["audio"]=audio
-    emp_dict["mediaInfo"]["video"]=video 
-    emp_dict["tracker"]=args.prepare.tracker
-    emp_dict["exclude"]=args.prepare.exclude
+    fp=paths.NamedTemporaryFile(suffix=".yml")
+    try:
+        video=None
+        audio=None
+        console.console.print(f"\nAttempting to Create yaml at {ymlpath}",style="yellow")
+        if os.path.isfile(ymlpath) and selection.singleoptions("File Exist Do you want to overwrite?",["Yes","No"])=="No":
+            return
+        files=None
+        if os.path.isdir(inputFolder):
+            files=paths.search(inputFolder,".*",recursive=True,exclude=[os.path.join(inputFolder,"thumbnail.zip"),os.path.join(inputFolder,"screens")]+args.prepare.exclude)
+            if args.prepare.manual:
+                files=selection.multioptions("Select Files from folder to upload",files,transformer=lambda result: f"Number of files selected: {len(result)}")
+        else:
+            files=[inputFolder]
+        maxfile=media.find_maxfile(files)
+        if maxfile:
+            video,audio=media.metadata(maxfile)   
+        basename=paths.get_upload_name(inputFolder)
+        picdir=args.prepare.picdir or tempfile.mkdtemp(dir=settings.tmpdir)
+        Path(picdir ).mkdir( parents=True, exist_ok=True )
+        emp_dict={} 
+        sug=re.sub("\."," ",basename)
+        sug=string.capwords(sug)
+        emp_dict["inputFolder"]=inputFolder
+        emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=sug)
+        emp_dict["category"]=paths.getcat()[selection.singleoptions("Enter Category:",paths.getcat().keys())]
+        emp_dict["taglist"]=_tagfixer(selection.strinput("Enter Tags Seperated By Space:"))
+        emp_dict["desc"]=selection.strinput("Enter Description:",multiline=True)
+        emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
+        emp_dict["mediaInfo"]={}
+        emp_dict["mediaInfo"]["audio"]=audio
+        emp_dict["mediaInfo"]["video"]=video 
+        emp_dict["tracker"]=args.prepare.tracker
+        emp_dict["exclude"]=args.prepare.exclude
 
 
 
-    emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
-    files.extend(media.create_images(files,inputFolder,picdir))
+        emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
+        files.extend(media.create_images(files,inputFolder,picdir))
 
-    emp_dict["screens"]=media.upload_images(media.imagesorter(picdir))
-    emp_dict["torrent"]=torrent.create_torrent(os.path.join(args.prepare.torrent,f"{basename}.torrent"),inputFolder,files,tracker=args.prepare.tracker)
-    if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
-        emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
+        emp_dict["screens"]=media.upload_images(media.imagesorter(picdir))
+        emp_dict["torrent"]=torrent.create_torrent(os.path.join(args.prepare.torrent,f"{basename}.torrent"),inputFolder,files,tracker=args.prepare.tracker)
+        if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
+            emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
 
-    console.console.print(f"Torrent Save to {emp_dict['torrent']}",style="yellow")
-    yaml.dump(emp_dict,fp, default_flow_style=False)
-    fp.close()
-    Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
-    shutil.move( temp,ymlpath)
-    console.console.print(emp_dict)
-  
+        console.console.print(f"Torrent Save to {emp_dict['torrent']}",style="yellow")
+        yaml.dump(emp_dict,fp, default_flow_style=False)
+        Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
+        shutil.move( fp,ymlpath)
+        console.console.print(emp_dict)
+    except Exception as E:
+        console.console.print(E)
+        console.console.print(traceback.format_exc())
+    finally:
+        paths.remove(fp)
 
 
 
@@ -138,7 +142,7 @@ def update_yml(ymlpath):
         files.extend(media.create_images(files,emp_dict["inputFolder"],picdir))
         media.upload_images(media.imagesorter(picdir))
         shutil.rmtree(picdir,ignore_errors=True)
-        temptorrent=tempfile.NamedTemporaryFile(suffix=".torrent").name
+        temptorrent=tempfile.paths(suffix=".torrent")
         torrent.create_torrent(temptorrent,emp_dict["inputFolder"],files,tracker=emp_dict["tracker"])
     if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
         Path(emp_dict["torrent"]).unlink(missing_ok=True)

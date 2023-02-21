@@ -203,6 +203,7 @@ class TorrentOverride(Torrent):
 
 def create_torrent(torrentpath,inputFolder,fileSet,tracker=None):
     #remove any dupes
+    torrentpath=paths.convertLinux(torrentpath)
     console.console.print("Starting Torrent Process",style="yellow")
     Path( os.path.dirname(torrentpath)).mkdir( parents=True, exist_ok=True )
     t=TorrentOverride(inputFolder,fileSet, trackers=[tracker], private=True)

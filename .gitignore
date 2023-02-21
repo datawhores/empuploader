@@ -1,4 +1,7 @@
 venv/
+env/
+.env/
+.venv/
 cookie.json
 template
 *.jpg

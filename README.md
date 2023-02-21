@@ -42,7 +42,7 @@ Don't worry the script will auto download a portable version of chromium for you
 - py -3 -m venv env
 - .\env\Scripts\activate
 - which python -> should be the virtualenv
-- py -m pip install -r requirements.txt
+- py -3 -m pip install -r requirements.txt
 - pip install imageio[ffmpeg]
 - playwright install chromium
 - deactivate -> Do this after installing the requirements

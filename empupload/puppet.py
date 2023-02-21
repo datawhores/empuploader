@@ -53,6 +53,7 @@ Handles Dupes with User Input
 
 async def find_dupe(upload_dict,page):
     console.console.print("Searching for Dupes",style="yellow")
+    p=paths.NamedTemporaryFile(suffix=".png")
     url=settings.empURl
     try:
         await page.goto(f'{url}/upload.php')
@@ -65,23 +66,19 @@ async def find_dupe(upload_dict,page):
         await page.wait_for_selector("[name=checkonly]",state="detached")
         msgbar= page.locator("#messagebar")
         msg=await msgbar.text_content()
-        p=tempfile.NamedTemporaryFile(suffix=".png")
         #get dupe preview
         await page.set_viewport_size({ "width": 1920, "height": 2300 })
-        await page.screenshot(path=p.name,full_page=True)
+        await page.screenshot(path=p,full_page=True)
         if msg==None or re.search("category|dupes",msg)==None:
             return False,f"Dupes Found  False\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False,msg=False)}"
         else:
             return True,f"\nDupes Found True\n{await dupemsgHelper(page)}\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False,msg=False)}"
         
-            
-            
-            
-
-
     except Exception as E:
             console.console.print(f"Error Finding Dupes\n{E}",style="red")
             quit()
+    finally:
+        paths.remove(p)
 
 """
 Generates msg for found dupes
@@ -122,21 +119,23 @@ Uploads Torrent to EMP
 """
 
 async def upload(page):
+    p=paths.NamedTemporaryFile(suffix=".png")
     try:
         ignoredupe=page.locator("input[name=ignoredupes]")
         if await ignoredupe.count()>0:
             await page.click("input[name=ignoredupes]")
         #submit and preview
         await page.click('#post')
-        p=tempfile.NamedTemporaryFile(suffix=".png")
         await page.wait_for_selector("#details_top")
         await page.set_viewport_size({ "width": 1920, "height": 2300 })
-        await page.screenshot(path=p.name,full_page=True)
-        return f"Upload Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False)}"
+        await page.screenshot(path=p,full_page=True)
+        return f"Upload Screenshot: {network.fapping_upload(p,thumbnail=False,remove=False)}"
     except Exception as E:
         print(f"Error Uploading\n{E}")
     finally:
+        paths.remove(p)
         await page.close()
+        
 
 
 
@@ -156,20 +155,20 @@ async def run_preview(upload_dict):
         context = await browser.new_context()
         await context.add_cookies(loadcookie())
         page = await context.new_page()
-      
+        p=paths.NamedTemporaryFile(suffix=".png")
         try:
             await page.goto(f'{url}/upload.php')
             await submitBasicInfo(upload_dict,page)          
-            p=tempfile.NamedTemporaryFile(suffix=".png")
             await page.click('#post_preview')
             await page.wait_for_selector(".uploadbody",state="hidden")
 
             await page.set_viewport_size({ "width": 1920, "height": 2300 })
-            await page.screenshot(path=p.name,full_page=True)
-            return f"File Preview: {network.fapping_upload(p.name,thumbnail=False,msg=False,remove=False)}"
+            await page.screenshot(path=p,full_page=True)
+            return f"File Preview: {network.fapping_upload(p,thumbnail=False,msg=False,remove=False)}"
         except Exception as E:
             console.console.print(f"Error Generating Preview\n{E}",style="red")
         finally:
+            paths.remove(p)
             await page.close()
 """
 Submit some basic information required for uploads

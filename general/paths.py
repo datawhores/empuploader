@@ -1,8 +1,10 @@
 #! /usr/bin/env python3
 import os
-from pathlib import Path
+import pathlib
 import re
 import yaml
+import tempfile
+import shutil
 import natsort
 import general.arguments as arguments
 import general.console as console
@@ -22,12 +24,13 @@ Search for matching files in directory
 def search(path,filterStr,recursive=False,dir=False,exclude=None):
     if exclude==None:
         exclude=[]
+    exclude=list(map(lambda x: convertLinux(x),exclude))
 
     search='**/*'
     if recursive==False:
         search="*"
     
-    results=list(map(lambda x:str(x),Path(path).glob(search)))
+    results=list(map(lambda x:convertLinux(str(x)),pathlib.Path(path).glob(search)))
     filteredPaths=list(filter(lambda x:os.path.isdir(x)==dir,results))
     filteredPaths=list(filter(lambda x:not any(re.search(ele,x) for ele in exclude),filteredPaths))
     sortedPaths=natsort.natsorted(filteredPaths)
@@ -62,7 +65,7 @@ Generates basename of path
 :returns string: basename
 """
 def get_upload_name(inputFolder):
-    return Path(inputFolder).parts[-1] 
+    return pathlib.Path(inputFolder).parts[-1] 
 
 """
 Generates a yml file name
@@ -87,9 +90,38 @@ def retrive_yaml(inputFolder):
 
 """
 Gets empornium categories
-:returns None:
+:returns catdict:dictionary with categories and id values
 """
 def getcat():
     workingdir=settings.workingdir
     g=open(os.path.join(workingdir,"data/cat.yml"),"r")
     return yaml.safe_load(g)
+
+"""
+Friendly cross platform version of namedtemporyfile
+:returns path: a path to tempfile:
+"""
+
+def NamedTemporaryFile(suffix=None):
+    file=os.urandom(24).hex()
+    if(suffix):
+        file=f"{file}{suffix}"
+    return os.path.join(settings.tmpdir,file)
+
+"""
+Safetly removes file
+:returns None:
+"""
+def remove(input):
+    r=pathlib.Path(input)
+    if r.is_dir():
+        shutil.rmtree(r)
+    else:
+        r.unlink(missing_ok=True)
+"""
+convert paths to linux
+caused windows paths are annoying
+:returns path:converted path
+"""       
+def convertLinux(path):
+    return re.sub(re.escape("\\"), "/", str(pathlib.PurePosixPath(path)))

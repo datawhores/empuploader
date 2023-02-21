@@ -4,7 +4,7 @@ prepare:
     media: /home/user/Downloads
     torrent: /home/user/Torrents/
     tracker: http://tracker.empornium.sx:2710/aaaaaaaaaaaaaaaaaa/announce
-    images: /home/user/Images
+    images: null
     exclude: ["*.nfo"]
     manual: False
 

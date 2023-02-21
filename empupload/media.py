@@ -9,7 +9,6 @@ import zipfile
 import re
 from pathlib import Path
 import xxhash
-from pygifsicle import gifsicle
 from pymediainfo import MediaInfo
 from PIL import Image
 import general.arguments as arguments
@@ -119,6 +118,7 @@ def upload_images(imageList):
     imgstring=""
 
     for i, image in enumerate(imageList):
+            image=paths.convertLinux(image)
             if i>100:
                 console.console.print("Max images reached",style="yellow")
                 break
@@ -168,8 +168,8 @@ Generates a cover gif using a video file
 def createcovergif(gifpath,maxfile):
     console.console.print(f"Largest File Selected: {maxfile}",style="yellow")
     console.console.print("Starting GIF Process",style="yellow")
-    trimedVideo=videoSplitter(maxfile)
-    palette=os.path.join(os.path.dirname(trimedVideo),"palette.png")
+    trimedVideo=paths.convertLinux(videoSplitter(maxfile))
+    palette=paths.convertLinux(os.path.join(os.path.dirname(trimedVideo),"palette.png"))
     console.console.print("Creating GIF from section",style="yellow")
     ffmpeg=ffmpegHelper()
     proc=subprocess.run([ffmpeg,'-i', trimedVideo,'-filter_complex', f'[0:v] palettegen',palette],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -215,11 +215,8 @@ Generates a dictionary for static images
 """
 def createStaticImagesDict(input):
     outdict={}
-    for ele in paths.search(input,".*",recursive=True,dir=False):
-        outdict[xxhash.xxh32_hexdigest(ele)]={"original":ele,"link":network.fapping_upload(ele)}
-    return outdict
-
-
+    if input==None or not Path(input).exists():
+        return outdict
 def imagesorter(picdir):
     imageList=list(map(lambda x:str(x),Path(picdir).iterdir()))
     return list(sorted(imageList,key=lambda x:getImageSizeHelper(x),reverse=True))
