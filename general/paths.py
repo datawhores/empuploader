@@ -52,9 +52,9 @@ def get_choices():
      if os.path.isdir(args.prepare.media):
         files=search(args.prepare.media,".*",recursive=False)
         files.extend(search(args.prepare.media,".*",recursive=False,dir=True))
-        return natsort.natsorted(files)
+        return list(map(lambda x:convertLinux(x) ,natsort.natsorted(files)))
      elif os.path.isfile(args.prepare.media):
-        return [args.prepare.media]
+        return list([convertLinux(args.prepare.media)])
      else:
         console.console.print("No Valid Paths to Process",style="red")
         quit()
@@ -77,7 +77,7 @@ def generate_yaml(inputFolder):
     if inputFolder.endswith(".yml") or inputFolder.endswith(".yaml"):
         return inputFolder
     basename=get_upload_name(inputFolder)
-    return os.path.join(args.output,f"{basename}.yml")
+    return convertLinux(os.path.join(args.output,f"{basename}.yml"))
 
 """
 Gets all yml files inside directory, Non Recursively

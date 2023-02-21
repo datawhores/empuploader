@@ -102,7 +102,7 @@ retrives gifsicle path based on os
 def gifsicleHelper():
     if sys.platform=="linux":
         return shutil.which("gifsicle") or os.path.join(settings.gifsicle,"gisicle")
-    return shutil.which("gifsicle.exe") or os.path.join(settings.ffmpeg,"gifsicle.exe")
+    return shutil.which("gifsicle.exe") or os.path.join(settings.gifsicle,"gifsicle.exe")
 
     
 
@@ -165,7 +165,8 @@ Generates a cover gif using a video file
 
 :returns: imageurl 
 """
-def createcovergif(gifpath,maxfile):
+def createcovergif(picdir,maxfile):
+    gifpath=paths.convertLinux(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"))
     console.console.print(f"Largest File Selected: {maxfile}",style="yellow")
     console.console.print("Starting GIF Process",style="yellow")
     trimedVideo=paths.convertLinux(videoSplitter(maxfile))

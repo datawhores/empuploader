@@ -86,7 +86,7 @@ def process_yml(inputFolder,ymlpath):
 
 
 
-        emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
+        emp_dict["cover"]=media.createcovergif(picdir,maxfile)
         files.extend(media.create_images(files,inputFolder,picdir))
 
         emp_dict["screens"]=media.upload_images(media.imagesorter(picdir))
@@ -138,7 +138,7 @@ def update_yml(ymlpath):
         
         if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
             maxfile=media.find_maxfile(files)
-            emp_dict["cover"]=media.createcovergif(os.path.join(picdir, f"{os.urandom(24).hex()}.gif"),maxfile)
+            emp_dict["cover"]=media.createcovergif(picdir,maxfile)
         files.extend(media.create_images(files,emp_dict["inputFolder"],picdir))
         media.upload_images(media.imagesorter(picdir))
         shutil.rmtree(picdir,ignore_errors=True)
