@@ -178,7 +178,7 @@ def createcovergif(gifpath,maxfile):
     # print(proc.stderr.decode())
     # print(proc.stderr.decode())
     # print(proc2.stderr.decode())
-    tempgif=os.path.join(settings.tmpdir, f"{os.urandom(24).hex()}.gif")
+    tempgif=paths.convertLinux(paths.NamedTemporaryFile(suffix=".gif"))
     console.console.print("Compressing GIF",style="yellow")
     factor=1
     while True:
