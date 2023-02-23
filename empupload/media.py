@@ -56,7 +56,7 @@ Uploads images to host
 :param picdir: directory used to store images
 :returns uploadstr: returns a string for all images uploaded
 """
-def create_images(mediafiles,inputFolder,picdir):
+def create_images(mediafiles,picdir):
     count=1
     #filter only mediafiles
     mediafiles=list(filter(lambda x: re.search("\.mkv|\.mp4",x),mediafiles))
@@ -64,15 +64,14 @@ def create_images(mediafiles,inputFolder,picdir):
     console.console.print("Creating screens",style="yellow")
     mtn=mtnHelper()
     for count,file in enumerate(mediafiles): 
-        t=subprocess.run([mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',settings.font,file,'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
+        t=subprocess.run([mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',settings.font,file,"-P",'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
         if t.returncode==0 or t.returncode==1:
             console.console.print(f"{count+1}. Image created for {file}",style="yellow")
         else:
             console.console.print(t.stdout,style="red")
             console.console.print(t.returncode,style="red")
             console.console.print(f"{t.stdout.decode()}\nreturncode:{t.returncode}\nError with mtn",style="red")
-    return zip_images(inputFolder,picdir)
-
+    
 
 """
 retrives mtn path based on os
@@ -82,7 +81,7 @@ retrives mtn path based on os
 def mtnHelper():
     if sys.platform=="linux":
         return shutil.which("mtn") or os.path.join(settings.mtn,"mtn")
-    return shutil.which("mtn.exe") or os.path.join(settings.mtn,"windows","mtn.exe")
+    return shutil.which("mtn.exe") or os.path.join(settings.mtn,"windows","bin","mtn.exe")
 """
 retrives ffmpeg path based on os
 
@@ -116,7 +115,6 @@ uploads images to fappening
 """   
 def upload_images(imageList):
     imgstring=""
-
     for i, image in enumerate(imageList):
             image=paths.convertLinux(image)
             if i>100:
@@ -145,15 +143,15 @@ def zip_images(inputFolder,picdir):
         with zipfile.ZipFile(zipLocation, mode="w") as archive:
             for filename in files:
                 archive.write(filename)
-        return [zipLocation]
+        return [zipLocation],zipLocation
     elif count>=10:
         photos=os.path.join(inputFolder,"screens")
         console.console.print(f"Creating screens folder: {photos}")
         shutil.rmtree(photos,
         ignore_errors=True)
         shutil.copytree(picdir, photos)
-        return paths.search(photos,".*",recursive=False)
-    return []
+        return paths.search(photos,".*",recursive=False),picdir
+    return [],None
 
 
 

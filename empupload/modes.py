@@ -49,7 +49,8 @@ Prepare yml by embedding generated Info
 """
 
 def process_yml(inputFolder,ymlpath):
-    fp=paths.NamedTemporaryFile(suffix=".yml")
+    p=paths.NamedTemporaryFile(suffix=".yml")
+    fp=open(p,"w")
     try:
         video=None
         audio=None
@@ -83,11 +84,11 @@ def process_yml(inputFolder,ymlpath):
         emp_dict["mediaInfo"]["video"]=video 
         emp_dict["tracker"]=args.prepare.tracker
         emp_dict["exclude"]=args.prepare.exclude
-
-
-
         emp_dict["cover"]=media.createcovergif(picdir,maxfile)
-        files.extend(media.create_images(files,inputFolder,picdir))
+        media.create_images(files,picdir)
+        imgfiles,imglocation=media.zip_images(inputFolder,picdir)
+        files.extend(imgfiles)
+        emp_dict["screensDir"]=imglocation
 
         emp_dict["screens"]=media.upload_images(media.imagesorter(picdir))
         emp_dict["torrent"]=torrent.create_torrent(os.path.join(args.prepare.torrent,f"{basename}.torrent"),inputFolder,files,tracker=args.prepare.tracker)
@@ -97,13 +98,14 @@ def process_yml(inputFolder,ymlpath):
         console.console.print(f"Torrent Save to {emp_dict['torrent']}",style="yellow")
         yaml.dump(emp_dict,fp, default_flow_style=False)
         Path(os.path.dirname(ymlpath)).mkdir( parents=True, exist_ok=True )
-        shutil.move( fp,ymlpath)
+        shutil.copyfile( p,ymlpath)
         console.console.print(emp_dict)
     except Exception as E:
         console.console.print(E)
         console.console.print(traceback.format_exc())
     finally:
-        paths.remove(fp)
+        fp.close()
+        paths.remove(p)
 
 
 
@@ -121,41 +123,54 @@ Update yml config
 :returns:returns path to updated yml
 """
 def update_yml(ymlpath):
-    f=open(ymlpath,"r")
-    emp_dict= yaml.safe_load(f)
-    f.close()
-    emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=emp_dict["title"])
-    emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:",default=emp_dict['taglist']))
-    emp_dict["desc"]=selection.strinput("Enter Description for upload: ",multiline=True,default=emp_dict["desc"])
-    if selection.singleoptions("Change Category",choices=["Yes","No"])=="Yes":
-        emp_dict["category"]=paths.getcat()[selection.singleoptions("Update Category: ",paths.getcat().keys())]
-    
-    if selection.singleoptions("Update file selection",choices=["Yes","No"])=="Yes":
-        allFiles=paths.search(emp_dict["inputFolder"],".*",recursive=True,exclude=[os.path.join(emp_dict["inputFolder"],"thumbnail.zip"),os.path.join(emp_dict["inputFolder"],"screens")]+emp_dict["exclude"])
-        files=selection.multioptions("Select files from folder to upload",allFiles,transformer=lambda result: f"Number of files selected: {len(result)}")
-        picdir=tempfile.mkdtemp(dir=settings.tmpdir)
-    
-        
-        if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
-            maxfile=media.find_maxfile(files)
-            emp_dict["cover"]=media.createcovergif(picdir,maxfile)
-        files.extend(media.create_images(files,emp_dict["inputFolder"],picdir))
-        media.upload_images(media.imagesorter(picdir))
-        shutil.rmtree(picdir,ignore_errors=True)
-        temptorrent=tempfile.paths(suffix=".torrent")
-        torrent.create_torrent(temptorrent,emp_dict["inputFolder"],files,tracker=emp_dict["tracker"])
-    if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
-        Path(emp_dict["torrent"]).unlink(missing_ok=True)
-        shutil.copy(temptorrent,emp_dict["torrent"])
-        emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
-    else:
-        emp_dict["template"]=getPostStr(emp_dict)
+    try:
+        f=open(ymlpath,"r")
+        emp_dict= yaml.safe_load(f)
+        f.close()
+        emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=emp_dict["title"])
+        emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:",default=emp_dict['taglist']))
+        emp_dict["desc"]=selection.strinput("Enter Description for upload: ",multiline=True,default=emp_dict["desc"])
+        if selection.singleoptions("Change Category",choices=["Yes","No"])=="Yes":
+            emp_dict["category"]=paths.getcat()[selection.singleoptions("Update Category: ",paths.getcat().keys())]  
+        # temptorrent=paths.NamedTemporaryFile(suffix=".torrent")
+        # tempPicDir=tempfile.mkdtemp(dir=settings.tmpdir)
+        #make a copy of the current picdir
+        # shutil.copytree(emp_dict["screens"],f'{emp_dict["screens"]}2')
+        # if selection.singleoptions("Update file selection\nNote This will recreate screens",choices=["Yes","No"])=="Yes":
+        #     allFiles=paths.search(emp_dict["inputFolder"],".*",recursive=True,exclude=[os.path.join(emp_dict["inputFolder"],"thumbnail.zip"),os.path.join(emp_dict["inputFolder"],"screens")]+emp_dict["exclude"])
+        #     files=selection.multioptions("Select files from folder to upload",allFiles,transformer=lambda result: f"Number of files selected: {len(result)}")
+        #     if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
+        #         maxfile=media.find_maxfile(files)
+        #         emp_dict["cover"]=media.createcovergif(tempPicDir,maxfile)
+        #     #Return the final destination of pics, appends to
+        #     screens=media.zip_images(emp_dict["inputFolder"],media.create_images(files,emp_dict["inputFolder"],tempPicDir))
+        #     files.extend()
+        #     #Uses temp pic dir
+        #     emp_dict["screens"]=media.upload_images(media.imagesorter(tempPicDir))
+        #     torrent.create_torrent(temptorrent,emp_dict["inputFolder"],files,tracker=emp_dict["tracker"])
+        if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
+            emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
+        else:
+            emp_dict["template"]=getPostStr(emp_dict)
 
-    console.console.print(emp_dict,style="yellow")
-    if selection.singleoptions("Do you want to save your changes?",choices=["Yes","No"])=="Yes":
-        fp=open(ymlpath,"w")
-        yaml.dump(emp_dict,fp, default_flow_style=False)
-        fp.close() 
+        console.console.print(emp_dict,style="yellow")
+        if selection.singleoptions("Do you want to save your changes?",choices=["Yes","No"])=="Yes":
+            # shutil.move(temptorrent,emp_dict["torrent"])
+            fp=open(ymlpath,"w")
+            yaml.dump(emp_dict,fp, default_flow_style=False)
+            fp.close() 
+        else:
+            None
+            # shutil.rmtree(f'{emp_dict["screensDir"]}',ignore_errors=True)
+            # shutil.move(f'{emp_dict["screensDir"]}2',emp_dict["screens"])
+    except Exception as E:
+        console.console.print(E)
+        console.console.print(traceback.format_exc())
+    finally:
+        None 
+        # shutil.rmtree(f'{emp_dict["screensDir"]}2',ignore_errors=True)
+        # Path(temptorrent).unlink(missing_ok=True)
+       
 """
 Retrive Post string that is used for torrent description
 
