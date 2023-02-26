@@ -70,9 +70,9 @@ async def find_dupe(upload_dict,page):
         await page.set_viewport_size({ "width": 1920, "height": 2300 })
         await page.screenshot(path=p,full_page=True)
         if msg==None or re.search("category|dupes",msg)==None:
-            return False,f"Dupes Found  False\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False,msg=False)}"
+            return False,f"Dupes Found  False\nDupe Screenshot: {network.fapping_upload(p,thumbnail=False,remove=False,msg=False)}"
         else:
-            return True,f"\nDupes Found True\n{await dupemsgHelper(page)}\nDupe Screenshot: {network.fapping_upload(p.name,thumbnail=False,remove=False,msg=False)}"
+            return True,f"\nDupes Found True\n{await dupemsgHelper(page)}\nDupe Screenshot: {network.fapping_upload(p,thumbnail=False,remove=False,msg=False)}"
         
     except Exception as E:
             console.console.print(f"Error Finding Dupes\n{E}",style="red")
