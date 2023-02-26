@@ -4,6 +4,7 @@ import pathlib
 import re
 import yaml
 import tempfile
+import glob
 import shutil
 import natsort
 import general.arguments as arguments
@@ -21,7 +22,7 @@ Search for matching files in directory
 
 :return: list of matching directories
 """
-def search(path,filterStr,recursive=False,dir=False,exclude=None):
+def search(path,filterStr,recursive=False,dir=False,exclude=None,abs=False):
     if exclude==None:
         exclude=[]
     exclude=list(map(lambda x: convertLinux(x),exclude))
@@ -30,15 +31,15 @@ def search(path,filterStr,recursive=False,dir=False,exclude=None):
     if recursive==False:
         search="*"
     
-    results=list(map(lambda x:convertLinux(str(x)),pathlib.Path(path).glob(search)))
+    results=list(map(lambda x:convertLinux(x),glob.glob(str(pathlib.Path(path,search)),recursive=recursive)))
     filteredPaths=list(filter(lambda x:os.path.isdir(x)==dir,results))
     filteredPaths=list(filter(lambda x:not any(re.search(ele,x) for ele in exclude),filteredPaths))
     sortedPaths=natsort.natsorted(filteredPaths)
     return list(filter(lambda x:re.search(filterStr,x)!=None,sortedPaths))
     
 
-def getmediaFiles(inputFolder,recursive=True):
-    return search(inputFolder,"\.mkv|\.mp4",recursive=True)
+def getmediaFiles(inputPath,recursive=True):
+    return search(inputPath,"\.mkv|\.mp4",recursive=True)
 
 
 """
@@ -61,32 +62,32 @@ def get_choices():
 """
 Generates basename of path
 
-:param inputFolder: path chosen by user
+:param inputPath: path chosen by user
 :returns string: basename
 """
-def get_upload_name(inputFolder):
-    return pathlib.Path(inputFolder).parts[-1] 
+def get_upload_name(inputPath):
+    return pathlib.Path(inputPath).parts[-1] 
 
 """
 Generates a yml file name
 
-:param inputFolder: path chosen by user
+:param inputPath: path chosen by user
 :returns str: a yml file path
 """
-def generate_yaml(inputFolder):
-    if inputFolder.endswith(".yml") or inputFolder.endswith(".yaml"):
-        return inputFolder
-    basename=get_upload_name(inputFolder)
+def generate_yaml(inputPath):
+    if inputPath.endswith(".yml") or inputPath.endswith(".yaml"):
+        return inputPath
+    basename=get_upload_name(inputPath)
     return convertLinux(os.path.join(args.output,f"{basename}.yml"))
 
 """
 Gets all yml files inside directory, Non Recursively
 
-:param inputFolder: path chosen by user
+:param inputPath: path chosen by user
 :returns array: a array of yml files
 """
-def retrive_yaml(inputFolder):
-    return list(filter(lambda x:re.search(".yml$|\.yaml$",x)!=None,search(inputFolder,".*",recursive=True,dir=False)))
+def retrive_yaml(inputPath):
+    return list(filter(lambda x:re.search(".yml$|\.yaml$",x)!=None,search(inputPath,".*",recursive=True,dir=False)))
 
 """
 Gets empornium categories
@@ -125,3 +126,18 @@ caused windows paths are annoying
 """       
 def convertLinux(path):
     return re.sub(re.escape("\\"), "/", str(pathlib.PurePosixPath(path)))
+
+def rm(input):
+    if not input:
+        return
+    elif pathlib.Path(input).is_dir():
+        shutil.rmtree(input,ignore_errors=True)
+    else:
+        pathlib.Path(input).unlink(missing_ok=True)
+
+def move(send,target):
+    if not send or not target:
+        return
+    if not pathlib.Path(send).exists() or not pathlib.Path(target).parent.exists():
+        return
+    shutil.move(send,target)

@@ -48,9 +48,10 @@ Prepare yml by embedding generated Info
 :returns None:
 """
 
-def process_yml(inputFolder,ymlpath):
+def process_yml(inputPath,ymlpath):
     p=paths.NamedTemporaryFile(suffix=".yml")
     fp=open(p,"w")
+    tempPicDir=args.prepare.picdir or tempfile.mkdtemp(dir=settings.tmpdir)
     try:
         video=None
         audio=None
@@ -58,40 +59,39 @@ def process_yml(inputFolder,ymlpath):
         if os.path.isfile(ymlpath) and selection.singleoptions("File Exist Do you want to overwrite?",["Yes","No"])=="No":
             return
         files=None
-        if os.path.isdir(inputFolder):
-            files=paths.search(inputFolder,".*",recursive=True,exclude=[os.path.join(inputFolder,"thumbnail.zip"),os.path.join(inputFolder,"screens")]+args.prepare.exclude)
+        if os.path.isdir(inputPath):
+            files=paths.search(inputPath,".*",recursive=True,exclude=[os.path.join(inputPath,"thumbnail.zip"),os.path.join(inputPath,"screens")]+args.prepare.exclude)
             if args.prepare.manual:
                 files=selection.multioptions("Select Files from folder to upload",files,transformer=lambda result: f"Number of files selected: {len(result)}")
         else:
-            files=[inputFolder]
+            files=[inputPath]
         maxfile=media.find_maxfile(files)
         if maxfile:
             video,audio=media.metadata(maxfile)   
-        basename=paths.get_upload_name(inputFolder)
-        picdir=args.prepare.picdir or tempfile.mkdtemp(dir=settings.tmpdir)
-        Path(picdir ).mkdir( parents=True, exist_ok=True )
+        basename=paths.get_upload_name(inputPath)
+        Path(tempPicDir ).mkdir( parents=True, exist_ok=True )
         emp_dict={} 
         sug=re.sub("\."," ",basename)
         sug=string.capwords(sug)
-        emp_dict["inputFolder"]=inputFolder
+        emp_dict["inputPath"]=inputPath
         emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=sug)
         emp_dict["category"]=paths.getcat()[selection.singleoptions("Enter Category:",paths.getcat().keys())]
         emp_dict["taglist"]=_tagfixer(selection.strinput("Enter Tags Seperated By Space:"))
         emp_dict["desc"]=selection.strinput("Enter Description:",multiline=True)
-        emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images)
+        emp_dict["staticimg"]=media.createStaticImagesDict(args.prepare.images) or {}
         emp_dict["mediaInfo"]={}
-        emp_dict["mediaInfo"]["audio"]=audio
-        emp_dict["mediaInfo"]["video"]=video 
+        emp_dict["mediaInfo"]["audio"]=audio or {}
+        emp_dict["mediaInfo"]["video"]=video or {}
         emp_dict["tracker"]=args.prepare.tracker
         emp_dict["exclude"]=args.prepare.exclude
-        emp_dict["cover"]=media.createcovergif(picdir,maxfile)
-        media.create_images(files,picdir)
-        imgfiles,imglocation=media.zip_images(inputFolder,picdir)
+        emp_dict["cover"]=media.createcovergif(tempPicDir,maxfile)
+        media.create_images(files,tempPicDir)
+        imgfiles,imglocation=media.zip_images(inputPath,tempPicDir)
         files.extend(imgfiles)
         emp_dict["screensDir"]=imglocation
 
-        emp_dict["screens"]=media.upload_images(media.imagesorter(picdir))
-        emp_dict["torrent"]=torrent.create_torrent(os.path.join(args.prepare.torrent,f"{basename}.torrent"),inputFolder,files,tracker=args.prepare.tracker)
+        emp_dict["screens"]=media.upload_images(media.imagesorter(tempPicDir))
+        emp_dict["torrent"]=torrent.create_torrent(os.path.join(args.prepare.torrent,f"{basename}.torrent"),inputPath,files,tracker=args.prepare.tracker)
         if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
             emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
 
@@ -104,6 +104,7 @@ def process_yml(inputFolder,ymlpath):
         console.console.print(E)
         console.console.print(traceback.format_exc())
     finally:
+        paths.rm( tempPicDir)
         fp.close()
         paths.remove(p)
 
@@ -123,53 +124,69 @@ Update yml config
 :returns:returns path to updated yml
 """
 def update_yml(ymlpath):
+    mirrorDir=None
     try:
         f=open(ymlpath,"r")
         emp_dict= yaml.safe_load(f)
         f.close()
+        baseName=Path(emp_dict["inputPath"]).name
+        mirrorDir=str(Path(tempfile.mkdtemp(dir=settings.tmpdir),baseName))
+        Path(mirrorDir).mkdir()
+        os.chdir(mirrorDir)
+
+        if Path(emp_dict["inputPath"]).is_file():
+            Path(emp_dict["inputPath"]).symlink_to(Path(baseName),target_is_directory=True)
+        else:
+            for p in Path(emp_dict["inputPath"]).iterdir()  :
+                if p.name=="screens.zip" or p.name=="screens":
+                    continue
+                Path(p.name).symlink_to(p,target_is_directory=p.is_dir())
+            
+                
         emp_dict["title"]=selection.strinput("Enter Title For Upload:",default=emp_dict["title"])
         emp_dict["taglist"]=re.sub(","," ",selection.strinput("Enter Tags Seperated By Space:",default=emp_dict['taglist']))
         emp_dict["desc"]=selection.strinput("Enter Description for upload: ",multiline=True,default=emp_dict["desc"])
         if selection.singleoptions("Change Category",choices=["Yes","No"])=="Yes":
             emp_dict["category"]=paths.getcat()[selection.singleoptions("Update Category: ",paths.getcat().keys())]  
-        # temptorrent=paths.NamedTemporaryFile(suffix=".torrent")
-        # tempPicDir=tempfile.mkdtemp(dir=settings.tmpdir)
-        #make a copy of the current picdir
-        # shutil.copytree(emp_dict["screens"],f'{emp_dict["screens"]}2')
-        # if selection.singleoptions("Update file selection\nNote This will recreate screens",choices=["Yes","No"])=="Yes":
-        #     allFiles=paths.search(emp_dict["inputFolder"],".*",recursive=True,exclude=[os.path.join(emp_dict["inputFolder"],"thumbnail.zip"),os.path.join(emp_dict["inputFolder"],"screens")]+emp_dict["exclude"])
-        #     files=selection.multioptions("Select files from folder to upload",allFiles,transformer=lambda result: f"Number of files selected: {len(result)}")
-        #     if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
-        #         maxfile=media.find_maxfile(files)
-        #         emp_dict["cover"]=media.createcovergif(tempPicDir,maxfile)
-        #     #Return the final destination of pics, appends to
-        #     screens=media.zip_images(emp_dict["inputFolder"],media.create_images(files,emp_dict["inputFolder"],tempPicDir))
-        #     files.extend()
-        #     #Uses temp pic dir
-        #     emp_dict["screens"]=media.upload_images(media.imagesorter(tempPicDir))
-        #     torrent.create_torrent(temptorrent,emp_dict["inputFolder"],files,tracker=emp_dict["tracker"])
+        temptorrent=paths.NamedTemporaryFile(suffix=".torrent")
+        tempPicDir=tempfile.mkdtemp(dir=settings.tmpdir)
+        newScreensDir=None
+        if selection.singleoptions("Update file selection\nNote This will recreate screens",choices=["Yes","No"])=="Yes":    
+            allFiles=paths.search(".",".*",recursive=True,exclude=emp_dict["exclude"])
+            files=selection.multioptions("Select files from folder to upload",allFiles,transformer=lambda result: f"Number of files selected: {len(result)}")
+            if selection.singleoptions("Generate a new cover gif?",choices=["Yes","No"])=="Yes":
+                maxfile=media.find_maxfile(files)
+                emp_dict["cover"]=media.createcovergif(tempPicDir,maxfile)
+            media.create_images(files,tempPicDir)
+            imgfiles,newScreensDir=media.zip_images(mirrorDir,tempPicDir)
+            emp_dict["screens"]=media.upload_images(media.imagesorter(tempPicDir))
+            # files.extend(imgfiles)
+            files=[files[0]]
+            torrent.create_torrent(temptorrent,mirrorDir,files,tracker=emp_dict["tracker"])
         if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
+
             emp_dict["template"]=selection.strinput(msg="",default=getPostStr(emp_dict),multiline=True)
         else:
             emp_dict["template"]=getPostStr(emp_dict)
 
         console.console.print(emp_dict,style="yellow")
         if selection.singleoptions("Do you want to save your changes?",choices=["Yes","No"])=="Yes":
-            # shutil.move(temptorrent,emp_dict["torrent"])
+            paths.move(temptorrent,emp_dict["torrent"])
+            paths.rm(emp_dict["screensDir"]) 
+            paths.move(newScreensDir,emp_dict["inputPath"])
+            emp_dict["screensDir"]=newScreensDir
             fp=open(ymlpath,"w")
             yaml.dump(emp_dict,fp, default_flow_style=False)
             fp.close() 
-        else:
-            None
-            # shutil.rmtree(f'{emp_dict["screensDir"]}',ignore_errors=True)
-            # shutil.move(f'{emp_dict["screensDir"]}2',emp_dict["screens"])
+         
     except Exception as E:
         console.console.print(E)
         console.console.print(traceback.format_exc())
     finally:
-        None 
-        # shutil.rmtree(f'{emp_dict["screensDir"]}2',ignore_errors=True)
-        # Path(temptorrent).unlink(missing_ok=True)
+        #force removal
+        paths.rm( tempPicDir)
+        paths.rm(temptorrent)
+        paths.rm(mirrorDir)
        
 """
 Retrive Post string that is used for torrent description
@@ -188,7 +205,7 @@ def getPostStr(emp_dict):
         }
     nameSpace.update(emp_dict["staticimg"])
     nameSpace.update(templateMediaInfoHelper(emp_dict["mediaInfo"]["audio"],emp_dict["mediaInfo"]["video"]))
-    nameSpace.update({"torrent":emp_dict["torrent"],"args":args,"inputFolder":emp_dict["inputFolder"]})
+    nameSpace.update({"torrent":emp_dict["torrent"],"args":args,"inputPath":emp_dict["inputPath"]})
     t = Template((emp_dict.get("template") or templateHelper() or ""),searchList=[nameSpace])
     return str(t)
 
@@ -199,7 +216,7 @@ def getPostStr(emp_dict):
 """
 :param video: video key value of config yml
 :param audio: audio key value of config yml
-:inputFolderStr: current template string
+:inputPathStr: current template string
 
 :returns templatestr: str with subsititutions
 """

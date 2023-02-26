@@ -62,6 +62,7 @@ Provides a prompt to enter a string
 :returns any: choice selected
 """
 def strinput(msg,default="",multiline=False,instructions=None,sync=True):
+
     if multiline and not instructions:
         instructions="Press Enter to Move to new line\nESC + Enter to Finish"
     result=inquirer.text(message=msg,default=default,multiline=multiline,instruction=instructions)

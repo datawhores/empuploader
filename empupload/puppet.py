@@ -281,7 +281,7 @@ def create_chrome():
         os.remove(chrome)
         os.chdir(os.listdir()[0])
         for element in os.scandir():
-            shutil.move(element.name, chromeDir)
+            paths.move(element.name, chromeDir)
         os.chdir(settings.workingdir)
         shutil.rmtree(tempchrome)
     os.chmod(chromepath, 0o775)

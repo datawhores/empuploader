@@ -64,10 +64,12 @@ def create_images(mediafiles,picdir):
     console.console.print("Creating screens",style="yellow")
     mtn=mtnHelper()
     for count,file in enumerate(mediafiles): 
-        t=subprocess.run([mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',settings.font,file,"-P",'-O',picdir],stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
+        key=os.urandom(4).hex()
+        t=subprocess.run([mtn,'-c','3','-r','3','-w','2880','-k','060237','-j','92','-b','2','-f',settings.font,file,"-P",'-O',picdir,"-o",f"_{key}.jpg"],stdout=subprocess.PIPE, stderr=subprocess.STDOUT) 
         if t.returncode==0 or t.returncode==1:
             console.console.print(f"{count+1}. Image created for {file}",style="yellow")
         else:
+
             console.console.print(t.stdout,style="red")
             console.console.print(t.returncode,style="red")
             console.console.print(f"{t.stdout.decode()}\nreturncode:{t.returncode}\nError with mtn",style="red")
@@ -128,29 +130,30 @@ def upload_images(imageList):
 """
 Zip images or create  directory or photo storage
 
-:param inputFolder:path to store generated photo storage
+:param inputPath:path to store generated photo storage
 :param picdir: directory used to store images
+:param output: basename for output zip or directory
 
 :returns None: 
 """
-def zip_images(inputFolder,picdir):
+def zip_images(inputPath,picdir,output="screens"):
     #zip or just move images to directory being uploaded to EMP
     files=list(Path(picdir).iterdir())
     count=len(files)
     if(count>=100):
-        zipLocation=os.path.join(inputFolder,"thumbnail.zip")
+        zipLocation=os.path.join(inputPath,f"{output}.zip")
         console.console.print(f"Creating Zip: {zipLocation}")
-        with zipfile.ZipFile(zipLocation, mode="w") as archive:
+        with zipfile.ZipFile(zipLocation, mode="a") as archive:
             for filename in files:
                 archive.write(filename)
         return [zipLocation],zipLocation
     elif count>=10:
-        photos=os.path.join(inputFolder,"screens")
+        photos=os.path.join(inputPath,f"{output}")
         console.console.print(f"Creating screens folder: {photos}")
         shutil.rmtree(photos,
         ignore_errors=True)
         shutil.copytree(picdir, photos)
-        return paths.search(photos,".*",recursive=False),picdir
+        return paths.search(photos,".*",recursive=False),photos
     return [],None
 
 
@@ -195,7 +198,7 @@ def createcovergif(picdir,maxfile):
 """
 finds the Larget File in Directory
 
-:param inputFolder: Directory to scan for video files
+:param inputPath: Directory to scan for video files
 :returns: path to selected video file
 """
 
@@ -209,7 +212,7 @@ def find_maxfile(media):
 """
 Generates a dictionary for static images
 
-:param inputFolder: Directory to scan for video files
+:param inputPath: Directory to scan for video files
 :returns: path to selected video file
 """
 def createStaticImagesDict(input):

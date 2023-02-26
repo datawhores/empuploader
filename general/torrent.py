@@ -152,8 +152,7 @@ class TorrentOverride(Torrent):
                 fx['length'] = x[1]
                 if self.include_md5:
                     fx['md5sum'] = x[2]['md5sum']
-                fx['path'] = [y.encode()
-                              for y in x[0].split(os.sep)[len(path_sp):]]
+                fx['path'] = [y.encode()for y in x[0].split(os.sep)[len(path_sp):]]
                 data['info']['files'].append(fx)
             data['info']['name'] = path_sp[-1].encode()
         data['info']['pieces'] = bytes(self._pieces)
@@ -200,13 +199,21 @@ class TorrentOverride(Torrent):
             if ps > MAX_PIECE_SIZE:
                 ps = MAX_PIECE_SIZE
         return (total_size, total_files, ps, math.ceil(total_size / ps))        
+def _fullPathHelper(fileSet):
+    out=set()
+    for val in fileSet:
+        out.add(str(Path(val).absolute()))
+    return out
 
-def create_torrent(torrentpath,inputFolder,fileSet,tracker=None):
+
+def create_torrent(torrentpath,inputPath,fileSet,tracker=None):
     #remove any dupes
     torrentpath=paths.convertLinux(torrentpath)
+    fileSet=_fullPathHelper(fileSet)
+
     console.console.print("Starting Torrent Process",style="yellow")
     Path( os.path.dirname(torrentpath)).mkdir( parents=True, exist_ok=True )
-    t=TorrentOverride(inputFolder,fileSet, trackers=[tracker], private=True)
+    t=TorrentOverride(inputPath,fileSet, trackers=[tracker], private=True)
     console.console.print("Getting Torrent Info",style="yellow")
     torrentinfo=t.get_info()
     t.piece_size=torrentinfo[2]
