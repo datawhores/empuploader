@@ -23,6 +23,9 @@ Search for matching files in directory
 :return: list of matching directories
 """
 def search(path,filterStr,recursive=False,dir=False,exclude=None,abs=False):
+    if not pathlib.Path(path).is_dir():
+        console.Console.print("Input Path is Not Folder")
+        quit()
     if exclude==None:
         exclude=[]
     exclude=list(map(lambda x: convertLinux(x),exclude))

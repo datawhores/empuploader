@@ -28,11 +28,15 @@ Utilizes yml file to upload
 """
 
 def upload(ymlpath):
-    fp=open(ymlpath,"r")
-    emp_dict= yaml.safe_load(fp)
-    emp_dict["template"]=getPostStr(emp_dict)
-    console.console.print(puppet.upload_torrent(emp_dict),style="yellow")
-    fp.close()
+    try:
+        fp=open(ymlpath,"r")
+        emp_dict= yaml.safe_load(fp)
+        emp_dict["template"]=getPostStr(emp_dict)
+        console.console.print(puppet.upload_torrent(emp_dict),style="yellow")
+        fp.close()
+    except Exception as E:
+        console.console.print(E)
+        console.console.print(traceback.format_exc())
 
 
         
@@ -252,12 +256,16 @@ generates preview using yml configuration
 """
 
 def generatepreview(ymlpath):
-    f=open(ymlpath,"r")
-    emp_dict= yaml.safe_load(f)
-    emp_dict["template"]=getPostStr(emp_dict)
-    previewurl=puppet.create_preview(emp_dict)
-    #print outputs
-    console.console.print(f"Template String:\n{emp_dict['template']}\n-------------------------------\n{previewurl}",style="yellow")
+    try:
+        f=open(ymlpath,"r")
+        emp_dict= yaml.safe_load(f)
+        emp_dict["template"]=getPostStr(emp_dict)
+        previewurl=puppet.create_preview(emp_dict)
+        #print outputs
+        console.console.print(f"Template String:\n{emp_dict['template']}\n-------------------------------\n{previewurl}",style="yellow")          
+    except Exception as E:
+        console.console.print(E)
+        console.console.print(traceback.format_exc())
 """
 Fixes formating of taglist
 
