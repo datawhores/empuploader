@@ -1,11 +1,9 @@
 #! /usr/bin/env python3
-from shutil import which
 import general.arguments as arguments
 import general.console as console
 import general.selection as selection
 import general.paths as paths
 import empupload.modes as modes
-import asyncio
 
 
 args=arguments.getargs()

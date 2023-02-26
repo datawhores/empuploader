@@ -160,8 +160,7 @@ def update_yml(ymlpath):
             media.create_images(files,tempPicDir)
             imgfiles,newScreensDir=media.zip_images(mirrorDir,tempPicDir)
             emp_dict["screens"]=media.upload_images(media.imagesorter(tempPicDir))
-            # files.extend(imgfiles)
-            files=[files[0]]
+            files.extend(imgfiles)
             torrent.create_torrent(temptorrent,mirrorDir,files,tracker=emp_dict["tracker"])
         if selection.singleoptions("Manually Edit the upload page 'Description' Box",choices=["Yes","No"])=="Yes":
 
@@ -171,10 +170,11 @@ def update_yml(ymlpath):
 
         console.console.print(emp_dict,style="yellow")
         if selection.singleoptions("Do you want to save your changes?",choices=["Yes","No"])=="Yes":
+            
             paths.move(temptorrent,emp_dict["torrent"])
             paths.rm(emp_dict["screensDir"]) 
             paths.move(newScreensDir,emp_dict["inputPath"])
-            emp_dict["screensDir"]=newScreensDir
+            emp_dict["screensDir"]=str(Path(emp_dict["inputPath"]).joinpath(Path(newScreensDir).name))
             fp=open(ymlpath,"w")
             yaml.dump(emp_dict,fp, default_flow_style=False)
             fp.close() 

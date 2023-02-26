@@ -48,9 +48,9 @@ def print_err(v):
     print(v, file=sys.stderr)
 
 class TorrentOverride(Torrent):
-    def __init__(self,inpath,fileSet,trackers=None,private=None)->None:
+    def __init__(self,inpath,fileList,trackers=None,private=None)->None:
         super().__init__(inpath,trackers=trackers,private=private)
-        self.fileSet=fileSet
+        self.fileList=fileList
     def generate(self, torrentinfo,callback=None):
         """
         Computes and stores piece data. Returns ``True`` on success, ``False``
@@ -67,7 +67,7 @@ class TorrentOverride(Torrent):
         if single_file:
             files.append((self.path, os.path.getsize(self.path), {}))
         elif os.path.exists(self.path):
-            for x in self.fileSet:
+            for x in self.fileList:
                 if any(fnmatch.fnmatch(Path(x).suffix, ext) for ext in self.exclude):
                         continue
                 files.append((x, os.path.getsize(x), {}))
@@ -179,7 +179,7 @@ class TorrentOverride(Torrent):
         elif os.path.exists(self.path):
             total_size = 0
             total_files = 0
-            for x in self.fileSet:
+            for x in self.fileList:
                     if any(fnmatch.fnmatch(Path(x).suffix, ext) for ext in self.exclude):
                             continue
                     fsize = os.path.getsize(x)
@@ -199,21 +199,17 @@ class TorrentOverride(Torrent):
             if ps > MAX_PIECE_SIZE:
                 ps = MAX_PIECE_SIZE
         return (total_size, total_files, ps, math.ceil(total_size / ps))        
-def _fullPathHelper(fileSet):
-    out=set()
-    for val in fileSet:
-        out.add(str(Path(val).absolute()))
-    return out
+
+ 
 
 
-def create_torrent(torrentpath,inputPath,fileSet,tracker=None):
+def create_torrent(torrentpath,inputPath,fileList,tracker=None):
     #remove any dupes
     torrentpath=paths.convertLinux(torrentpath)
-    fileSet=_fullPathHelper(fileSet)
-
+    fileList=list(map(lambda x:str(Path(x).absolute()),fileList))
     console.console.print("Starting Torrent Process",style="yellow")
     Path( os.path.dirname(torrentpath)).mkdir( parents=True, exist_ok=True )
-    t=TorrentOverride(inputPath,fileSet, trackers=[tracker], private=True)
+    t=TorrentOverride(inputPath,fileList, trackers=[tracker], private=True)
     console.console.print("Getting Torrent Info",style="yellow")
     torrentinfo=t.get_info()
     t.piece_size=torrentinfo[2]

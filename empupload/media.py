@@ -150,9 +150,8 @@ def zip_images(inputPath,picdir,output="screens"):
     elif count>=10:
         photos=os.path.join(inputPath,f"{output}")
         console.console.print(f"Creating screens folder: {photos}")
-        shutil.rmtree(photos,
-        ignore_errors=True)
-        shutil.copytree(picdir, photos)
+        paths.rm(photos)
+        paths.copy(picdir, photos)
         return paths.search(photos,".*",recursive=False),photos
     return [],None
 

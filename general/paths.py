@@ -135,9 +135,23 @@ def rm(input):
     else:
         pathlib.Path(input).unlink(missing_ok=True)
 
-def move(send,target):
-    if not send or not target:
+def move(source,target):
+    if not source or not target:
         return
-    if not pathlib.Path(send).exists() or not pathlib.Path(target).parent.exists():
+    if not pathlib.Path(source).exists() or not pathlib.Path(target).parent.exists():
         return
-    shutil.move(send,target)
+    shutil.move(source,target)
+
+def copy(source,target):
+    if not source or not target:
+        return
+    if not pathlib.Path(source).exists() or not pathlib.Path(target).parent.exists():
+        return
+    funct=None
+    if pathlib.Path(source).is_dir():
+        funct=shutil.copytree
+    else:
+        funct=shutil.copy2
+    funct(source,target)
+
+        
