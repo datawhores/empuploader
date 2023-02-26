@@ -151,7 +151,7 @@ async def run_preview(upload_dict):
     print("Generating Preview")
     url=settings.empURl
     async with async_playwright() as playwright:
-        browser = getbrowserHelper(playwright)
+        browser = await getbrowserHelper(playwright)
         context = await browser.new_context()
         await context.add_cookies(loadcookie())
         page = await context.new_page()
