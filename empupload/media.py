@@ -102,7 +102,7 @@ retrives gifsicle path based on os
 """
 def gifsicleHelper():
     if sys.platform=="linux":
-        return shutil.which("gifsicle") or os.path.join(settings.gifsicle,"gisicle")
+        return shutil.which("gifsicle") or os.path.join(settings.gifsicle,"gifsicle")
     return shutil.which("gifsicle") or os.path.join(settings.gifsicle,"gifsicle")
 
     
