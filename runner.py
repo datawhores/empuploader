@@ -19,7 +19,7 @@ def start():
     while True:
         console.console.print(f"{args.subcommand.capitalize()} Mode",style="green")
         if args.subcommand=="prepare":                
-                input=selection.singleoptions(msg="Which path Do you want to prepare?",)
+                input=selection.singleoptions(msg="Which path Do you want to prepare?",choices=paths.get_choices())
                 ymlpath=paths.generate_yaml(input)
                 modes.process_yml(input,ymlpath)
         
