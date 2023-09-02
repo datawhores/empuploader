@@ -122,7 +122,7 @@ def upload_images(imageList):
             if i>100:
                 console.console.print("Max images reached",style="yellow")
                 break
-            upload=network.fapping_upload(image,msg=True,remove=True)
+            upload=network.fapping_upload(image,msg=True,remove=True,thumbnail=False)
             if i<settings.maxNumPostImages and upload!="":
                 upload=f"[img={settings.postImageSize}]{upload}[/img]"
                 imgstring=f"{imgstring}{upload}"
