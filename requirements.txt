@@ -24,7 +24,7 @@ MarkupSafe==2.1.2
 mdurl==0.1.2
 natsort==8.2.0
 numpy==1.24.2
-opencv-python==4.7.0.68
+opencv-python==4.8.1.78
 packaging==23.0
 parsedatetime==2.6
 pfzy==0.3.4
