@@ -17,7 +17,7 @@ importlib-metadata==6.0.0
 infomedia==1.0.2
 iniconfig==2.0.0
 inquirerpy==0.3.4
-Jinja2==3.1.2
+Jinja2==3.1.6
 jsonargparse==4.19.0
 markdown-it-py==2.1.0
 MarkupSafe==2.1.2
