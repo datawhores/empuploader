@@ -11,7 +11,7 @@ dottorrent==1.10.1
 exceptiongroup==1.1.0
 future==0.18.3
 greenlet==2.0.1
-idna==3.4
+idna==3.7
 imageio-ffmpeg==0.4.8
 importlib-metadata==6.0.0
 infomedia==1.0.2
