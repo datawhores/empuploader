@@ -57,4 +57,4 @@ vcsi==7.0.13
 wcwidth==0.2.6
 websockets==10.4
 xxhash==3.2.0
-zipp==3.11.0
+zipp==3.19.1
