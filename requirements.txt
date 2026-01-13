@@ -52,7 +52,7 @@ thumb-gen==3.0.4
 tomli==2.0.1
 tqdm==4.66.3
 typing-extensions==4.4.0
-urllib3==2.6.0
+urllib3==2.6.3
 vcsi==7.0.13
 wcwidth==0.2.6
 websockets==10.4
