@@ -35,7 +35,7 @@ prompt-toolkit==3.0.36
 psutil==5.9.4
 pyee==9.0.4
 pygifsicle==1.0.7
-Pygments==2.15.0
+Pygments==2.20.0
 pymediainfo==6.0.1
 pytest==7.2.1
 pytest-base-url==2.0.0
